@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://c3bja3s0t0q6f"]
+
+[ext_resource type="PackedScene" uid="uid://c471wjjt5sta3" path="res://Scenes/Player.tscn" id="1_phd1v"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_rjwac"]
+size = Vector3(6.16788, 1, 7.91705)
+
+[node name="Scenery" type="Node3D"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.464998, -0.524121, -1.22738)
+shape = SubResource("BoxShape3D_rjwac")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.941488, 0.337046, 0, -0.337046, 0.941488, -0.501877, 5.43009, 5.96408)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.52428, 0)
+light_energy = 0.0
+light_size = 100.0
+
+[node name="Player" parent="." instance=ExtResource("1_phd1v")]

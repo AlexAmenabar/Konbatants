@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://dmiaekpq8rmha"]
+
+[ext_resource type="Script" path="res://Scripts/MenuScripts/AssetsScripts/CustomButton.gd" id="1_mg0ev"]
+[ext_resource type="Texture2D" uid="uid://bwimom06a2td8" path="res://Assets/Menu/CustomButton/whiteSquare.png" id="2_y2gey"]
+
+[node name="CustomButton" type="Button"]
+anchors_preset = -1
+anchor_right = 2.364
+anchor_bottom = 1.849
+offset_right = -3299.11
+offset_bottom = -1712.78
+scale = Vector2(3.66125, 7.02641)
+flat = true
+expand_icon = true
+script = ExtResource("1_mg0ev")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+show_behind_parent = true
+clip_contents = true
+layout_mode = 0
+offset_left = -1564.0
+offset_right = 3930.0
+offset_bottom = 826.0
+texture = ExtResource("2_y2gey")
+expand_mode = 1
+
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
