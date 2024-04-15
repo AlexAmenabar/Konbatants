@@ -27,7 +27,7 @@ func _ready():
 func _process(_delta):
 	# load player name in the list when new player is connected
 
-	print(len(CurrentSessionInfo.players_list))
+	#print(len(CurrentSessionInfo.players_list))
 	# start game when all players connected
 	if CurrentSessionInfo.players == len(CurrentSessionInfo.players_list) and !game_started:
 		CurrentSessionInfo.waiting = false #not waiting more players

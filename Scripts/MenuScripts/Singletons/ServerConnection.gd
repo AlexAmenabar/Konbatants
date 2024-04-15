@@ -9,11 +9,20 @@ var server_udp = PacketPeerUDP.new()
 #TCP server
 var server_tcp = StreamPeerTCP.new()
 
+#peer connection
+var peer_udp = PacketPeerUDP.new()
+var peer_tcp = PacketPeerUDP.new()
+
+
 const REGISTER_PLAYER = "rp:"
 const CREATE_SESSION = "cs:"
 const FIND_SESSION = "fs:"
 const FIND_SESSION_BY_CODE = "fc:"
 const ENTER_SESSION = "es:"
+const START_GAME = "sg:"
+
+const SAY_HELLO = "hello:"
+const GET_PORT = "gp:"
 
 const OK = "ok:"
 const ER1 = "e1:"
@@ -97,8 +106,56 @@ func create_session(teams, players, private):
 
 	
 
-func find_session():
-	pass
+func find_session(teams, players):
+	var buffer = PackedByteArray()
+	
+	#create message to send
+	var message = FIND_SESSION + PlayerMenu.id + ":" + teams + ":" + players 
+	
+	#send message
+	buffer.append_array((message).to_utf8_buffer())
+	server_udp.put_packet(buffer)
+	
+	#wait to the response
+	var timer = 0
+	while server_udp.get_available_packet_count() == 0 and timer<4:
+		await get_tree().create_timer(0.1).timeout
+		timer+=0.1
+	
+	
+	if server_udp.get_available_packet_count() > 0:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		if packet_string.begins_with(OK):
+			print("entered here")
+			#load session information
+			var s_id = packet_string.split(":")[1]
+			CurrentSessionInfo.teams = packet_string.split(":")[2]
+			CurrentSessionInfo.private = packet_string.split(":")[3]
+			CurrentSessionInfo.players = int(packet_string.split(":")[4])
+			
+			var players_in_room = int(packet_string.split(":")[4]) #get actual players in room
+			print("Players in room: ")
+			print(players_in_room)
+			print("\n")
+			#ask players in room and show it graphically
+			#TODO
+			
+			# load session information
+			
+			CurrentSessionInfo.players_in_room = players_in_room
+			for n in range(0, players_in_room-1):
+				print("Adding player to player list")
+				print(n)
+				CurrentSessionInfo.players_list.append("player" + str(n))
+				
+				
+			# check if session is complete or if player have to wait
+			if players_in_room < CurrentSessionInfo.players:
+				CurrentSessionInfo.waiting = true
+	
+			return s_id
+	
 
 func find_session_by_code(code):
 	var buffer = PackedByteArray()
@@ -127,28 +184,39 @@ func find_session_by_code(code):
 			CurrentSessionInfo.private = packet_string.split(":")[2]
 			CurrentSessionInfo.players = int(packet_string.split(":")[3])
 			
-			var players_in_room = packet_string.split(":")[4] #get id
+			var players_in_room = int(packet_string.split(":")[4]) #get actual players in room
+			print("Players in room: ")
+			print(players_in_room)
+			print("\n")
 			#ask players in room and show it graphically
 			#TODO
 			
 			# load session information
 			
-			
 			CurrentSessionInfo.players_in_room = players_in_room
-			for player in players_in_room:
-				CurrentSessionInfo.players_list.append("player")
+			for n in range(0, players_in_room-1):
+				print("Adding player to player list")
+				print(n)
+				CurrentSessionInfo.players_list.append("player" + str(n))
 				
-		
+				
+			# check if session is complete or if player have to wait
+			if players_in_room < CurrentSessionInfo.players:
+				CurrentSessionInfo.waiting = true
+			
 #hole punching
 func start_game():
-	var hole_puncher = preload('res://addons/Holepunch/holepunch_node.gd').new()
-	hole_puncher.rendevouz_address = server_ip
-	hole_puncher.rendevouz_port = server_port
+	#var hole_puncher = preload('res://addons/Holepunch/holepunch_node.gd').new()
+	#hole_puncher.rendevouz_address = server_ip
+	#hole_puncher.rendevouz_port = server_port
 
 	CurrentSessionInfo.waiting = false
 	
 	print("is_server")
 	print(CurrentSessionInfo.is_server)
+	
+	hole_punching()
+	'''
 	add_child(hole_puncher)
 	
 	hole_puncher.start_traversal(CurrentSessionInfo.s_id, CurrentSessionInfo.is_server, PlayerMenu.id)
@@ -157,22 +225,122 @@ func start_game():
 	print("Starting traversal...")
 
 	var result = await hole_puncher.hole_punched
-	
-	print("result reached")
+
+
+	print("Hole punching finalized")
 	
 	if CurrentSessionInfo.is_server:
 		var my_port = result[0]
 		print("Server myport = " + str(my_port))
 		CurrentSessionInfo.own_port = my_port
-
-		
 	
 	else:
 		var host_ip = result[2]
 		var host_port = result[1]
 		var own_port = result[0]
-		print("Client reached")
+		print("Client info")
 		
 		CurrentSessionInfo.host_ip = host_ip
 		CurrentSessionInfo.host_port = host_port
 		CurrentSessionInfo.own_port = own_port
+'''
+func hole_punching():
+	if CurrentSessionInfo.is_server:
+		var peers_contacted = 0
+		
+		var buffer = PackedByteArray()
+		#create message to send
+		var message = GET_PORT + CurrentSessionInfo.s_id
+		#send message
+		buffer.append_array((message).to_utf8_buffer())
+		server_udp.put_packet(buffer)
+	
+		#wait to the response
+		var timer = 0
+		while server_udp.get_available_packet_count() == 0 or timer<20:
+			await get_tree().create_timer(0.1).timeout
+			timer+=0.1
+	
+	
+		if server_udp.get_available_packet_count() > 0:
+			var array_bytes = server_udp.get_packet()
+			var packet_string = array_bytes.get_string_from_ascii()
+			print("packet string")
+			print(packet_string)
+			
+			if packet_string.begins_with(OK):
+				var own_port = int(packet_string.split(":")[1])
+				server_udp.close()
+		
+				peer_udp.bind(own_port, "*")
+		
+				#wait until all clients have contacted server
+				while peers_contacted < CurrentSessionInfo.players-1:
+					if peer_udp.get_available_packet_count() > 0:
+						print("client message reached")
+						array_bytes = peer_udp.get_packet()
+						packet_string = array_bytes.get_string_from_ascii()
+						
+						#send response to client
+						var client_ip = peer_udp.get_packet_ip()
+						var client_port = peer_udp.get_packet_port()
+						
+						peer_udp.set_dest_address(client_ip, client_port)
+					
+						buffer.append_array(("Hey client").to_utf8_buffer())
+						peer_udp.put_packet(buffer)
+	
+						
+								
+	else: #server will send his 
+		var buffer = PackedByteArray()
+	
+		#create message to send
+		var message = START_GAME + CurrentSessionInfo.s_id + ":" + PlayerMenu.id
+		#send message
+		buffer.append_array((message).to_utf8_buffer())
+		server_udp.put_packet(buffer)
+	
+		#wait to the response
+		var timer = 0
+		while server_udp.get_available_packet_count() == 0 or timer<20:
+			await get_tree().create_timer(0.1).timeout
+			timer+=0.1
+	
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		print("packet string")
+		print(packet_string)
+		
+		#packet reached well
+		if packet_string.begins_with(OK):
+			var game_server_ip = packet_string.split(":")[1]
+			var game_server_port = packet_string.split(":")[2]
+			var own_port = packet_string.split(":")[3]
+			server_udp.close()
+
+			#try to communicate with server
+			peer_udp.set_dest_address(game_server_ip, int(game_server_port))
+			message = SAY_HELLO + ":" + own_port
+			buffer.append_array((message).to_utf8_buffer())
+			peer_udp.put_packet(buffer)
+	
+			own_port = int(own_port)
+
+			
+				#wait to the response
+			timer = 0
+			while peer_udp.get_available_packet_count() == 0 or timer<20:
+				await get_tree().create_timer(0.1).timeout
+				timer+=0.1
+	
+			if timer > 20:
+				print("timeout")
+
+			if peer_udp.get_available_packet_count() > 0:
+				print("server confimation received")
+				array_bytes = peer_udp.get_packet()
+				packet_string = array_bytes.get_string_from_ascii()
+				print("packet string")
+				print(packet_string)
+		

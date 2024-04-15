@@ -49,13 +49,14 @@ func _on_create_pressed():
 	else:
 		private_str = "no"
 		
-	var s_id = await ServerConnection.create_session(teams_str, str(players), private_str)
+	var s_id = await ServerConnection.create_session(str(teams), str(players), str(private))
 	
 	#register values in current info singleton
 	CurrentSessionInfo.set_values(private, players, teams, s_id)
 	
 	#load waiting room
 	get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/SessionRoom.tscn")
+	
 	
 func change_button_colors(button):
 	var yes_button_sprite = get_node("GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer/YesButton/Sprite2D")
@@ -101,13 +102,14 @@ func _on_option_button_item_selected(index):
 
 
 func _on_find_pressed():
-	var str_teams
-	if teams:
-		str_teams = "with teams"
-	else:
-		str_teams = "withouth teams"
-	print("Finding game session with " + str(players) + " players and " + str_teams)
-
+	var s_id = await ServerConnection.find_session(str(teams), str(players))
+	
+	#register values in current info singleton
+	CurrentSessionInfo.set_values(private, players, teams, s_id)
+	
+	#load waiting room
+	get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/SessionRoom.tscn")
+	
 
 
 func _on_public_button_pressed():

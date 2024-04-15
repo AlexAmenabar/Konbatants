@@ -16,9 +16,9 @@ var peer_udp = PacketPeerUDP.new()
 #Set the rendevouz port to the port of your third party server
 @export var rendevouz_port = 4444
 #This is the range of ports you will search if you hear no response from the first port tried
-@export var port_cascade_range = 30000
+@export var port_cascade_range = 65000
 #The amount of messages of the same type you will send before cascading or giving up
-@export var response_window = 5
+@export var response_window = 3
 
 
 var found_server = false
@@ -96,7 +96,6 @@ func _process(delta):
 				
 				var packets = packet_string.split(",")
 				for packet in packets:
-					
 					packet = packet.right(-6)
 					var m = packet.split(":")
 					peer[m[0]] = {"port":m[2], "address":m[1]}
@@ -117,7 +116,7 @@ func _handle_greet_message(peer_name, peer_port, my_port):
 	if own_port != my_port:
 		own_port = my_port
 		peer_udp.close()
-		peer_udp.listen(own_port, "*")
+		peer_udp.bind(own_port, "*")
 	recieved_peer_greet = true
 
 
@@ -143,7 +142,7 @@ func _handle_go_message(peer_name):
 
 
 func _cascade_peer(add, peer_port):
-	for i in range(peer_port - port_cascade_range, peer_port + port_cascade_range):
+	for i in range(0, 65535):#for i in range(peer_port - port_cascade_range, peer_port + port_cascade_range):
 		peer_udp.set_dest_address(add, i)
 		var buffer = PackedByteArray()
 		buffer.append_array(("greet:"+client_name+":"+str(own_port)+":"+str(i)).to_utf8_buffer())
