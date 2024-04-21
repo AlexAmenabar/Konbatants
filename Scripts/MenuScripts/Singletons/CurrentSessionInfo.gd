@@ -1,6 +1,6 @@
 extends Node
 
-var private=false
+var private=true
 var players = 0 # total players
 var players_in_room = 0 #players entered session
 var teams = false

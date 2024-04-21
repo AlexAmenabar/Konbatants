@@ -1,11 +1,11 @@
 extends Node
 
-
 var player_count = 0
 var game_started = false
+
+var players_list
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	
 	#read info from CurrentSession singleton and load in menu
 	
 	#session id
@@ -13,7 +13,7 @@ func _ready():
 	session_id.text = CurrentSessionInfo.s_id
 	
 	#set elements in the list of players
-	var players_list = get_node("VBoxMenu/PlayersVBox/ItemList")
+	players_list = get_node("VBoxMenu/PlayersVBox/ItemList")
 	
 	#set text in each item
 	for i in range(0, CurrentSessionInfo.players):
@@ -26,7 +26,9 @@ func _ready():
 
 func _process(_delta):
 	# load player name in the list when new player is connected
-
+	#if players_list.item_count < len(CurrentSessionInfo.player_list):
+		#players_list.set_item_text(CurrentSessionInfo.player_list[len(CurrentSessionInfo.player_list)])
+	
 	#print(len(CurrentSessionInfo.players_list))
 	# start game when all players connected
 	if CurrentSessionInfo.players == len(CurrentSessionInfo.players_list) and !game_started:

@@ -1,13 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://ibl2spij1mp5"]
+[gd_scene load_steps=5 format=3 uid="uid://ibl2spij1mp5"]
 
 [ext_resource type="Script" path="res://Scripts/MenuScripts/HolePunchInit.gd" id="1_i163x"]
-[ext_resource type="Script" path="res://Scripts/MenuScripts/MenuClient.gd" id="2_alnfp"]
-[ext_resource type="Script" path="res://Scripts/MenuScripts/MenuServer.gd" id="3_uabpw"]
-[ext_resource type="Texture2D" uid="uid://oxh4aiulgy5k" path="res://icon.svg" id="4_a1eqo"]
 [ext_resource type="PackedScene" uid="uid://dmiaekpq8rmha" path="res://Scenes/MenuScenes/AssetScenes/CustomButton.tscn" id="5_4jqhb"]
 [ext_resource type="Texture2D" uid="uid://bwimom06a2td8" path="res://Assets/Menu/CustomButton/whiteSquare.png" id="6_ikkoi"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_mkhxr"]
 
 [sub_resource type="FontFile" id="FontFile_xh3h8"]
 cache/0/16/0/ascent = 0.0
@@ -4174,64 +4169,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_i163x")
 
-[node name="Create Session" type="Button" parent="."]
-visible = false
-layout_mode = 0
-text = "Create Session	"
-
-[node name="Find Session" type="Button" parent="."]
-visible = false
-layout_mode = 0
-text = "Find Session
-"
-
-[node name="Client" type="Node3D" parent="."]
-visible = false
-script = ExtResource("2_alnfp")
-
-[node name="Server" type="Node3D" parent="."]
-visible = false
-script = ExtResource("3_uabpw")
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.51137)
-visible = false
-current = true
-
-[node name="CreateSession" type="Area3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.511391, 0)
-visible = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CreateSession"]
-visible = false
-shape = SubResource("BoxShape3D_mkhxr")
-
-[node name="Sprite3D" type="Sprite3D" parent="CreateSession"]
-visible = false
-texture = ExtResource("4_a1eqo")
-
-[node name="FindSession" type="Area3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.619559, 0)
-visible = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FindSession"]
-visible = false
-shape = SubResource("BoxShape3D_mkhxr")
-
-[node name="Sprite3D" type="Sprite3D" parent="FindSession"]
-visible = false
-texture = ExtResource("4_a1eqo")
-
 [node name="VBoxMenu" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
-offset_left = -24.0
-offset_top = 77.0
-offset_right = 614.0
-offset_bottom = 1362.0
+offset_left = -3.0
+offset_top = 83.0
+offset_right = 899.0
+offset_bottom = 1368.0
 grow_vertical = 2
-theme_override_constants/separation = 250
+theme_override_constants/separation = 120
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxMenu"]
 layout_mode = 2
@@ -4249,64 +4196,125 @@ layout_mode = 2
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="CreateSession" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
+[node name="CreateSessionButton" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
 clip_contents = true
 layout_mode = 2
-theme_override_constants/outline_size = 0
+size_flags_horizontal = 0
+theme_override_constants/outline_size = 5
 theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_xh3h8")
 theme_override_font_sizes/font_size = 80
-text = "          Play"
+text = "Create Session                 "
 alignment = 0
 
-[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/CreateSession"]
-modulate = Color(0.529412, 0, 0.537255, 1)
+[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/CreateSessionButton"]
+modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
-position = Vector2(404.25, 14.25)
-scale = Vector2(4.59333, 1.12667)
+position = Vector2(411.75, 14.25)
+scale = Vector2(4.66, 1.12667)
 texture = ExtResource("6_ikkoi")
 
-[node name="Settings" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
+[node name="FindSessinButton" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
 clip_contents = true
 layout_mode = 2
-theme_override_constants/outline_size = 0
+theme_override_constants/outline_size = 5
 theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_xh3h8")
 theme_override_font_sizes/font_size = 80
-text = "          Settings"
+text = "Find Session    "
 alignment = 0
 
-[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/Settings"]
-modulate = Color(0.529412, 0, 0.537255, 1)
+[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/FindSessinButton"]
+modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
-position = Vector2(332.75, 14.25)
-scale = Vector2(3.95778, 1.12667)
+position = Vector2(365.25, 14.25)
+scale = Vector2(4.24666, 1.12667)
 texture = ExtResource("6_ikkoi")
 
-[node name="Exit" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
+[node name="FindSessionByCodeButton" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
 clip_contents = true
 layout_mode = 2
-theme_override_constants/outline_size = 0
+theme_override_constants/outline_size = 5
 theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_xh3h8")
 theme_override_font_sizes/font_size = 80
-text = "          Exit game"
+text = "Find Session by code"
 alignment = 0
 
-[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/Exit"]
-modulate = Color(0.529412, 0, 0.537255, 1)
+[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/FindSessionByCodeButton"]
+modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
-position = Vector2(305.25, 14.25)
-scale = Vector2(3.71333, 1.12667)
+position = Vector2(327.75, 14.25)
+scale = Vector2(3.91333, 1.12667)
+texture = ExtResource("6_ikkoi")
+
+[node name="SettingsButton" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
+clip_contents = true
+layout_mode = 2
+theme_override_constants/outline_size = 5
+theme_override_constants/h_separation = 0
+theme_override_constants/icon_max_width = 0
+theme_override_fonts/font = SubResource("FontFile_xh3h8")
+theme_override_font_sizes/font_size = 80
+text = "Settings
+"
+alignment = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/SettingsButton"]
+modulate = Color(0.862745, 0.698039, 1, 1)
+z_index = -1
+position = Vector2(185.75, 14.25)
+scale = Vector2(2.65111, 1.12667)
+texture = ExtResource("6_ikkoi")
+
+[node name="ExitButton" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
+clip_contents = true
+layout_mode = 2
+theme_override_constants/outline_size = 5
+theme_override_constants/h_separation = 0
+theme_override_constants/icon_max_width = 0
+theme_override_fonts/font = SubResource("FontFile_xh3h8")
+theme_override_font_sizes/font_size = 80
+text = "Exit game"
+alignment = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/ExitButton"]
+modulate = Color(0.862745, 0.698039, 1, 1)
+z_index = -1
+position = Vector2(140.25, 14.25)
+scale = Vector2(2.24667, 1.12667)
 texture = ExtResource("6_ikkoi")
 
 [node name="ButtonsLengthController" type="Label" parent="VBoxMenu/VBoxButton1"]
 layout_mode = 2
 text = "                                                                                                                                                                                                                         "
 
-[connection signal="pressed" from="VBoxMenu/VBoxButton1/CreateSession" to="." method="_on_create_session_pressed"]
-[connection signal="pressed" from="VBoxMenu/VBoxButton1/Settings" to="." method="_on_settings_pressed"]
-[connection signal="pressed" from="VBoxMenu/VBoxButton1/Exit" to="." method="_on_exit_pressed"]
+[node name="SessionCodeInput" type="LineEdit" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -500.5
+offset_top = -115.5
+offset_right = 500.5
+offset_bottom = 115.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 100
+placeholder_text = "Session code here"
+alignment = 1
+max_length = 8
+
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]
+[connection signal="pressed" from="VBoxMenu/VBoxButton1/CreateSessionButton" to="." method="_on_create_session_pressed"]
+[connection signal="pressed" from="VBoxMenu/VBoxButton1/FindSessinButton" to="." method="_on_find_sessin_button_pressed"]
+[connection signal="pressed" from="VBoxMenu/VBoxButton1/FindSessionByCodeButton" to="." method="_on_find_session_by_code_button_pressed"]
+[connection signal="pressed" from="VBoxMenu/VBoxButton1/SettingsButton" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="VBoxMenu/VBoxButton1/ExitButton" to="." method="_on_exit_pressed"]
+[connection signal="text_submitted" from="SessionCodeInput" to="." method="_on_session_code_input_text_submitted"]

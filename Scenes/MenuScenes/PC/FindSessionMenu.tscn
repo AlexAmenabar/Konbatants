@@ -1,17 +1,17 @@
-[gd_scene load_steps=4 format=3 uid="uid://ch8y8tsjsunij"]
+[gd_scene load_steps=4 format=3 uid="uid://ccx3qtuvtuwhu"]
 
-[ext_resource type="PackedScene" uid="uid://dmiaekpq8rmha" path="res://Scenes/MenuScenes/AssetScenes/CustomButton.tscn" id="1_k0fea"]
-[ext_resource type="Script" path="res://Scripts/MenuScripts/SessionManager.gd" id="1_thaf7"]
-[ext_resource type="Texture2D" uid="uid://bwimom06a2td8" path="res://Assets/Menu/CustomButton/whiteSquare.png" id="2_ssa1t"]
+[ext_resource type="Script" path="res://Scripts/MenuScripts/SessionManager.gd" id="1_lqyx3"]
+[ext_resource type="PackedScene" uid="uid://dmiaekpq8rmha" path="res://Scenes/MenuScenes/AssetScenes/CustomButton.tscn" id="2_h36t4"]
+[ext_resource type="Texture2D" uid="uid://bwimom06a2td8" path="res://Assets/Menu/CustomButton/whiteSquare.png" id="3_1t5n7"]
 
-[node name="CreateSessionMenu" type="Control"]
+[node name="FindSessionMenu" type="Control"]
 layout_mode = 3
 anchors_preset = 0
 offset_left = -123.0
 offset_top = -43.0
 offset_right = -123.0
 offset_bottom = -43.0
-script = ExtResource("1_thaf7")
+script = ExtResource("1_lqyx3")
 
 [node name="GeneralVBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
@@ -19,7 +19,7 @@ offset_left = 149.0
 offset_top = 154.0
 offset_right = 2020.0
 offset_bottom = 1026.0
-theme_override_constants/separation = 105
+theme_override_constants/separation = 200
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GeneralVBoxContainer"]
 layout_mode = 2
@@ -29,11 +29,11 @@ theme_override_constants/separation = 500
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 90
-text = "Create Game"
+text = "Find Session"
 
 [node name="ErrorLabel" type="Label" parent="GeneralVBoxContainer/HBoxContainer2"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 0.211765, 0.211765, 1)
 theme_override_font_sizes/font_size = 50
 horizontal_alignment = 1
 
@@ -55,7 +55,7 @@ text = " Teams"
 layout_mode = 2
 theme_override_constants/separation = 75
 
-[node name="YesButton" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="YesButton" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer" instance=ExtResource("2_h36t4")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -68,9 +68,9 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("3_1t5n7")
 
-[node name="NoButton" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="NoButton" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer" instance=ExtResource("2_h36t4")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -82,7 +82,7 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("3_1t5n7")
 
 [node name="PlayersHBox" type="HBoxContainer" parent="GeneralVBoxContainer/VBoxContainer"]
 layout_mode = 2
@@ -110,9 +110,10 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(446.625, 60)
 scale = Vector2(5.30111, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("3_1t5n7")
 
 [node name="GamePrivateHBox" type="HBoxContainer" parent="GeneralVBoxContainer/VBoxContainer"]
+visible = false
 layout_mode = 2
 theme_override_constants/separation = 400
 
@@ -126,7 +127,8 @@ text = "Game type"
 layout_mode = 2
 theme_override_constants/separation = 75
 
-[node name="PublicButton" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="PublicButton" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer" instance=ExtResource("2_h36t4")]
+visible = false
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -139,9 +141,10 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("3_1t5n7")
 
-[node name="PrivateButton" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="PrivateButton" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer" instance=ExtResource("2_h36t4")]
+visible = false
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -154,7 +157,7 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("3_1t5n7")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="GeneralVBoxContainer"]
 layout_mode = 2
@@ -169,42 +172,26 @@ layout_mode = 2
 [node name="Node" type="Control" parent="GeneralVBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="Create" parent="GeneralVBoxContainer/HBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="Find" parent="GeneralVBoxContainer/HBoxContainer" instance=ExtResource("2_h36t4")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "Create Game"
+text = "Find Session"
 alignment = 0
 
-[node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/HBoxContainer/Create"]
+[node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/HBoxContainer/Find"]
 modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(446.625, 60)
 scale = Vector2(5.30111, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("3_1t5n7")
 
 [node name="FindGameVBox" type="VBoxContainer" parent="GeneralVBoxContainer/HBoxContainer"]
 visible = false
 layout_mode = 2
 
-[node name="Find" parent="GeneralVBoxContainer/HBoxContainer/FindGameVBox" instance=ExtResource("1_k0fea")]
-visible = false
-clip_contents = true
-layout_mode = 2
-theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 70
-text = "      Find Game      "
-alignment = 0
-
-[node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/HBoxContainer/FindGameVBox/Find"]
-modulate = Color(0.862745, 0.698039, 1, 1)
-z_index = -1
-position = Vector2(446.625, 60)
-scale = Vector2(5.30111, 1.12667)
-texture = ExtResource("2_ssa1t")
-
-[node name="FindByCode" parent="GeneralVBoxContainer/HBoxContainer/FindGameVBox" instance=ExtResource("1_k0fea")]
+[node name="FindByCode" parent="GeneralVBoxContainer/HBoxContainer/FindGameVBox" instance=ExtResource("2_h36t4")]
 visible = false
 clip_contents = true
 layout_mode = 2
@@ -218,9 +205,9 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(446.625, 60)
 scale = Vector2(5.30111, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("3_1t5n7")
 
-[node name="ReturnButton" parent="GeneralVBoxContainer/HBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="ReturnButton" parent="GeneralVBoxContainer/HBoxContainer" instance=ExtResource("2_h36t4")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -233,7 +220,7 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("3_1t5n7")
 
 [node name="SessionCode" type="LineEdit" parent="."]
 visible = false
@@ -247,8 +234,7 @@ offset_bottom = 710.0
 [connection signal="pressed" from="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer/NoButton" to="." method="_on_no_button_pressed"]
 [connection signal="item_selected" from="GeneralVBoxContainer/VBoxContainer/PlayersHBox/OptionButton" to="." method="_on_option_button_item_selected"]
 [connection signal="pressed" from="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer/PublicButton" to="." method="_on_public_button_pressed"]
-[connection signal="pressed" from="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer/PrivateButton" to="." method="_on_private_button_pressed"]
-[connection signal="pressed" from="GeneralVBoxContainer/HBoxContainer/Create" to="." method="_on_create_pressed"]
-[connection signal="pressed" from="GeneralVBoxContainer/HBoxContainer/FindGameVBox/Find" to="." method="_on_find_pressed"]
+[connection signal="pressed" from="GeneralVBoxContainer/HBoxContainer/Find" to="." method="_on_find_pressed"]
+[connection signal="pressed" from="GeneralVBoxContainer/HBoxContainer/FindGameVBox/FindByCode" to="." method="_on_find_by_code_pressed"]
 [connection signal="pressed" from="GeneralVBoxContainer/HBoxContainer/ReturnButton" to="." method="_on_return_button_pressed"]
 [connection signal="text_submitted" from="SessionCode" to="." method="_on_session_code_text_submitted"]

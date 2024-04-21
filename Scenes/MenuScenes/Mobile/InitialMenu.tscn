@@ -1,0 +1,48 @@
+[gd_scene load_steps=4 format=3 uid="uid://b87mc7nq4qskn"]
+
+[ext_resource type="PackedScene" uid="uid://dmiaekpq8rmha" path="res://Scenes/MenuScenes/AssetScenes/CustomButton.tscn" id="1_k7byh"]
+[ext_resource type="Script" path="res://Scripts/GeneralScripts/StartGame.gd" id="1_o4f46"]
+[ext_resource type="Texture2D" uid="uid://bwimom06a2td8" path="res://Assets/Menu/CustomButton/whiteSquare.png" id="2_7lcjq"]
+
+[node name="InitialMenu" type="Node2D"]
+script = ExtResource("1_o4f46")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control"]
+layout_mode = 0
+offset_left = 371.0
+offset_top = 182.0
+offset_right = 1519.0
+offset_bottom = 869.0
+theme_override_constants/separation = 70
+
+[node name="Label" type="Label" parent="Control/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 96
+text = "What's your name?"
+horizontal_alignment = 1
+
+[node name="UsernameText" type="LineEdit" parent="Control/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 85
+placeholder_text = "username"
+alignment = 1
+max_length = 20
+flat = true
+
+[node name="ContinueButton" parent="Control/VBoxContainer" instance=ExtResource("1_k7byh")]
+layout_mode = 2
+theme_override_font_sizes/font_size = 100
+text = "Continue"
+
+[node name="Sprite2D" type="Sprite2D" parent="Control/VBoxContainer/ContinueButton"]
+modulate = Color(0.862745, 0.698039, 1, 1)
+z_index = -1
+position = Vector2(574, 80.5)
+scale = Vector2(2.55111, 0.706667)
+texture = ExtResource("2_7lcjq")

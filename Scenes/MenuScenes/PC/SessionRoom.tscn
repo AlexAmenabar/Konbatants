@@ -4219,63 +4219,6 @@ theme_override_font_sizes/font_size = 30
 allow_search = false
 auto_height = true
 
-[node name="CreateSession" parent="VBoxMenu/PlayersVBox" instance=ExtResource("4_bjjtx")]
-visible = false
-clip_contents = true
-layout_mode = 2
-theme_override_constants/outline_size = 0
-theme_override_constants/h_separation = 0
-theme_override_constants/icon_max_width = 0
-theme_override_fonts/font = SubResource("FontFile_p0yte")
-theme_override_font_sizes/font_size = 40
-text = "          Play"
-alignment = 0
-
-[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/PlayersVBox/CreateSession"]
-modulate = Color(0.529412, 0, 0.537255, 1)
-z_index = -1
-position = Vector2(404.25, 14.25)
-scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("5_wprj7")
-
-[node name="Settings" parent="VBoxMenu/PlayersVBox" instance=ExtResource("4_bjjtx")]
-visible = false
-clip_contents = true
-layout_mode = 2
-theme_override_constants/outline_size = 0
-theme_override_constants/h_separation = 0
-theme_override_constants/icon_max_width = 0
-theme_override_fonts/font = SubResource("FontFile_p0yte")
-theme_override_font_sizes/font_size = 40
-text = "          Settings"
-alignment = 0
-
-[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/PlayersVBox/Settings"]
-modulate = Color(0.529412, 0, 0.537255, 1)
-z_index = -1
-position = Vector2(332.75, 14.25)
-scale = Vector2(3.95778, 1.12667)
-texture = ExtResource("5_wprj7")
-
-[node name="Exit" parent="VBoxMenu/PlayersVBox" instance=ExtResource("4_bjjtx")]
-visible = false
-clip_contents = true
-layout_mode = 2
-theme_override_constants/outline_size = 0
-theme_override_constants/h_separation = 0
-theme_override_constants/icon_max_width = 0
-theme_override_fonts/font = SubResource("FontFile_p0yte")
-theme_override_font_sizes/font_size = 40
-text = "          Exit game"
-alignment = 0
-
-[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/PlayersVBox/Exit"]
-modulate = Color(0.529412, 0, 0.537255, 1)
-z_index = -1
-position = Vector2(305.25, 14.25)
-scale = Vector2(3.71333, 1.12667)
-texture = ExtResource("5_wprj7")
-
 [node name="ButtonsLengthController" type="Label" parent="VBoxMenu/PlayersVBox"]
 layout_mode = 2
 text = "                                                                                                                                                                                                                         "
@@ -4316,7 +4259,7 @@ text = "Leave game"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/ManagementButtonHBox/LeaveGame"]
-modulate = Color(0.529412, 0, 0.537255, 1)
+modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(332.75, 14.25)
 scale = Vector2(3.95778, 1.12667)
