@@ -5,6 +5,8 @@ func _ready():
 	print(DisplayServer.window_get_size())
 	print(DisplayServer.screen_get_size())
 	
+	get_tree().set_auto_accept_quit(false)
+	
 # set username when INTRO pressed
 func _on_line_edit_text_submitted(new_text):
 	register_player(new_text)

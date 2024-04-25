@@ -19,7 +19,12 @@ const FIND_SESSION = "fs:"
 const FIND_SESSION_BY_CODE = "fc:"
 const ENTER_SESSION = "es:"
 const START_GAME = "sg:"
-const SESSION_USER="su"
+const SESSION_USER="su:"
+const LEAVE_SESSION = "ls:" # only session clients
+const REMOVE_SESSION = "rs:" # only session server
+const INVITE_TO_SESSION = "iu:" # only session server
+const DROP_PLAYER = "du:" # only session server
+const EXIT_GAME = "eg:"
 
 const SAY_HELLO = "hello:"
 const GET_PORT = "gp:"
@@ -28,7 +33,7 @@ const OK = "ok:"
 const ER = "er:"
 const ER1 = "e1:"
 
-const NP = "np:" # when a new player enters to the session, server sends this message
+const NEW_PLAYER = "np:" # when a new player enters to the session, server sends this message
 
 const TIMEOUT = 2
 var resend_count = 0
@@ -43,15 +48,30 @@ func _ready():
 
 func _process(delta):
 	# check if there is any package to process when client is waiting (to another users) in session room
-	if server_udp.get_available_packet_count() > 0 and CurrentSessionInfo.waiting: #use this only if player is waiting on session room
+	'''if server_udp.get_available_packet_count() > 0 and CurrentSessionInfo.waiting: #use this only if player is waiting on session room
 		var array_bytes = server_udp.get_packet()
 		var packet_string = array_bytes.get_string_from_ascii()
-		if packet_string.begins_with(NP): #new player to register
+		if packet_string.begins_with(NEW_PLAYER): #new player to register
 			var name = packet_string.split(":")[1] #get id
 			
 			# add player to current session list
-			CurrentSessionInfo.players_list.append(name)
+			print("PAM...")
+
+			print("await finished!")
+			CurrentSessionInfo.players_list.append(name)'''
+	
+	
+	'''if server_udp.get_available_packet_count() > 0 and CurrentSessionInfo.waiting:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		print(packet_string)
+		if packet_string.begins_with(LEAVE_SESSION): # player left session
+			var user_left_name = packet_string.split(":")[1] # get username 
 			
+			# refresh players list
+			CurrentSessionInfo.remove_player_by_name(user_left_name)'''
+			
+
 # HELPER FUNCTIONS
 func wait_message():
 	var timer = 0
@@ -163,7 +183,7 @@ func find_session(teams, players):
 
 			var username = ""
 			# wait until all session user usernmaes reach
-			for i in range(0, CurrentSessionInfo.players_in_room-1):
+			'''for i in range(0, CurrentSessionInfo.players_in_room-1):
 				res = await wait_message()
 				
 				#timeout, ask that user again
@@ -175,7 +195,7 @@ func find_session(teams, players):
 				array_bytes = server_udp.get_packet()
 				packet_string = array_bytes.get_string_from_ascii()
 				username = packet_string.split(":")[1]
-				CurrentSessionInfo.players_list.append(username)
+				CurrentSessionInfo.players_list.append(username)'''
 				
 			# check if session is complete or if player have to wait
 			if CurrentSessionInfo.players_in_room < CurrentSessionInfo.players: # session not full
@@ -208,25 +228,131 @@ func find_session_by_code(code):
 			CurrentSessionInfo.players = int(packet_string.split(":")[3])
 			CurrentSessionInfo.players_in_room = int(packet_string.split(":")[4])
 
-			print("Players in room: ")
-			print(CurrentSessionInfo.players_in_room)
-			print("\n")
-			
 			#ask players in room and show it graphically
-			#TODO
+			'''#TODO
 			for n in range(0, CurrentSessionInfo.players_in_room-1):
 				print("Adding player to player list")
 				print(n)
 				CurrentSessionInfo.players_list.append("player" + str(n))
+				'''
 				
 			# check if session is complete or if player have to wait
 			if CurrentSessionInfo.players_in_room < CurrentSessionInfo.players:
 				CurrentSessionInfo.waiting = true
 			
-			return 0 # all ok
+			return "ok" # all ok
 		
-		#else server has send error message
+		# there is an error
+		elif packet_string.begins_with(ER):
+			var err = packet_string.split(":")[1]
+			return err
+
+# ask session users information and add it to the list
+func get_session_users():
+	#create message to send
+	var message = SESSION_USER + CurrentSessionInfo.s_id 
+	var res = await send_message(message)
+	
+	# can't contact server		
+	if res == 2:
+		print("Can't contact with server")	
+	
+	# server response received
+	if res == 0:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		
+		# server send ok message
+		if packet_string.begins_with(OK):
+			CurrentSessionInfo.players_in_room = int(packet_string.split(":")[1])
+			var usernames = packet_string.split(":") # usernames starts from 2. eleement
 			
+			CurrentSessionInfo.players_list.clear()
+			for i in CurrentSessionInfo.players_in_room:
+				CurrentSessionInfo.players_list.append(usernames[i+2])
+			
+			return "ok"
+			
+		elif packet_string.begins_with(ER):
+			var err = packet_string.split(":")[1]
+			return err
+	
+func leave_session():
+	#create message to send
+	var message = LEAVE_SESSION + CurrentSessionInfo.s_id + ":" + PlayerMenu.id
+	var res = await send_message(message)
+	
+	# can't contact server		
+	if res == 2:
+		print("Can't contact with server")	
+	
+	# server response received
+	if res == 0:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		
+		# server send ok message
+		if packet_string.begins_with(OK):
+			CurrentSessionInfo.clear_session()
+			return "ok"
+			
+		elif packet_string.begins_with(ER):
+			var err = packet_string.split(":")[1]
+			return err
+	
+	
+func remove_session():
+	#create message to send
+	var message = REMOVE_SESSION + CurrentSessionInfo.s_id + ":" + PlayerMenu.id
+	var res = await send_message(message)
+	
+	# can't contact server		
+	if res == 2:
+		print("Can't contact with server")	
+	
+	# server response received
+	if res == 0:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		
+		# server send ok message
+		if packet_string.begins_with(OK):
+			CurrentSessionInfo.clear_session()
+			return "ok"
+			
+		elif packet_string.begins_with(ER):
+			var err = packet_string.split(":")[1]
+			return err
+	
+
+
+func invite_player():
+	pass
+
+
+func drop_player():
+	pass
+	
+
+func _notification(what):
+	# exit game notification reached (quit button pressed)
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_WM_GO_BACK_REQUEST: # second for android
+		if CurrentSessionInfo.s_id == null:
+			CurrentSessionInfo.s_id = "null"
+		var message = EXIT_GAME + CurrentSessionInfo.s_id + ":" + str(PlayerMenu.id) 
+		var res = await send_message(message)
+		get_tree().quit()
+
+		
+func exit_game():
+	#create message to send
+	if CurrentSessionInfo.s_id == null:
+			CurrentSessionInfo.s_id = "null"
+	var message = EXIT_GAME + CurrentSessionInfo.s_id + ":" + str(PlayerMenu.id) 
+	var res = await send_message(message)
+	get_tree().quit()
+
+
 # start a game
 func start_game():
 	CurrentSessionInfo.waiting = false

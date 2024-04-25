@@ -4,7 +4,7 @@ extends Node
 
 # exit game
 func _on_exit_pressed():
-	get_tree().quit()
+	ServerConnection.exit_game()
 
 # load create session menu
 func _on_create_session_pressed():
@@ -17,7 +17,6 @@ func _on_find_sessin_button_pressed():
 # load settings menu
 func _on_settings_pressed():
 	print("Settings menu not implemented")
-
 
 
 # FIND SESSION BY CODE FUNCTIONS
@@ -33,9 +32,27 @@ func _on_gui_input(event):
 		get_node("SessionCodeInput").text = ""
 
 func _on_session_code_input_text_submitted(new_text):
-	ServerConnection.find_session_by_code(new_text)
+	var err = await ServerConnection.find_session_by_code(new_text)
 	
-	#TODO, CHECK IF THE SESSION EXISTS
-	
+	if err != "ok":
+		var error_label = get_node("VBoxMenu/HBoxContainer/ErrorLabel")
+		error_label.text = err
+		return	
+
+	# else ok
 	CurrentSessionInfo.s_id = new_text
-	get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/SessionRoom.tscn")
+	
+	err = await ServerConnection.get_session_users()
+	
+	if err == "ok":
+		# load waiting room
+		get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/SessionRoom.tscn")
+	
+	else:
+		var error_label = get_node("VBoxMenu/HBoxContainer/ErrorLabel")
+		error_label.text = err
+
+
+
+
+	

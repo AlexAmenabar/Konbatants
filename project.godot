@@ -12,6 +12,8 @@ config_version=5
 
 config/name="Konbatants"
 run/main_scene="res://Scenes/MenuScenes/PC/StartScene.tscn"
+config/auto_accept_quit=false
+config/quit_on_go_back=false
 config/features=PackedStringArray("4.2", "C#", "Mobile")
 config/icon="res://icon.svg"
 
@@ -25,7 +27,6 @@ CurrentSessionInfo="*res://Scripts/MenuScripts/Singletons/CurrentSessionInfo.gd"
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/mode=3
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 window/handheld/orientation=6

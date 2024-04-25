@@ -78,16 +78,22 @@ func _on_create_pressed():
 func _on_find_pressed():
 	var err = await ServerConnection.find_session(str(CurrentSessionInfo.teams), str(CurrentSessionInfo.players))
 	
+	if err != "ok":
+		var error_label = get_node("GeneralVBoxContainer/HBoxContainer2/ErrorLabel")
+		error_label.text = err
+		return
+
+	# else if "ok
+	err = await ServerConnection.get_session_users()
 	if err == "ok":
 		# load waiting room
 		get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/SessionRoom.tscn")
-
-	# print error
+	
 	else:
 		var error_label = get_node("GeneralVBoxContainer/HBoxContainer2/ErrorLabel")
 		error_label.text = err
 
-	
+
 func _on_option_button_item_selected(index):
 	#get value on the list and set it to players
 	var player_list = get_node("GeneralVBoxContainer/VBoxContainer/PlayersHBox/OptionButton")
