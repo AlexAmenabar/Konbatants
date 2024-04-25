@@ -11,3 +11,13 @@ func _on_mouse_exited():
 	pass
 	#var sprite = get_node("Sprite2D")
 
+
+
+func _on_pressed():
+	var sound = get_node("audio_pressed")
+	sound.play()
+
+
+func _on_focus_entered():
+	var sound = get_node("audio_touch")
+	sound.play()

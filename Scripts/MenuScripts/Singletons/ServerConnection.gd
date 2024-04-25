@@ -363,14 +363,17 @@ func start_game():
 # hole punch ip and ports to communicate clients P2P
 func hole_punching():
 	var buffer = PackedByteArray()
-	
 	# if session is server
 	if CurrentSessionInfo.is_server:
 		var peers_contacted = 0
 		
-		#create message to send
+		# if there is a packet that it isn't needed
+		if server_udp.get_available_packet_count() > 0:
+			server_udp.get_packet()
+		
+		# create message to send
 		var message = GET_PORT + CurrentSessionInfo.s_id
-		#send message
+		# send message
 		var res = await send_message(message)
 	
 		# can't contact server		

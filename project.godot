@@ -22,6 +22,7 @@ config/icon="res://icon.svg"
 PlayerMenu="*res://Scripts/MenuScripts/Singletons/PlayerMenu.gd"
 ServerConnection="*res://Scripts/MenuScripts/Singletons/ServerConnection.gd"
 CurrentSessionInfo="*res://Scripts/MenuScripts/Singletons/CurrentSessionInfo.gd"
+MusicControllerScene="*res://Scenes/GeneralScenes/MusicControllerScene.tscn"
 
 [display]
 

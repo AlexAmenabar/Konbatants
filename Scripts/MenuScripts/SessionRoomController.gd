@@ -36,19 +36,21 @@ func _process(_delta):
 		# check again if session is full
 		if CurrentSessionInfo.players == len(CurrentSessionInfo.players_list) and !game_started:
 			CurrentSessionInfo.waiting = false #not waiting more players
-			
-			# start hole_punching
-			ServerConnection.start_game()# is_server == true
-			
-			#change button and label visibility
-			var starting_game_label = get_node("VBoxMenu/StartingGameLabel")
-			starting_game_label.visible = true
-			
-			var leave_game_button = get_node("VBoxMenu/ManagementButtonHBox/LeaveGame")
-			leave_game_button.visible = false
-			
-			# game already starting
+			#await get_tree().create_timer(3).timeout # wait until all messages have reached
 			game_started = true
+			# game already starting
+
+func start_game():
+	# start hole_punching
+	await ServerConnection.start_game()# is_server == true
+	
+	#change button and label visibility
+	var starting_game_label = get_node("VBoxMenu/StartingGameLabel")
+	starting_game_label.visible = true
+	
+	var leave_game_button = get_node("VBoxMenu/ManagementButtonHBox/LeaveGame")
+	leave_game_button.visible = false
+		
 
 # reload players usernames
 func reload_players_list():
@@ -74,7 +76,8 @@ func ask_for_players():
 		reload_players_list()	
 		
 		# wait before checking again
-		await get_tree().create_timer(5).timeout
+		if get_tree() != null:
+			await get_tree().create_timer(5).timeout
 
 func ask_for_players_one_time():
 	var err = await ServerConnection.get_session_users()
