@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Konbatants"
-run/main_scene="res://Scenes/MenuScenes/PC/StartScene.tscn"
+run/main_scene="res://Scenes/MenuScenes/Mobile/StartSceneMobile.tscn"
 config/auto_accept_quit=false
 config/quit_on_go_back=false
 config/features=PackedStringArray("4.2", "C#", "Mobile")

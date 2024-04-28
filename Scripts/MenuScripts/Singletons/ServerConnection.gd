@@ -28,6 +28,8 @@ const EXIT_GAME = "eg:"
 
 const SAY_HELLO = "hello:"
 const GET_PORT = "gp:"
+const ACK = "ac"
+const ACK_LOST = "al"
 
 const OK = "ok:"
 const ER = "er:"
@@ -35,14 +37,14 @@ const ER1 = "e1:"
 
 const NEW_PLAYER = "np:" # when a new player enters to the session, server sends this message
 
-const TIMEOUT = 2
+const TIMEOUT = 200
 var resend_count = 0
 const MAX_RESEND_COUNT = 1000
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	#server_ip = "34.41.77.164"
-	server_ip = "192.168.1.36"
+	#server_ip = "35.188.4.198" # cloud server
+	server_ip = "192.168.1.36" # local server
 	server_port = 4444
 	server_udp.set_dest_address(server_ip, server_port)
 
@@ -73,9 +75,9 @@ func _process(delta):
 			
 
 # HELPER FUNCTIONS
-func wait_message():
+func wait_message(peer_udp):
 	var timer = 0
-	while server_udp.get_available_packet_count() == 0 and timer<TIMEOUT:
+	while peer_udp.get_available_packet_count() == 0 and timer<TIMEOUT:
 		await get_tree().create_timer(0.1).timeout
 		timer+=0.1
 	
@@ -84,19 +86,19 @@ func wait_message():
 		return 1 
 	
 	# response reached
-	if server_udp.get_available_packet_count() > 0:
+	if peer_udp.get_available_packet_count() > 0:
 		return 0 
 
 # send message and return response
-func send_message(message):
+func send_message(message, peer_udp):
 	var buffer = PackedByteArray()
 	buffer.append_array(message.to_utf8_buffer())
 	var res = 1
 	
 	# loop while message response is not reached
 	while res==1 and resend_count < MAX_RESEND_COUNT:
-		server_udp.put_packet(buffer)
-		res = await wait_message()
+		peer_udp.put_packet(buffer)
+		res = await wait_message(peer_udp)
 		resend_count += 1
 	
 	# can't contact server
@@ -105,12 +107,58 @@ func send_message(message):
 	
 	return res # 0
 
+func communicate_with_another_client(message, peer_udp):
+	var finished = false
+	
+	var message_from_peer_received = false
+	var confirmation_from_peer_received = false
+	
+	while !message_from_peer_received and !confirmation_from_peer_received:
+		# send message if peer confimation not received
+		var buffer = PackedByteArray()
+		if !confirmation_from_peer_received:
+			buffer.append_array(message.to_utf8_buffer())
+			peer_udp.put_packet(buffer)
+		
+		# wait 
+		await get_tree().create_timer(0.1).timeout
+			
+		# see if client send any message
+		if peer_udp.get_available_packet_count() > 0:
+			var array_bytes = peer_udp.get_packet()
+			var packet_string = array_bytes.get_string_from_ascii()
+			#print("packet string")
+			print(packet_string)
+			
+			# peer message received
+			if packet_string.begins_with(SAY_HELLO):
+				message_from_peer_received = true
+				
+				# send ack
+				var ack_message = ACK
+				buffer.append_array(ack_message.to_utf8_buffer())
+				peer_udp.put_packet(buffer)
+			
+			# peer confirmation received
+			if packet_string.begins_with(ACK):
+				confirmation_from_peer_received = true
+
+		
+	# while host message not reached
+	'''while peer_udp.get_available_packet_count() == 0:
+		var buffer = PackedByteArray()
+		buffer.append_array(message.to_utf8_buffer())
+		peer_udp.put_packet(buffer)
+		await get_tree().create_timer(1).timeout
+	'''
+	return 0
+
 
 ## SERVER COMMUNICATION FUNCTIONS
 # register player in the server
 func register_player():
 	var message = REGISTER_PLAYER+PlayerMenu.usr_name
-	var res = await send_message(message)
+	var res = await send_message(message, server_udp)
 	
 	# can't contact server
 	if res == 2:
@@ -130,12 +178,13 @@ func register_player():
 			var err = packet_string.split(":")[1] #get error message
 			return err
 			
+			
 # create session in the server
 func create_session(teams, players, private):
 	# create message
 	var message = CREATE_SESSION + PlayerMenu.id + ":" + teams + ":" + players + ":" + private 
 	# send message and receive response
-	var res = await send_message(message)
+	var res = await send_message(message, server_udp)
 		
 	# can't contact server		
 	if res == 2:
@@ -161,7 +210,7 @@ func create_session(teams, players, private):
 func find_session(teams, players):	
 	#create message to send
 	var message = FIND_SESSION + PlayerMenu.id + ":" + teams + ":" + players 
-	var res = await send_message(message)
+	var res = await send_message(message, server_udp)
 	
 	# can't contact server		
 	if res == 2:
@@ -211,7 +260,7 @@ func find_session(teams, players):
 func find_session_by_code(code):
 	#create message to send
 	var message = FIND_SESSION_BY_CODE + PlayerMenu.id + ":" + code
-	var res = await send_message(message)
+	var res = await send_message(message, server_udp)
 	
 	# can't contact server		
 	if res == 2:
@@ -251,7 +300,7 @@ func find_session_by_code(code):
 func get_session_users():
 	#create message to send
 	var message = SESSION_USER + CurrentSessionInfo.s_id 
-	var res = await send_message(message)
+	var res = await send_message(message, server_udp)
 	
 	# can't contact server		
 	if res == 2:
@@ -280,7 +329,7 @@ func get_session_users():
 func leave_session():
 	#create message to send
 	var message = LEAVE_SESSION + CurrentSessionInfo.s_id + ":" + PlayerMenu.id
-	var res = await send_message(message)
+	var res = await send_message(message, server_udp)
 	
 	# can't contact server		
 	if res == 2:
@@ -304,7 +353,7 @@ func leave_session():
 func remove_session():
 	#create message to send
 	var message = REMOVE_SESSION + CurrentSessionInfo.s_id + ":" + PlayerMenu.id
-	var res = await send_message(message)
+	var res = await send_message(message, server_udp)
 	
 	# can't contact server		
 	if res == 2:
@@ -340,7 +389,7 @@ func _notification(what):
 		if CurrentSessionInfo.s_id == null:
 			CurrentSessionInfo.s_id = "null"
 		var message = EXIT_GAME + CurrentSessionInfo.s_id + ":" + str(PlayerMenu.id) 
-		var res = await send_message(message)
+		var res = await send_message(message, server_udp)
 		get_tree().quit()
 
 		
@@ -349,7 +398,7 @@ func exit_game():
 	if CurrentSessionInfo.s_id == null:
 			CurrentSessionInfo.s_id = "null"
 	var message = EXIT_GAME + CurrentSessionInfo.s_id + ":" + str(PlayerMenu.id) 
-	var res = await send_message(message)
+	var res = await send_message(message, server_udp)
 	get_tree().quit()
 
 
@@ -363,18 +412,19 @@ func start_game():
 # hole punch ip and ports to communicate clients P2P
 func hole_punching():
 	var buffer = PackedByteArray()
+	
+	# if there is a packet that it isn't needed
+	if server_udp.get_available_packet_count() > 0:
+		server_udp.get_packet()
+	
 	# if session is server
 	if CurrentSessionInfo.is_server:
 		var peers_contacted = 0
 		
-		# if there is a packet that it isn't needed
-		if server_udp.get_available_packet_count() > 0:
-			server_udp.get_packet()
-		
 		# create message to send
 		var message = GET_PORT + CurrentSessionInfo.s_id
 		# send message
-		var res = await send_message(message)
+		var res = await send_message(message, server_udp)
 	
 		# can't contact server		
 		if res == 2:
@@ -388,14 +438,33 @@ func hole_punching():
 			
 			# server send ok message
 			if packet_string.begins_with(OK):
-				var own_port = int(packet_string.split(":")[1])
+				
+				await get_tree().create_timer(3).timeout
+				# close server socket
+				var ip_and_ports = packet_string.split(":")
 				server_udp.close()
 		
 				# start listening in own_port port
+				var own_ip = ip_and_ports[1].split("-")[0]
+				var own_port = int(ip_and_ports[1].split("-")[1])
 				peer_udp.bind(own_port, "*")
 		
+				# contact with all clients
+				for i in range(2, len(ip_and_ports)):
+					var ip = ip_and_ports[i].split("-")[0]
+					var port = int(ip_and_ports[i].split("-")[1])
+					peer_udp.connect_to_host(ip, port)
+					#peer_udp.set_dest_address(ip, port)
+					message = SAY_HELLO + ":" + str(own_port)	
+					
+					print("sending message to client " + str(i))
+					res = await communicate_with_another_client(message, peer_udp)
+					
+					if res == 0:
+						print("Response reached from " + str(i) + " client")
+		
 				# wait until all clients have contacted server
-				while peers_contacted < CurrentSessionInfo.players-1:
+				'''while peers_contacted < CurrentSessionInfo.players-1:
 					if peer_udp.get_available_packet_count() > 0:
 						print("client message reached")
 						array_bytes = peer_udp.get_packet()
@@ -409,6 +478,8 @@ func hole_punching():
 					
 						buffer.append_array(("Hey client").to_utf8_buffer())
 						peer_udp.put_packet(buffer)
+						
+						peers_contacted += 1'''
 
 			# server send an error message
 			#TODO
@@ -418,7 +489,7 @@ func hole_punching():
 		#create message to send
 		var message = START_GAME + CurrentSessionInfo.s_id + ":" + PlayerMenu.id
 		#send message
-		var res = await send_message(message)
+		var res = await send_message(message, server_udp)
 	
 		# can't contact server		
 		if res == 2:
@@ -432,27 +503,41 @@ func hole_punching():
 			
 			# server send ok message
 			if packet_string.begins_with(OK):
+				
+				await get_tree().create_timer(3).timeout
+				# store information and close udp server connection
 				var game_server_ip = packet_string.split(":")[1]
 				var game_server_port = packet_string.split(":")[2]
 				var own_port = packet_string.split(":")[3]
 				server_udp.close()
-
+				
+				await get_tree().create_timer(2).timeout # time to server server listening
+				
+				peer_udp.bind(int(own_port), "*")
 				# try to communicate with server
 				peer_udp.set_dest_address(game_server_ip, int(game_server_port))
 				message = SAY_HELLO + ":" + own_port
-				buffer.append_array((message).to_utf8_buffer())
-				peer_udp.put_packet(buffer)
+				
+				print("sending message to " + game_server_ip + ":" + game_server_port)
+				res = await communicate_with_another_client(message, peer_udp)
+				
+				if res == 0:
+					print("message reached from server")
+					
+				'''buffer.append_array((message).to_utf8_buffer())
+				peer_udp.put_packet(buffer)'''
 
-				own_port = int(own_port)
+				'''own_port = int(own_port)
 
 				
 				# wait to the response
-				res = await wait_message()
+				res = await wait_message(peer_udp)
+				print(res)
 				
 				if peer_udp.get_available_packet_count() > 0:
 					print("server confimation received")
 					array_bytes = peer_udp.get_packet()
 					packet_string = array_bytes.get_string_from_ascii()
 					print("packet string")
-					print(packet_string)
+					print(packet_string)'''
 			
