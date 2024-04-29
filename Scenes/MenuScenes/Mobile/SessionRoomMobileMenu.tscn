@@ -1,10 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://dr27tkhngby1g"]
+[gd_scene load_steps=5 format=3 uid="uid://dwww50g6wcyug"]
 
-[ext_resource type="Script" path="res://Scripts/MenuScripts/SessionRoomController.gd" id="1_pyu6c"]
-[ext_resource type="PackedScene" uid="uid://dmiaekpq8rmha" path="res://Scenes/MenuScenes/AssetScenes/CustomButton.tscn" id="4_bjjtx"]
-[ext_resource type="Texture2D" uid="uid://bwimom06a2td8" path="res://Assets/Menu/CustomButton/whiteSquare.png" id="5_wprj7"]
+[ext_resource type="PackedScene" uid="uid://dmiaekpq8rmha" path="res://Scenes/MenuScenes/AssetScenes/CustomButton.tscn" id="1_6hhl2"]
+[ext_resource type="Script" path="res://Scripts/MenuScripts/SessionRoomController.gd" id="1_n7pyi"]
+[ext_resource type="Texture2D" uid="uid://bwimom06a2td8" path="res://Assets/Menu/CustomButton/whiteSquare.png" id="2_illvd"]
 
-[sub_resource type="FontFile" id="FontFile_p0yte"]
+[sub_resource type="FontFile" id="FontFile_3f11u"]
 cache/0/16/0/ascent = 0.0
 cache/0/16/0/descent = 0.0
 cache/0/16/0/underline_position = 0.0
@@ -4160,16 +4160,15 @@ cache/0/84/0/kerning_overrides/82/0 = Vector2(0, 0)
 cache/0/84/0/kerning_overrides/83/0 = Vector2(0, 0)
 cache/0/84/0/kerning_overrides/84/0 = Vector2(0, 0)
 
-[node name="SessionRoom" type="Control"]
+[node name="SessionRoomMobileMenu" type="Control"]
 layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-script = ExtResource("1_pyu6c")
+script = ExtResource("1_n7pyi")
 
 [node name="VBoxMenu" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -4180,42 +4179,30 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 90
 
-[node name="Control" type="Control" parent="VBoxMenu"]
-layout_mode = 2
-
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxMenu"]
-layout_mode = 2
-theme_override_constants/separation = 200
-
-[node name="Control" type="Control" parent="VBoxMenu/HBoxContainer"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="VBoxMenu/HBoxContainer"]
+[node name="Label" type="Label" parent="VBoxMenu"]
 layout_mode = 2
 theme_override_constants/shadow_offset_y = 0
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 80
-text = "     Session Room                                                                                                                                                                                                                                                                                 
+text = "Session Room                                                                                                                                                                                                     
 "
+horizontal_alignment = 1
 
-[node name="SessionIdContainer" type="HBoxContainer" parent="VBoxMenu/HBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxMenu"]
 layout_mode = 2
-theme_override_constants/separation = 50
+theme_override_constants/separation = 100
 
-[node name="SessionIdLabel" type="Label" parent="VBoxMenu/HBoxContainer/SessionIdContainer"]
+[node name="SessionIdLabel" type="Label" parent="VBoxMenu/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 60
 text = "Session Id:
 "
 
-[node name="SessionId" type="Label" parent="VBoxMenu/HBoxContainer/SessionIdContainer"]
+[node name="SessionId" type="Label" parent="VBoxMenu/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 60
-
-[node name="TextureRect" type="TextureRect" parent="VBoxMenu/HBoxContainer"]
-layout_mode = 2
 
 [node name="PlayersVBox" type="VBoxContainer" parent="VBoxMenu"]
 layout_mode = 2
@@ -4225,7 +4212,8 @@ theme_override_constants/separation = 20
 [node name="PlayersLabel" type="Label" parent="VBoxMenu/PlayersVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 50
-text = "           Players"
+text = "Players"
+horizontal_alignment = 1
 
 [node name="ItemList" type="ItemList" parent="VBoxMenu/PlayersVBox"]
 layout_mode = 2
@@ -4243,32 +4231,13 @@ layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 8
 
-[node name="StartGame" parent="VBoxMenu/ManagementButtonHBox" instance=ExtResource("4_bjjtx")]
-visible = false
-clip_contents = true
-layout_mode = 2
-theme_override_constants/outline_size = 0
-theme_override_constants/h_separation = 0
-theme_override_constants/icon_max_width = 0
-theme_override_fonts/font = SubResource("FontFile_p0yte")
-theme_override_font_sizes/font_size = 50
-text = "          Start game     "
-alignment = 0
-
-[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/ManagementButtonHBox/StartGame"]
-modulate = Color(0.529412, 0, 0.537255, 1)
-z_index = -1
-position = Vector2(404.25, 14.25)
-scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("5_wprj7")
-
-[node name="LeaveGame" parent="VBoxMenu/ManagementButtonHBox" instance=ExtResource("4_bjjtx")]
+[node name="LeaveGame" parent="VBoxMenu/ManagementButtonHBox" instance=ExtResource("1_6hhl2")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 2
 theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
-theme_override_fonts/font = SubResource("FontFile_p0yte")
+theme_override_fonts/font = SubResource("FontFile_3f11u")
 theme_override_font_sizes/font_size = 70
 text = "Leave game"
 alignment = 0
@@ -4278,15 +4247,13 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(332.75, 14.25)
 scale = Vector2(3.95778, 1.12667)
-texture = ExtResource("5_wprj7")
+texture = ExtResource("2_illvd")
 
 [node name="StartingGameLabel" type="Label" parent="VBoxMenu"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 60
 text = "Starting game..."
-
-[node name="InfoLabel" type="Label" parent="VBoxMenu"]
-layout_mode = 2
 
 [connection signal="pressed" from="VBoxMenu/ManagementButtonHBox/LeaveGame" to="." method="_on_leave_game_pressed"]

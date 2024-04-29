@@ -8,7 +8,12 @@ func _ready():
 	# read info from CurrentSession singleton and load in menu
 	
 	# session id
-	var session_id = get_node("VBoxMenu/HBoxContainer/SessionIdContainer/SessionId")
+	var session_id
+	if ConfigurationScript.mobile:
+		session_id = get_node("VBoxMenu/HBoxContainer/SessionId")
+	else:
+		session_id = get_node("VBoxMenu/HBoxContainer/SessionIdContainer/SessionId")
+	
 	session_id.text = CurrentSessionInfo.s_id
 	
 	# set elements in the list of players
@@ -73,7 +78,12 @@ func ask_for_players():
 		if err != "ok":
 			# clear local session info and return to initial scene
 			CurrentSessionInfo.clear_session()
-			get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
+			
+			if ConfigurationScript.mobile:
+				get_tree().change_scene_to_file("res://Scenes/MenuScenes/Mobile/InitialMenuMobile.tscn")
+		
+			else:
+				get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
 		
 		# reload player lsit
 		reload_players_list()	
@@ -103,7 +113,12 @@ func leave_session():
 			# all went well
 			if err == "ok":
 				CurrentSessionInfo.clear_session()
-				get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
+				
+				if ConfigurationScript.mobile:
+					get_tree().change_scene_to_file("res://Scenes/MenuScenes/Mobile/InitialMenuMobile.tscn")
+			
+				else:
+					get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
 			
 			# handle error
 			else:

@@ -1,33 +1,18 @@
-[gd_scene load_steps=4 format=3 uid="uid://ch8y8tsjsunij"]
+[gd_scene load_steps=3 format=3 uid="uid://cae67nphbhr6p"]
 
-[ext_resource type="PackedScene" uid="uid://dmiaekpq8rmha" path="res://Scenes/MenuScenes/AssetScenes/CustomButton.tscn" id="1_k0fea"]
-[ext_resource type="Script" path="res://Scripts/MenuScripts/SessionManager.gd" id="1_thaf7"]
-[ext_resource type="Texture2D" uid="uid://bwimom06a2td8" path="res://Assets/Menu/CustomButton/whiteSquare.png" id="2_ssa1t"]
+[ext_resource type="PackedScene" uid="uid://dmiaekpq8rmha" path="res://Scenes/MenuScenes/AssetScenes/CustomButton.tscn" id="1_ugjaf"]
+[ext_resource type="Texture2D" uid="uid://bwimom06a2td8" path="res://Assets/Menu/CustomButton/whiteSquare.png" id="2_6o5pm"]
 
-[node name="CreateSessionMenu" type="Control"]
+[node name="CreateSessionMobileMenu" type="Control"]
 layout_mode = 3
-anchors_preset = 13
-anchor_left = 0.5
-anchor_right = 0.5
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-script = ExtResource("1_thaf7")
+anchors_preset = 0
 
 [node name="GeneralVBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 13
-anchor_left = 0.5
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -848.0
-offset_top = 78.0
-offset_right = 833.0
-offset_bottom = 78.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 0
+offset_left = 149.0
+offset_top = 154.0
+offset_right = 2020.0
+offset_bottom = 1026.0
 theme_override_constants/separation = 105
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GeneralVBoxContainer"]
@@ -64,7 +49,7 @@ text = " Teams"
 layout_mode = 2
 theme_override_constants/separation = 75
 
-[node name="YesButton" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="YesButton" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer" instance=ExtResource("1_ugjaf")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -77,9 +62,9 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("2_6o5pm")
 
-[node name="NoButton" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="NoButton" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer" instance=ExtResource("1_ugjaf")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -91,7 +76,7 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("2_6o5pm")
 
 [node name="PlayersHBox" type="HBoxContainer" parent="GeneralVBoxContainer/VBoxContainer"]
 layout_mode = 2
@@ -119,7 +104,7 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(446.625, 60)
 scale = Vector2(5.30111, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("2_6o5pm")
 
 [node name="GamePrivateHBox" type="HBoxContainer" parent="GeneralVBoxContainer/VBoxContainer"]
 layout_mode = 2
@@ -135,7 +120,7 @@ text = "Game type"
 layout_mode = 2
 theme_override_constants/separation = 75
 
-[node name="PublicButton" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="PublicButton" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer" instance=ExtResource("1_ugjaf")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -148,9 +133,9 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("2_6o5pm")
 
-[node name="PrivateButton" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="PrivateButton" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer" instance=ExtResource("1_ugjaf")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -163,7 +148,7 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("2_6o5pm")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="GeneralVBoxContainer"]
 layout_mode = 2
@@ -178,7 +163,7 @@ layout_mode = 2
 [node name="Node" type="Control" parent="GeneralVBoxContainer/HBoxContainer"]
 layout_mode = 2
 
-[node name="Create" parent="GeneralVBoxContainer/HBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="Create" parent="GeneralVBoxContainer/HBoxContainer" instance=ExtResource("1_ugjaf")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -191,13 +176,13 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(446.625, 60)
 scale = Vector2(5.30111, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("2_6o5pm")
 
 [node name="FindGameVBox" type="VBoxContainer" parent="GeneralVBoxContainer/HBoxContainer"]
 visible = false
 layout_mode = 2
 
-[node name="Find" parent="GeneralVBoxContainer/HBoxContainer/FindGameVBox" instance=ExtResource("1_k0fea")]
+[node name="Find" parent="GeneralVBoxContainer/HBoxContainer/FindGameVBox" instance=ExtResource("1_ugjaf")]
 visible = false
 clip_contents = true
 layout_mode = 2
@@ -211,9 +196,9 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(446.625, 60)
 scale = Vector2(5.30111, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("2_6o5pm")
 
-[node name="FindByCode" parent="GeneralVBoxContainer/HBoxContainer/FindGameVBox" instance=ExtResource("1_k0fea")]
+[node name="FindByCode" parent="GeneralVBoxContainer/HBoxContainer/FindGameVBox" instance=ExtResource("1_ugjaf")]
 visible = false
 clip_contents = true
 layout_mode = 2
@@ -227,9 +212,9 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(446.625, 60)
 scale = Vector2(5.30111, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("2_6o5pm")
 
-[node name="ReturnButton" parent="GeneralVBoxContainer/HBoxContainer" instance=ExtResource("1_k0fea")]
+[node name="ReturnButton" parent="GeneralVBoxContainer/HBoxContainer" instance=ExtResource("1_ugjaf")]
 clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
@@ -242,7 +227,7 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
-texture = ExtResource("2_ssa1t")
+texture = ExtResource("2_6o5pm")
 
 [node name="SessionCode" type="LineEdit" parent="."]
 visible = false
@@ -251,13 +236,3 @@ offset_left = 811.0
 offset_top = 575.0
 offset_right = 1433.0
 offset_bottom = 710.0
-
-[connection signal="pressed" from="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer/YesButton" to="." method="_on_yes_button_pressed"]
-[connection signal="pressed" from="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer/NoButton" to="." method="_on_no_button_pressed"]
-[connection signal="item_selected" from="GeneralVBoxContainer/VBoxContainer/PlayersHBox/OptionButton" to="." method="_on_option_button_item_selected"]
-[connection signal="pressed" from="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer/PublicButton" to="." method="_on_public_button_pressed"]
-[connection signal="pressed" from="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer/PrivateButton" to="." method="_on_private_button_pressed"]
-[connection signal="pressed" from="GeneralVBoxContainer/HBoxContainer/Create" to="." method="_on_create_pressed"]
-[connection signal="pressed" from="GeneralVBoxContainer/HBoxContainer/FindGameVBox/Find" to="." method="_on_find_pressed"]
-[connection signal="pressed" from="GeneralVBoxContainer/HBoxContainer/ReturnButton" to="." method="_on_return_button_pressed"]
-[connection signal="text_submitted" from="SessionCode" to="." method="_on_session_code_text_submitted"]

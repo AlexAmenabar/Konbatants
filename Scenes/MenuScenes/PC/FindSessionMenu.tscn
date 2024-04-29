@@ -6,19 +6,26 @@
 
 [node name="FindSessionMenu" type="Control"]
 layout_mode = 3
-anchors_preset = 0
-offset_left = -123.0
-offset_top = -43.0
-offset_right = -123.0
-offset_bottom = -43.0
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_lqyx3")
 
 [node name="GeneralVBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 0
-offset_left = 149.0
-offset_top = 154.0
-offset_right = 2020.0
-offset_bottom = 1026.0
+layout_mode = 1
+anchors_preset = 13
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -761.0
+offset_top = 88.0
+offset_right = 761.0
+offset_bottom = 88.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 200
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GeneralVBoxContainer"]

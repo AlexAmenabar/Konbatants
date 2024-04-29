@@ -58,7 +58,10 @@ func manage_teams_list(teams):
 
 ## BUTTON SIGNALS ##
 func _on_return_button_pressed():
-	get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
+	if ConfigurationScript.mobile:
+		get_tree().change_scene_to_file("res://Scenes/MenuScenes/Mobile/InitialMenuMobile.tscn")
+	else:
+		get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
 
 # create session button pressed
 func _on_create_pressed():
@@ -67,7 +70,10 @@ func _on_create_pressed():
 	
 	if err == "ok":
 		# load waiting room
-		get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/SessionRoom.tscn")
+		if ConfigurationScript.mobile:
+			get_tree().change_scene_to_file("res://Scenes/MenuScenes/Mobile/SessionRoomMobileMenu.tscn")
+		else:
+			get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/SessionRoom.tscn")
 	# there is an error
 	else:
 		var error_label = get_node("GeneralVBoxContainer/HBoxContainer2/ErrorLabel")
@@ -87,7 +93,10 @@ func _on_find_pressed():
 	err = await ServerConnection.get_session_users()
 	if err == "ok":
 		# load waiting room
-		get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/SessionRoom.tscn")
+		if ConfigurationScript.mobile:
+			get_tree().change_scene_to_file("res://Scenes/MenuScenes/Mobile/SessionRoomMobileMenu.tscn")
+		else:
+			get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/SessionRoom.tscn")
 	
 	else:
 		var error_label = get_node("GeneralVBoxContainer/HBoxContainer2/ErrorLabel")

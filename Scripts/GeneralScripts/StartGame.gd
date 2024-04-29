@@ -8,7 +8,7 @@ func _ready():
 	var debug_label = get_node("DebugLabel")
 	debug_label.text = "Window size: " + str(DisplayServer.window_get_size()) + "\nScreen size: " + str(DisplayServer.screen_get_size())
 	
-	DisplayServer.window_set_size(Vector2i(DisplayServer.screen_get_size()[1], DisplayServer.screen_get_size()[0]))
+	DisplayServer.window_set_size(Vector2i(DisplayServer.screen_get_size()[0], DisplayServer.screen_get_size()[1]))
 	get_tree().set_auto_accept_quit(false)
 	
 # set username when INTRO pressed
@@ -24,7 +24,13 @@ func register_player(username):
 	var res = await ServerConnection.register_player()
 	# all ok
 	if res == "ok":
-		get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
+		# mobile
+		if ConfigurationScript.mobile:
+			get_tree().change_scene_to_file("res://Scenes/MenuScenes/Mobile/InitialMenuMobile.tscn")
+			
+		# desktop
+		else:
+			get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
 	# print error
 	else: 
 		var error_label = get_node("Control/VBoxContainer/ErrorsLabel")
@@ -33,3 +39,8 @@ func register_player(username):
 
 func _on_continue_button_pressed():
 	register_player(get_node("./Control/VBoxContainer/UsernameText").text)
+	
+
+
+func _on_username_text_text_submitted(new_text):
+	register_player(new_text)

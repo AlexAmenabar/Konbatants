@@ -4,6 +4,9 @@ var usr_name
 var id
 var current_session_id
 
+var private_ip
+var private_port
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	usr_name = ""
