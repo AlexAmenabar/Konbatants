@@ -45,8 +45,8 @@ const MAX_RESEND_COUNT = 1000
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	#server_ip = "34.133.241.218" # cloud server
-	server_ip = "192.168.1.36" # local server
+	server_ip = "34.170.146.101" # cloud server
+	#server_ip = "192.168.1.36" # local server
 	server_port = 4444
 	server_udp.set_dest_address(server_ip, server_port)
 	
@@ -141,7 +141,7 @@ func communicate_with_another_client(message, peers_udp, timeout):
 	
 	var res = -1
 	var timer = 0
-	while !message_from_peer_received and !confirmation_from_peer_received or timer < timeout:
+	while (!message_from_peer_received and !confirmation_from_peer_received) and timer < timeout:
 		# send message if peer confimation not received
 		var buffer = PackedByteArray()
 		if !confirmation_from_peer_received:
@@ -161,13 +161,21 @@ func communicate_with_another_client(message, peers_udp, timeout):
 			peer_udp = peers_udp[i]
 			if peer_udp.get_available_packet_count() > 0:
 				print("MESSAGE REACHED TO " + str(i) + " SOCKET!!!!!")
-				res = i
+				
+				if i<res or res==-1:
+					res = i
 				var array_bytes = peer_udp.get_packet()
 				var packet_string = array_bytes.get_string_from_ascii()
 				#print("packet string")
 				print(packet_string)
 				
 				# peer message received
+				# confirmation received
+				if packet_string.find(ACK) > -1:
+					confirmation_from_peer_received = true
+					print("ACK RECEIVED")
+					
+				# hello message received
 				if packet_string.begins_with(SAY_HELLO):
 					message_from_peer_received = true
 					print("HELLO RECEIVED")
@@ -178,12 +186,6 @@ func communicate_with_another_client(message, peers_udp, timeout):
 					var ack_message = ACK
 					buffer.append_array(ack_message.to_utf8_buffer())
 					peer_udp.put_packet(buffer)
-				
-				# peer confirmation received
-				if packet_string.begins_with(ACK):
-					confirmation_from_peer_received = true
-					print("ACK RECEIVED")
-
 
 	if timer > timeout:
 		return res
@@ -493,9 +495,7 @@ func hole_punching():
 				var own_port = int(ip_and_ports[1].split("-")[1])
 				var own_private_ip = ip_and_ports[1].split("-")[2]
 				var own_private_port = ip_and_ports[1].split("-")[3]
-				
-				#peer_udp.bind(own_port, "*")
-		
+
 				# contact with all clients
 				for i in range(2, len(ip_and_ports)):
 					var ip = ip_and_ports[i].split("-")[0]
@@ -503,7 +503,7 @@ func hole_punching():
 					var private_ip = ip_and_ports[i].split("-")[2]
 					var private_port = int(ip_and_ports[i].split("-")[3])
 					
-					message = SAY_HELLO + str(own_port)	
+					message = SAY_HELLO
 					
 					# connect each socket to peer public or private socket
 					peer_udp.connect_to_host(ip, int(port))
@@ -515,53 +515,22 @@ func hole_punching():
 					
 					#peer_udp.connect_to_host(private_ip, private_port)
 					#print("sending message to client " + str(i) + " whoes ip and port are: (" + private_ip + ":" + str(private_port) + ")")
-					res = await communicate_with_another_client(message, peers_udp, 100)
-					
-					if res == 0:
-						print("Response reached from " + str(i) + " client")
-						get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
-					
+					res = await communicate_with_another_client(message, peers_udp, 1000)
+					#print("res = " + str(res))
+					if res >= 0:
+						peers_contacted+=1
+						#print("Response reached from " + str(i) + " client")
+						#get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
 					else:
-						print("TIMEOUT")
-					
-					'''
-					#peer_udp.set_dest_address(server_ip, server_port)
-					peer_udp.connect_to_host(ip, port)
-					
-					
-					#message = SAY_HELLO + ":" + str(own_port)
-					#send_message(message, peer_udp)
-					
-					#peer_udp.set_dest_address(ip, port)
-
-					
-					print("sending message to client " + str(i) + " whoes ip and port are: (" + ip + ":" + str(port) + ")")
-					res = await communicate_with_another_client(message, peer_udp, 1000)
-					
-					if res == 0:
-						print("Response reached from " + str(i) + " client")
-						get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
-		'''
-		
-		
-				# wait until all clients have contacted server
-				'''while peers_contacted < CurrentSessionInfo.players-1:
-					if peer_udp.get_available_packet_count() > 0:
-						print("client message reached")
-						array_bytes = peer_udp.get_packet()
-						packet_string = array_bytes.get_string_from_ascii()
-						
-						#send response to client (testing)
-						var client_ip = peer_udp.get_packet_ip()
-						var client_port = peer_udp.get_packet_port()
-						
-						peer_udp.set_dest_address(client_ip, client_port)
-					
-						buffer.append_array(("Hey client").to_utf8_buffer())
-						peer_udp.put_packet(buffer)
-						
-						peers_contacted += 1'''
-
+						print("TIMEOUT, CANT CONTACT WITH " + str(i) + " ONE CLIENT")
+				
+				print("Peers contacted = " + str(peers_contacted))
+				if peers_contacted == CurrentSessionInfo.players-1:
+					print("GAME IS READY TO START")
+				
+				else:
+					print("CAN'T START GAME, REMOVING SESSION")
+				
 			# server send an error message
 			#TODO
 			
@@ -613,8 +582,8 @@ func hole_punching():
 				peers_udp.append(peer_udp)
 				peers_udp.append(local_peer_udp)
 				
-				res = await communicate_with_another_client(message, peers_udp, 10)
-				
+				res = await communicate_with_another_client(message, peers_udp, 1000)
+				print("res = " + str(res))
 				# some socket get a result
 				if res >= 0:
 					print("message reached from server")
