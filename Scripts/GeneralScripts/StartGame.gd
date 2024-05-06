@@ -20,7 +20,7 @@ func _on_custom_button_pressed():
 	register_player(get_node("./Control/VBoxContainer/UsernameText").text)
 	
 func register_player(username):
-	PlayerMenu.set_username(username)
+	PlayerMenu.usr_name = username
 	var res = await ServerConnection.register_player()
 	# all ok
 	if res == "ok":

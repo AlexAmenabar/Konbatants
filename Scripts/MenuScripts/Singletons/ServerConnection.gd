@@ -43,10 +43,16 @@ const TIMEOUT = 200
 var resend_count = 0
 const MAX_RESEND_COUNT = 1000
 
+# CONSTANTS for testing
+const GET_ALL_USERS = "tu:"
+const GET_ALL_SESSION = "ts:"
+const GET_USERS_IN_SESSION = "us:"
+const CLEAR_SERVER = "cl:"
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	server_ip = "34.170.146.101" # cloud server
-	#server_ip = "192.168.1.36" # local server
+	#server_ip = "34.170.146.101" # cloud server
+	server_ip = "192.168.1.36" # local server
 	server_port = 4444
 	server_udp.set_dest_address(server_ip, server_port)
 	
@@ -59,11 +65,9 @@ func _ready():
 	
 	port_number = start_peer_udp(local_peer_udp, port_number)
 	PlayerMenu.private_port = local_peer_udp.get_local_port()
-	
-	for ip in IP.get_local_addresses():
-		if ip.begins_with("192.168.1"):
-			PlayerMenu.private_ip = ip
 
+	# get machine private ip
+	PlayerMenu.private_ip = get_private_ip()
 
 func _process(delta):
 	# check if there is any package to process when client is waiting (to another users) in session room
@@ -93,6 +97,12 @@ func _process(delta):
 
 
 # HELPER FUNCTIONS
+func get_private_ip():
+	for ip in IP.get_local_addresses():
+		if ip.begins_with("192.168.1"):
+			return ip
+
+
 func start_peer_udp(socket_udp, port_number):
 	var err = 1
 	while err != 0:
@@ -202,7 +212,7 @@ func communicate_with_another_client(message, peers_udp, timeout):
 ## SERVER COMMUNICATION FUNCTIONS
 # register player in the server
 func register_player():
-	var message = REGISTER_PLAYER+PlayerMenu.usr_name + ":" + PlayerMenu.private_ip + ":" + str(PlayerMenu.private_port) + ":" + str(PlayerMenu.peer_port)
+	var message = REGISTER_PLAYER + PlayerMenu.usr_name + ":" + PlayerMenu.private_ip + ":" + str(PlayerMenu.private_port) + ":" + str(PlayerMenu.peer_port)
 	var res = await send_message(message, server_udp)
 	
 	# can't contact server
@@ -321,15 +331,8 @@ func find_session_by_code(code):
 			CurrentSessionInfo.private = packet_string.split(":")[2]
 			CurrentSessionInfo.players = int(packet_string.split(":")[3])
 			CurrentSessionInfo.players_in_room = int(packet_string.split(":")[4])
-
-			#ask players in room and show it graphically
-			'''#TODO
-			for n in range(0, CurrentSessionInfo.players_in_room-1):
-				print("Adding player to player list")
-				print(n)
-				CurrentSessionInfo.players_list.append("player" + str(n))
-				'''
-				
+			CurrentSessionInfo.s_id = packet_string.split(":")[5]
+			
 			# check if session is complete or if player have to wait
 			if CurrentSessionInfo.players_in_room < CurrentSessionInfo.players:
 				CurrentSessionInfo.waiting = true
@@ -344,7 +347,7 @@ func find_session_by_code(code):
 # ask session users information and add it to the list
 func get_session_users():
 	#create message to send
-	var message = SESSION_USER + CurrentSessionInfo.s_id 
+	var message = SESSION_USER + PlayerMenu.id
 	var res = await send_message(message, server_udp)
 	
 	# can't contact server		
@@ -374,7 +377,7 @@ func get_session_users():
 	
 func leave_session():
 	#create message to send
-	var message = LEAVE_SESSION + CurrentSessionInfo.s_id + ":" + PlayerMenu.id
+	var message = LEAVE_SESSION + PlayerMenu.id
 	var res = await send_message(message, server_udp)
 	
 	# can't contact server		
@@ -398,7 +401,7 @@ func leave_session():
 	
 func remove_session():
 	#create message to send
-	var message = REMOVE_SESSION + CurrentSessionInfo.s_id + ":" + PlayerMenu.id
+	var message = REMOVE_SESSION + PlayerMenu.id
 	var res = await send_message(message, server_udp)
 	
 	# can't contact server		
@@ -443,10 +446,19 @@ func exit_game():
 	#create message to send
 	if CurrentSessionInfo.s_id == null:
 			CurrentSessionInfo.s_id = "null"
-	var message = EXIT_GAME + CurrentSessionInfo.s_id + ":" + str(PlayerMenu.id) 
-	var res = await send_message(message, server_udp)
-	get_tree().quit()
 
+	var message = EXIT_GAME + str(PlayerMenu.id) 
+	print(message)
+	var res = await send_message(message, server_udp)
+	
+	if server_udp.get_available_packet_count() > 0:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		
+		# for testing
+		return packet_string
+	
+	#get_tree().quit()
 
 # start a game
 func start_game():
@@ -592,3 +604,80 @@ func hole_punching():
 				else:
 					print("TIMEOUT")
 				
+				
+# FUNCTIONS FOR TESTING
+func get_active_users():
+	# create message
+	var message = GET_ALL_USERS 
+	# send message and receive response
+	var res = await send_message(message, server_udp)
+		
+	# can't contact server		
+	if res == 2:
+		print("Can't contact with server")	
+		
+	if res == 0:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		
+		# all ok
+		if packet_string.begins_with(OK):
+			return int(packet_string.split(":")[1])
+	
+func get_active_session():
+	# create message
+	var message = GET_ALL_SESSION 
+	# send message and receive response
+	var res = await send_message(message, server_udp)
+		
+	# can't contact server		
+	if res == 2:
+		print("Can't contact with server")	
+		
+	if res == 0:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		
+		# all ok
+		if packet_string.begins_with(OK):
+			return int(packet_string.split(":")[1])
+
+func get_users_in_session(s_id):
+	# create message
+	var message = GET_USERS_IN_SESSION + s_id
+	
+	# send message and receive response
+	var res = await send_message(message, server_udp)
+		
+	# can't contact server		
+	if res == 2:
+		print("Can't contact with server")	
+		
+	if res == 0:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		
+		# all ok
+		if packet_string.begins_with(OK):
+			return int(packet_string.split(":")[1])
+	
+
+func clear_server():
+# create message
+	var message = CLEAR_SERVER
+	
+	# send message and receive response
+	var res = await send_message(message, server_udp)
+		
+	# can't contact server		
+	if res == 2:
+		print("Can't contact with server")	
+		
+	if res == 0:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		
+		# all ok
+		if packet_string.begins_with(OK):
+			return "ok"
+	

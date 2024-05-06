@@ -23,3 +23,8 @@ func set_id(p_id):
 
 func set_current_session(s_id):
 	current_session_id = s_id
+
+func clear():
+	usr_name = ""
+	id = -1
+	current_session_id = "null"

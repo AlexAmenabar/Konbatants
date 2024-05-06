@@ -35,3 +35,7 @@ func remove_player_by_name(name):
 			players_list.remove(i)
 			
 	players_in_room -= 1
+
+func clear():
+	s_id = "null"
+	players_list.clear()
