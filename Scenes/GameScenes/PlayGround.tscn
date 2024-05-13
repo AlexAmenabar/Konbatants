@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3 uid="uid://dfgvg0sef74xs"]
+
+[ext_resource type="Script" path="res://Scripts/GameScripts/OnlineTesting.cs" id="1_ejkww"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ifo7x"]
+
+[node name="PlayGround" type="Node3D"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+shape = SubResource("BoxShape3D_ifo7x")
+
+[node name="Server" type="Node3D" parent="."]
+script = ExtResource("1_ejkww")
+
+[node name="PlayerSimulation" type="Node3D" parent="."]
+script = ExtResource("1_ejkww")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+
+[node name="Button" type="Button" parent="."]
+offset_left = 386.0
+offset_top = 268.0
+offset_right = 394.0
+offset_bottom = 276.0
+scale = Vector2(20.88, 12.08)
+
+[node name="Button2" type="Button" parent="."]
+offset_left = 848.0
+offset_top = 319.0
+offset_right = 856.0
+offset_bottom = 327.0
+scale = Vector2(18.2508, 14.2032)
+
+[connection signal="pressed" from="Button" to="Server" method="_on_button_pressed"]
+[connection signal="pressed" from="Button2" to="Server" method="_on_button_2_pressed"]

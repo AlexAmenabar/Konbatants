@@ -1,12 +1,30 @@
-[gd_scene load_steps=3 format=3 uid="uid://c471wjjt5sta3"]
+[gd_scene load_steps=5 format=3 uid="uid://c471wjjt5sta3"]
 
 [ext_resource type="PackedScene" uid="uid://dt352rfintkdu" path="res://3D models/3DGodotRobot.glb" id="1_3newx"]
+[ext_resource type="Script" path="res://Scripts/GameScripts/PlayerController.cs" id="1_18xpu"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_j62kg"]
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_d034c"]
+
 [node name="Player" type="RigidBody3D"]
+mass = 60.0
+lock_rotation = true
+script = ExtResource("1_18xpu")
 
 [node name="3DGodotRobot" parent="." instance=ExtResource("1_3newx")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("BoxShape3D_j62kg")
+
+[node name="RayCast3D" type="RayCast3D" parent="."]
+target_position = Vector3(0, -0.5, 0)
+
+[node name="BasicAttack" type="RigidBody3D" parent="." groups=["basicAttack"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.793089, 0.764785)
+
+[node name="AttackCollisionShape" type="CollisionShape3D" parent="BasicAttack"]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+shape = SubResource("BoxShape3D_d034c")
+
+[connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]

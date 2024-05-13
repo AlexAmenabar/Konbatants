@@ -7,9 +7,10 @@ size = Vector3(6.16788, 1, 7.91705)
 
 [node name="Scenery" type="Node3D"]
 
-[node name="StaticBody3D" type="StaticBody3D" parent="."]
+[node name="StaticBody3D" type="StaticBody3D" parent="." groups=["floor"]]
+transform = Transform3D(4.71698, 0, 0, 0, 1.02536, 0, 0, 0, 3.88143, 0, 0, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D" groups=["floor"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.464998, -0.524121, -1.22738)
 shape = SubResource("BoxShape3D_rjwac")
 
@@ -22,3 +23,7 @@ light_energy = 0.0
 light_size = 100.0
 
 [node name="Player" parent="." instance=ExtResource("1_phd1v")]
+
+[node name="Player2" parent="." instance=ExtResource("1_phd1v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.07915, 0, 0)
+script = null
