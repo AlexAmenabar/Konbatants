@@ -1,81 +1,149 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Transactions;
 
 public partial class PlayerController : RigidBody3D
 {
-	// important attributes
+	// player data to multiplayer game
+	public int id;
+
+	// player attributes
 	private int vitality;
 	private int maxVitality;
-
 	private int speed;
-
 	private int attackDamage;
 
-	private RigidBody3D basicAttack;
+	// nodes
+	private Area3D basicAttack;
 	private CollisionShape3D basicAttackCollider;
 	//private Ability ability;
-
-
 	private RayCast3D raycast;
 
 	// Animation Player
 	private AnimationPlayer animationPlayer;
 
-	// other attributes
+	// MultiplayerSynchonizer
+	private MultiplayerSynchronizer multiplayerSync;
+
+	// "temporal" attributes to control
 	private int hdir = -1;
 	private int vdir = -1;
-
 	private int jump = -1;
 
-
-
+	// attributes to control player actions
 	private bool can = false;
 	private bool canAttack = false;
 	private bool canJump = false;
 	private bool canMove = false;
 
+	// varibales used in animations
+	private bool attacked = false;
+	private bool damageReceived = false;
+
+
+	public override void _EnterTree()
+	{
+
+	}
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		Variant vId = GetMeta("id");
+		
+		id = vId.AsInt32();
+
+		GD.Print(id);
 		vitality = 100;
 		maxVitality = 100;
 		speed = 4;
 		attackDamage = 3;
 
-
-		basicAttack = (RigidBody3D)GetNode("./BasicAttack");
+		basicAttack = (Area3D)GetNode("./BasicAttack");
 		basicAttackCollider = (CollisionShape3D)GetNode("./BasicAttack/AttackCollisionShape");
 		basicAttackCollider.SetDeferred("disabled", true);
+		basicAttack.Visible = false;
 
 		raycast = (RayCast3D)GetNode("./RayCast3D");
 
 		animationPlayer = (AnimationPlayer)GetNode("./3DGodotRobot/AnimationPlayer");
 		animationPlayer.Play("Idle");
 
-		Start();
+		// set multiplayer authority
+		multiplayerSync = (MultiplayerSynchronizer)GetNode("./MultiplayerSynchronizer");
 
-		ActivateJump();
+		// get this player node index and unique id to set authority
+
+		GD.Print("Printing peers");
+		foreach(int peer in Multiplayer.GetPeers())
+		{
+			GD.Print(peer.ToString());
+		}
+
+		// player authority is set in order to multiplayer ids
+		
+		// array with all peers id-s
+		List<int> allpeers;
+		int myId = Multiplayer.GetUniqueId();
+
+		allpeers = new List<int>();
+		for(int i = 0; i<Multiplayer.GetPeers().Length; i++)
+		{
+			if(myId > Multiplayer.GetPeers()[i])
+			{
+				allpeers.Add(Multiplayer.GetPeers()[i]);
+				allpeers.Add(myId);
+			}
+			else
+			{
+				allpeers.Add(myId);
+				allpeers.Add(Multiplayer.GetPeers()[i]);
+			}
+		}
+
+		int playerIndex = this.Name.ToString().Split("r")[1].ToInt();
+		id = allpeers[playerIndex];
+		
+
+		//multiplayerSync.SetMultiplayerAuthority(id);
+		//multiplayerSync.CallDeferred("set_multiplayer_authority", id);
+
+		GD.Print("Server " + Multiplayer.IsServer().ToString() + ", Authority id is " + id);
+
+		//SetMultiplayerAuthority(id);
+		CallDeferred("set_multiplayer_authority", id);
+		
+		Start();
 	}
 
 	// Used to detect input
 	public override void _Process(double delta)
 	{
-		DetectMovement();
-		DetectJump();
-		
-		SetAnimation();
+		//SetMultiplayerAuthority(id);
+		if(IsMultiplayerAuthority())
+		{
+			//GD.Print("In Node " + Name + " id is " + id.ToString() + " is multiplayer authority for this node");
+		}
+		if(IsMultiplayerAuthority())//if (multiplayerSync.GetMultiplayerAuthority() == id)
+		{
+			DetectMovement();
+			DetectJump();
 
-		Attack();
+			SetAnimation();
+			Attack();
+		}
 	}
 
 	// used to call physics functions
 	public override void _PhysicsProcess(double delta)
 	{
-		//GD.Print(LinearVelocity);
-		if(canJump)
-			Move();
-		Jump();
+		
+		if(IsMultiplayerAuthority())//if (multiplayerSync.GetMultiplayerAuthority() == id)
+		{
+			if (canJump)
+				Move();
+			Jump();
+		}
 	}
 
 	public void DetectMovement()
@@ -119,8 +187,9 @@ public partial class PlayerController : RigidBody3D
 
 		// rotation
 		if(hdir!=0 || vdir != 0)
-			LookAt(new Vector3(-hdir * 200, Position.Y, -vdir*200), Vector3.Up);	
+			LookAt(new Vector3(-hdir * 200, Position.Y, -vdir*200), Vector3.Up);
 
+		GD.Print("Moving player: (" + velx.ToString() + ", " + vely.ToString() + ", " + velz.ToString());
 		
 	}
 
@@ -163,14 +232,11 @@ public partial class PlayerController : RigidBody3D
 			Node3D collider = (Node3D)raycast.GetCollider();
 			if(collider != null)
 			{
-				//GD.Print("Collision!");
 				if(collider.GetGroups().Contains("floor"))
 				{
-					//GD.Print("Floor collision!");
 					canJump = true;
 					LinearVelocity = new Vector3(LinearVelocity.X, 0, LinearVelocity.Z);
 					await ToSignal(GetTree().CreateTimer(0.75f), "timeout");
-
 				}
 			}
 			await ToSignal(GetTree().CreateTimer(0.1f), "timeout");
@@ -179,36 +245,73 @@ public partial class PlayerController : RigidBody3D
 
 	public void Attack()
 	{
-		if (Input.IsActionPressed("Attack"))
+		if (Input.IsActionPressed("Attack") && canAttack)
 		{
 			GD.Print("Attack used!");
+			attacked = true;
+			RefreshAttacketAnimation();
 			basicAttackCollider.SetDeferred("disabled", false);
-			//DisableAttack();
+			canAttack = false;
+			basicAttack.Visible = true;
+			DisableAttack();
 		}
+	}
+
+	private async void RefreshAttacketAnimation()
+	{
+		await ToSignal(GetTree().CreateTimer(1.1f), "timeout");
+		attacked = false;
 	}
 
 	public async void DisableAttack()
 	{
-		await ToSignal(GetTree().CreateTimer(0.5f), "timeout");
+		await ToSignal(GetTree().CreateTimer(0.25f), "timeout");
+		basicAttack.Visible = false;
+		basicAttackCollider.SetDeferred("disabled", true); // desactive attack collider
+		await ToSignal(GetTree().CreateTimer(0.75f), "timeout");
+		canAttack = true;
 	}
 
 	public void TakeDamage(int damage)
 	{
 		vitality -= damage;
+		damageReceived = true;
+		RefreshDamageReceivedAnimation();
 	}
 
-	public void Start()
+	private async void RefreshDamageReceivedAnimation()
 	{
-		can = true;
-		canMove = true;
-		canJump = true;
-		canAttack = true;
+		await ToSignal(GetTree().CreateTimer(0.5f), "timeout");
+		damageReceived = false;
+	}
+
+	public async void Start()
+	{
+		await ToSignal(GetTree().CreateTimer(5), "timeout");
+		if(IsMultiplayerAuthority())
+		{ 
+			can = true;
+			canMove = true;
+			canJump = true;
+			canAttack = true;
+			ActivateJump();
+		}
 	}
 
 	public void SetAnimation()
 	{
 		// move and jump animations
-		if ((LinearVelocity.X != 0 || LinearVelocity.Z != 0) && LinearVelocity.Y == 0)
+
+		// attack animation
+		if (attacked)
+			animationPlayer.Play("Attack1");
+
+		// take damage animation
+		else if (damageReceived)
+			animationPlayer.Play("Crouch");
+
+		// movement, jump, fall and idle dependes on velocities
+		else if ((LinearVelocity.X != 0 || LinearVelocity.Z != 0) && LinearVelocity.Y == 0)
 			animationPlayer.Play("Run");
 		else if (LinearVelocity.Y > 0)
 			animationPlayer.Play("Jump");
@@ -216,12 +319,6 @@ public partial class PlayerController : RigidBody3D
 			animationPlayer.Play("Fall");
 		else
 			animationPlayer.Play("Idle");
-
-		// attack animation
-
-
-		// take damage animation
-
 
 		// use ability animation (depends on ability?)
 
@@ -233,12 +330,14 @@ public partial class PlayerController : RigidBody3D
 	}
 	
 	// signal emitted when body shape enters
-	private void _on_body_shape_entered(Rid body_rid, Node body, long body_shape_index, long local_shape_index)
+	private void _on_basic_attack_body_entered(Node3D body)
 	{
-		if(body.GetGroups().Contains("basicAttack") ||body.GetGroups().Contains("ability"))
+		if (body.GetGroups().Contains("player"))
 		{
-			TakeDamage(3);
+			PlayerController enemyPlayer = (PlayerController)body;
+			enemyPlayer.TakeDamage(attackDamage);
+			basicAttackCollider.SetDeferred("disabled", true);
+			GD.Print("Damage taken\n");
 		}
 	}
-
 }

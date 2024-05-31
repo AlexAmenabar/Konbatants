@@ -2,7 +2,7 @@ using Godot;
 using System;
 using Godot.NativeInterop;
 
-public partial class OnlineTesting : Node
+public partial class OnlineTesting : Control
 {
 	ENetMultiplayerPeer peer;
 
@@ -26,25 +26,9 @@ public partial class OnlineTesting : Node
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		//GD.Print(multiplayer.GetPeers().Length);
-
-		if (Input.IsActionPressed(test1) && attemp == 0)
-		{
-			if(attemp==0)
-			{ 
-			attemp++;
-			GD.Print("Test1");
-			CreateServer();
-			}
-		}
-		if(Input.IsActionPressed(test2) && attemp == 0)
-		{
-			attemp++;
-			GD.Print("Test2");
-			ConnectToServer();
-		}
 
 	}
+
 	private void CreateServer()
 	{
 		GD.Print("Server starting");
@@ -94,9 +78,8 @@ public partial class OnlineTesting : Node
 		}
 		
 		Multiplayer.MultiplayerPeer = peer;
-
+		
 		GD.Print("Client created");
-
 	}
 
 	/// <summary>
@@ -135,19 +118,29 @@ public partial class OnlineTesting : Node
 		GD.Print("Connection to server failed!");
 	}
 
-
-
 	private void _on_button_pressed()
 	{
 		// Replace with function body.
 		ConnectToServer();
 	}
 
-
 	private void _on_button_2_pressed()
 	{
 		// Replace with function body.
 		CreateServer();
 	}
-}
 
+	private void _on_button_3_pressed()
+	{
+		Rpc("StartGame");
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, CallLocal = true, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable)]
+	private void StartGame()
+	{
+		// Replace with function body.
+		var scene = ResourceLoader.Load<PackedScene>("res://scenery.tscn").Instantiate<Node3D>();
+		GetTree().Root.AddChild(scene);
+		Hide();
+	}
+}

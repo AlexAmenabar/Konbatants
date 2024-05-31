@@ -4,10 +4,12 @@ var usr_name
 var id
 var current_session_id
 
+# private port and ip
 var private_ip
 var private_port
 
-var peer_ip
+#var peer_ip
+# public port
 var peer_port
 
 # Called when the node enters the scene tree for the first time.

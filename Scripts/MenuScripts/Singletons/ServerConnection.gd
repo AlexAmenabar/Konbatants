@@ -503,10 +503,10 @@ func hole_punching():
 				server_udp.close()
 		
 				# start listening in own_port port
-				var own_ip = ip_and_ports[1].split("-")[0]
+				'''var own_ip = ip_and_ports[1].split("-")[0]
 				var own_port = int(ip_and_ports[1].split("-")[1])
 				var own_private_ip = ip_and_ports[1].split("-")[2]
-				var own_private_port = ip_and_ports[1].split("-")[3]
+				var own_private_port = ip_and_ports[1].split("-")[3]'''
 
 				# contact with all clients
 				for i in range(2, len(ip_and_ports)):
@@ -533,6 +533,14 @@ func hole_punching():
 						peers_contacted+=1
 						#print("Response reached from " + str(i) + " client")
 						#get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
+						
+						# add client info to ip and port list
+						if res == 0: #use public information
+							CurrentSessionInfo.clients_ips.append(ip)
+							CurrentSessionInfo.clients_ports.append(port)
+						else: # use private information
+							CurrentSessionInfo.clients_ips.append(private_ip)
+							CurrentSessionInfo.clients_ports.append(private_port)
 					else:
 						print("TIMEOUT, CANT CONTACT WITH " + str(i) + " ONE CLIENT")
 				
@@ -542,6 +550,10 @@ func hole_punching():
 				
 				else:
 					print("CAN'T START GAME, REMOVING SESSION")
+				
+				# close sockets
+				peer_udp.close()
+				local_peer_udp.close()
 				
 			# server send an error message
 			#TODO
@@ -591,21 +603,36 @@ func hole_punching():
 				# try first with private info (not necesary to hole punch
 				#peer_udp.connect_to_host(game_server_private_ip, int(game_server_private_port))
 				var peers_udp = []
+				# public ip and port and private ip and port sockets
 				peers_udp.append(peer_udp)
 				peers_udp.append(local_peer_udp)
 				
 				res = await communicate_with_another_client(message, peers_udp, 1000)
 				print("res = " + str(res))
+				
 				# some socket get a result
 				if res >= 0:
 					print("message reached from server")
 					get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
-				
+					
+					# store ip and port to communicate
+					if (res==0): # store private info
+						CurrentSessionInfo.host_ip = game_server_ip
+						CurrentSessionInfo.host_port = game_server_port
+					else: # store private info
+						CurrentSessionInfo.host_ip = game_server_private_ip
+						CurrentSessionInfo.host_port = game_server_private_port
 				else:
 					print("TIMEOUT")
-				
-				
-# FUNCTIONS FOR TESTING
+					
+				# close ports
+				peer_udp.close()
+				local_peer_udp.close()
+
+
+#########################
+# FUNCTIONS FOR TESTING #
+#########################
 func get_active_users():
 	# create message
 	var message = GET_ALL_USERS 

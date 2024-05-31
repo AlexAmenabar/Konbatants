@@ -1,20 +1,30 @@
 extends Node
 
+# session info
 var private=true
 var players = 0 # total players
 var players_in_room = 0 #players entered session
 var teams = false
 var s_id = null
 
+# player names
 var players_list = []
 
+# user is server or not
 var is_server = false
 
+# client own port
+var own_port
+var waiting=false #this is used to know when in ServerConnection must be used proccess
+
+# clients store here session host info (stored after 
 var host_ip
 var host_port
-var own_port
 
-var waiting=false #this is used to know when in ServerConnection must be used proccess
+# server store here all clients ip and ports
+var clients_ips = []
+var clients_ports = []
+
 
 func set_values(p_private, p_players, p_teams, p_id):
 	private = p_private

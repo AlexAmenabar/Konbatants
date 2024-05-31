@@ -1,16 +1,35 @@
-[gd_scene load_steps=5 format=3 uid="uid://c471wjjt5sta3"]
+[gd_scene load_steps=7 format=3 uid="uid://c471wjjt5sta3"]
 
 [ext_resource type="PackedScene" uid="uid://dt352rfintkdu" path="res://3D models/3DGodotRobot.glb" id="1_3newx"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/PlayerController.cs" id="1_18xpu"]
+[ext_resource type="PackedScene" uid="uid://cb3ygq07m17qe" path="res://3D models/Cube/cube/source/cube.glb" id="3_igvtk"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_j62kg"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_d034c"]
 
-[node name="Player" type="RigidBody3D"]
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_a2h54"]
+properties/0/path = NodePath(".:position")
+properties/0/spawn = true
+properties/0/replication_mode = 1
+properties/1/path = NodePath(".:rotation")
+properties/1/spawn = true
+properties/1/replication_mode = 1
+properties/2/path = NodePath(".:linear_velocity")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath("BasicAttack:visible")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath("BasicAttack/AttackCollisionShape:disabled")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+
+[node name="Player" type="RigidBody3D" groups=["player"]]
 mass = 60.0
 lock_rotation = true
 script = ExtResource("1_18xpu")
+metadata/id = 0
 
 [node name="3DGodotRobot" parent="." instance=ExtResource("1_3newx")]
 
@@ -20,11 +39,17 @@ shape = SubResource("BoxShape3D_j62kg")
 [node name="RayCast3D" type="RayCast3D" parent="."]
 target_position = Vector3(0, -0.5, 0)
 
-[node name="BasicAttack" type="RigidBody3D" parent="." groups=["basicAttack"]]
+[node name="BasicAttack" type="Area3D" parent="." groups=["basicAttack"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.793089, 0.764785)
 
 [node name="AttackCollisionShape" type="CollisionShape3D" parent="BasicAttack"]
-transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.311241)
 shape = SubResource("BoxShape3D_d034c")
 
-[connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]
+[node name="cube" parent="BasicAttack" instance=ExtResource("3_igvtk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.311241)
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_a2h54")
+
+[connection signal="body_entered" from="BasicAttack" to="." method="_on_basic_attack_body_entered"]

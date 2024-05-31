@@ -22,8 +22,152 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.52428, 0)
 light_energy = 0.0
 light_size = 100.0
 
-[node name="Player" parent="." instance=ExtResource("1_phd1v")]
+[node name="Players" type="Node3D" parent="."]
 
-[node name="Player2" parent="." instance=ExtResource("1_phd1v")]
+[node name="Player0" parent="Players" instance=ExtResource("1_phd1v")]
+
+[node name="Player1" parent="Players" instance=ExtResource("1_phd1v")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.07915, 0, 0)
-script = null
+metadata/id = 1
+
+[node name="GUI" type="CanvasLayer" parent="."]
+
+[node name="Player1frame" type="ColorRect" parent="GUI"]
+offset_left = 20.0
+offset_top = 76.0
+offset_right = 310.0
+offset_bottom = 116.0
+rotation = -0.167432
+color = Color(0, 0, 0, 1)
+
+[node name="player1vit" type="ColorRect" parent="GUI/Player1frame"]
+layout_mode = 1
+offset_left = 6.23551
+offset_top = 5.11062
+offset_right = 296.236
+offset_bottom = 45.1106
+rotation = 0.0311105
+color = Color(0.247059, 0.403922, 1, 1)
+
+[node name="Player2frame" type="ColorRect" parent="GUI"]
+offset_left = 96.0
+offset_top = 136.0
+offset_right = 386.0
+offset_bottom = 176.0
+rotation = -0.0979237
+color = Color(0, 0, 0, 1)
+
+[node name="player2vit" type="ColorRect" parent="GUI/Player2frame"]
+layout_mode = 1
+offset_left = 6.18433
+offset_top = 8.64604
+offset_right = 296.184
+offset_bottom = 48.646
+rotation = -0.0117645
+color = Color(0.823529, 0.835294, 0.435294, 1)
+
+[node name="Player3frame" type="ColorRect" parent="GUI"]
+offset_left = 42.0
+offset_top = 215.0
+offset_right = 332.0
+offset_bottom = 255.0
+rotation = -0.0899704
+color = Color(0, 0, 0, 1)
+
+[node name="player3vit" type="ColorRect" parent="GUI/Player3frame"]
+layout_mode = 1
+offset_left = 6.23551
+offset_top = 5.11062
+offset_right = 296.236
+offset_bottom = 45.1106
+rotation = 0.0311105
+color = Color(0.823529, 0.835294, 0.435294, 1)
+
+[node name="Player4frame" type="ColorRect" parent="GUI"]
+offset_left = 60.0
+offset_top = 277.0
+offset_right = 350.0
+offset_bottom = 317.0
+rotation = 0.0657955
+color = Color(0, 0, 0, 1)
+
+[node name="player4vit" type="ColorRect" parent="GUI/Player4frame"]
+layout_mode = 1
+offset_left = 6.23551
+offset_top = 5.11062
+offset_right = 296.236
+offset_bottom = 45.1106
+rotation = 0.0264594
+color = Color(0.823529, 0.835294, 0.435294, 1)
+
+[node name="Player5frame" type="ColorRect" parent="GUI"]
+offset_left = 1599.0
+offset_top = 31.0
+offset_right = 1889.0
+offset_bottom = 71.0
+rotation = 0.167552
+color = Color(0, 0, 0, 1)
+
+[node name="player5vit" type="ColorRect" parent="GUI/Player5frame"]
+layout_mode = 1
+offset_left = 282.229
+offset_top = 49.6281
+offset_right = 572.229
+offset_bottom = 89.6281
+rotation = 0.0311105
+scale = Vector2(-1, -1)
+color = Color(0.823529, 0.835294, 0.435294, 1)
+
+[node name="Player6frame" type="ColorRect" parent="GUI"]
+offset_left = 1584.0
+offset_top = 110.0
+offset_right = 1874.0
+offset_bottom = 150.0
+rotation = 0.167552
+color = Color(0, 0, 0, 1)
+
+[node name="player6vit" type="ColorRect" parent="GUI/Player6frame"]
+layout_mode = 1
+offset_left = 282.214
+offset_top = 43.5453
+offset_right = 572.214
+offset_bottom = 83.5453
+rotation = -0.040611
+scale = Vector2(-1, -1)
+color = Color(0.823529, 0.835294, 0.435294, 1)
+
+[node name="Player7frame" type="ColorRect" parent="GUI"]
+offset_left = 1566.0
+offset_top = 218.0
+offset_right = 1856.0
+offset_bottom = 258.0
+rotation = -0.0126332
+color = Color(0, 0, 0, 1)
+
+[node name="player7vit" type="ColorRect" parent="GUI/Player7frame"]
+layout_mode = 1
+offset_left = 298.458
+offset_top = 44.774
+offset_right = 588.458
+offset_bottom = 84.774
+rotation = -0.00749697
+scale = Vector2(-1, -1)
+color = Color(0.823529, 0.835294, 0.435294, 1)
+
+[node name="Player8frame" type="ColorRect" parent="GUI"]
+offset_left = 1588.0
+offset_top = 284.0
+offset_right = 1878.0
+offset_bottom = 324.0
+rotation = 0.167552
+color = Color(0, 0, 0, 1)
+
+[node name="player8vit" type="ColorRect" parent="GUI/Player8frame"]
+layout_mode = 1
+offset_left = 280.424
+offset_top = 50.9476
+offset_right = 570.424
+offset_bottom = 90.9476
+rotation = 0.0104343
+scale = Vector2(-1, -1)
+color = Color(0.823529, 0.835294, 0.435294, 1)

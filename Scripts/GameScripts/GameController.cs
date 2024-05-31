@@ -1,0 +1,20 @@
+using Godot;
+using System;
+
+public partial class GameController : Node
+{
+	int num_players;
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
+	{
+		// read game player amount from singleton, for now simulate
+		num_players = 2;
+
+	}
+
+	// Called every frame. 'delta' is the elapsed time since the previous frame.
+	public override void _Process(double delta)
+	{
+
+	}
+}
