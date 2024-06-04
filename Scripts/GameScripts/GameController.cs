@@ -7,8 +7,6 @@ public partial class GameController : Node
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		// read game player amount from singleton, for now simulate
-		num_players = 2;
 
 	}
 

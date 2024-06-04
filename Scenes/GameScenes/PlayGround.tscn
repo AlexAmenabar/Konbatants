@@ -1,13 +1,75 @@
-[gd_scene load_steps=2 format=3 uid="uid://dij5gdt5ajqo3"]
+[gd_scene load_steps=7 format=3 uid="uid://dij5gdt5ajqo3"]
 
+[ext_resource type="Script" path="res://Scripts/GameScripts/GameController.cs" id="1_7pvyy"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/GameLoader.cs" id="1_34u3b"]
+[ext_resource type="PackedScene" uid="uid://diaufti6nn5sn" path="res://Scenes/GameScenes/GUI/PlayerGUI.tscn" id="2_1t7ij"]
+[ext_resource type="Script" path="res://Scripts/GeneralScripts/GSCriptToCSharp.cs" id="2_s64c6"]
+[ext_resource type="Script" path="res://Scripts/GameScripts/PC/DefaultController.cs" id="6_3o87v"]
+[ext_resource type="PackedScene" uid="uid://bd35xg8x32g03" path="res://Scenes/GameScenes/Android/VirtualController.tscn" id="7_rghjd"]
 
 [node name="PlayGround" type="Node3D"]
-script = ExtResource("1_34u3b")
+script = ExtResource("1_7pvyy")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
+[node name="p0" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
+visible = false
+offset_left = 5.0
+offset_top = 2.0
+offset_right = 5.0
+offset_bottom = 2.0
+
+[node name="p2" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
+visible = false
+offset_left = 29.0
+offset_top = 107.0
+offset_right = 29.0
+offset_bottom = 107.0
+
+[node name="p4" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
+visible = false
+offset_left = 52.0
+offset_top = 211.0
+offset_right = 52.0
+offset_bottom = 211.0
+
+[node name="p6" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
+visible = false
+offset_left = 76.0
+offset_top = 311.0
+offset_right = 76.0
+offset_bottom = 311.0
+
+[node name="p1" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
+visible = false
+offset_left = 1494.0
+offset_top = 54.0
+offset_right = 1494.0
+offset_bottom = 54.0
+
+[node name="p3" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
+visible = false
+offset_left = 1518.0
+offset_top = 159.0
+offset_right = 1518.0
+offset_bottom = 159.0
+
+[node name="p5" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
+visible = false
+offset_left = 1541.0
+offset_top = 263.0
+offset_right = 1541.0
+offset_bottom = 263.0
+
+[node name="p7" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
+visible = false
+offset_left = 1565.0
+offset_top = 363.0
+offset_right = 1565.0
+offset_bottom = 363.0
+
 [node name="LoadingPanel" type="ColorRect" parent="CanvasLayer"]
+visible = false
 offset_right = 1931.0
 offset_bottom = 1086.0
 color = Color(0, 0, 0, 1)
@@ -33,3 +95,21 @@ text = "[center]Loading..."
 [node name="Players" type="Node3D" parent="."]
 
 [node name="Map" type="Node3D" parent="."]
+
+[node name="ParserNode" type="Node3D" parent="."]
+script = ExtResource("2_s64c6")
+
+[node name="GameLoader" type="Node3D" parent="."]
+script = ExtResource("1_34u3b")
+
+[node name="Controllers" type="Node2D" parent="."]
+
+[node name="DefaultController" type="Node2D" parent="Controllers"]
+script = ExtResource("6_3o87v")
+
+[node name="VirtualController" parent="Controllers" instance=ExtResource("7_rghjd")]
+visible = false
+offset_left = 128.0
+offset_top = 992.0
+offset_right = 128.0
+offset_bottom = 992.0

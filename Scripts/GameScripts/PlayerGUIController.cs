@@ -2,7 +2,7 @@ using Godot;
 using System;
 using System.Reflection.Metadata.Ecma335;
 
-public partial class PlayerGUIController : Node
+public partial class PlayerGUIController : ColorRect
 {
 	private PlayerController player;
 	private ColorRect actualVitBar;

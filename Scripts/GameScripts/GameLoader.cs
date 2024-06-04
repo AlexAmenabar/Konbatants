@@ -24,9 +24,14 @@ public partial class GameLoader : Node
 
 	GSCriptToCSharp parser;
 
+	int connected_players = 0;
+	bool initialized = false;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		parser = (GSCriptToCSharp)GetNode("../ParserNode");
+
 		// connect to signals
 		Multiplayer.PeerConnected += PeerConnected;
 		Multiplayer.PeerDisconnected += PeerDisconnected;
@@ -36,55 +41,71 @@ public partial class GameLoader : Node
 
 		// initialize information from another scripts
 		mapName = "Default"; // only this map for now
+		amountPlayers = parser.GetAmountPlayers();
+		teams = parser.GetTeams();
+		isServer = parser.GetIsServer();
 
-		//amountPlayers = parser.GetAmountPlayers();
-		amountPlayers = 2;
-		//teams = parser.GetTeams();
-		teams = false;
-		//isServer = parser.GetIsServer();
-		isServer = true;
-
-		//hostIp = parser.GetHostIp();
-		//hostPort = parser.GetHostPort();
-		//clientPort = parser.GetClientPort();
-		hostPort = 4444;
-		hostIp = "192.168.1.37";
-		clientPort = 4445;
-
+		hostIp = parser.GetHostIp();
+		hostPort = parser.GetHostPort();
+		clientPort = parser.GetClientPort();
+		//GD.Print("OwnPort: " + clientPort.ToString());
+		
 		// instantiate map scene
 		LoadMap(mapName);
 
-		// spawn players in scene using map spawn points
+		// spawn players (nodes) in scene using map spawn points
 		SpawnPlayers(amountPlayers);
 
+		// set teams (set player teams)
+		SetPlayersTeam(teams, amountPlayers);
 
-		//gamePlayers = new List<PlayerInfoInGame>();
+		// manage GUI visibility and set GUI to player (and set username)
+		ManageGUI(amountPlayers, teams);
+
 
 		// create server
 		if (isServer == true)
+		{
 			CreateServer(hostPort);
-
+			GD.Print("Server: hostPort: " + hostPort.ToString());
+		}
 		// create client
 		else
+		{
 			CreateClient(hostIp, hostPort, clientPort);
+			GD.Print("Client: hostPort: " + hostPort.ToString() + ", hostIP: " + hostIp + ", clientPort: " + clientPort.ToString());
+		}
 
-
-		// load players info
-		//LoadPLayersInfo();
+		// activate virtual controller
+		//if(parser.GetOS())
+			//(GetNode("../Controllers/Virtual Joystick") as Control).Visible = true;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	/*public override void _Process(double delta)
+	public override void _Process(double delta)
 	{
+		if(connected_players + 1 == amountPlayers && !initialized)
+		{
+			initialized = true;
+			// initialize players
+			for (int i = 0; i < amountPlayers; i++)
+			{
+				//int team = i / (amountPlayers / 2);
 
-	}*/
+				(GetNode("../Players/player" + i.ToString()) as PlayerController).Initialize();
+			}
+
+			// quit loading panel
+			(GetNode("../CanvasLayer/LoadingPanel") as ColorRect).Visible = false;
+		}
+	}
 
 	private void LoadMap(String mapName)
 	{
 		// load map scene
 		var scene = ResourceLoader.Load<PackedScene>("res://Scenes/GameScenes/Maps/" + mapName +".tscn").Instantiate<Node3D>();
-		GetNode("./Map").AddChild(scene);
-		mapNode = (Node3D)GetNode("./Map/" + mapName);
+		GetNode("../Map").AddChild(scene);
+		mapNode = (Node3D)GetNode("../Map/" + mapName);
 	}
 
 	private void SpawnPlayers(int amountPlayers)
@@ -97,23 +118,54 @@ public partial class GameLoader : Node
 	{
 		// get spawn point from map scene
 		Node3D spawnPointNode = (Node3D)mapNode.GetNode("./SpawnPoints").GetChild(i);
-		Vector3 spawnPoint = spawnPointNode.Position;
+		Vector3 spawnPoint = spawnPointNode.GlobalPosition;
 
 		// spawn a player in that position
 		var player = ResourceLoader.Load<PackedScene>("res://Scenes/Player.tscn").Instantiate<RigidBody3D>();
+		player.Name = "player" + i.ToString(); // set spawned player name correctly
+
+		// set player position on spawnpoint
+		player.GlobalPosition = spawnPoint;
 
 		// add player to player list
-		GetNode("./Players").AddChild(player);
+		GetNode("../Players").AddChild(player); 
 	}
 
-	private void SetPlayerTeam()
+	private void SetPlayersTeam(bool teams, int amountPlayers)
 	{
-
+		for(int i=0; i<amountPlayers; i++)
+		{
+			PlayerController p = GetNode("../Players/player" + i.ToString()) as PlayerController;
+			if (teams)
+			{
+				if (i < amountPlayers / 2)
+					p.Team = 0;
+				else
+					p.Team = 1;
+			}
+			else // each player has a different team
+			{
+				p.Team = i;
+			}
+		}
 	}
 
-	private void SetPlayerPosition()
+	private void ManageGUI(int players, bool teams)
 	{
+		for (int i = 0; i < players; i++)
+		{
+			PlayerController p = GetNode("../Players/player" + i.ToString()) as PlayerController;
+			PlayerGUIController pGUI = GetNode("../CanvasLayer/p" + i.ToString()) as PlayerGUIController;
 
+			p.PlayerGUIController = pGUI;
+
+			ColorRect nodeGUI = (ColorRect)GetNode("../CanvasLayer/p" + i.ToString());
+
+			// username
+			pGUI.SetPlayerName(parser.GetName(i));
+			
+			nodeGUI.Visible = true;
+		}
 	}
 
 	/// <summary>
@@ -194,6 +246,7 @@ public partial class GameLoader : Node
 	private void PeerConnected(long id)
 	{
 		GD.Print("Player connected:" + id.ToString());
+		connected_players = Multiplayer.GetPeers().Length;
 	}
 
 	/// <summary>

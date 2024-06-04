@@ -3,48 +3,55 @@ using System;
 
 public partial class GSCriptToCSharp : Node
 {
-	// Called when the node enters the scene tree for the first time.
-	GDScript currentSessionInfo;
-	GDScript playerMenuInfo;
-	public override void _Ready()
-	{
-		// load scripts
-		currentSessionInfo = GetNode<GDScript>("/root/CurrentSessionInfo");
-		playerMenuInfo = GetNode<GDScript>("/root/PlayerMenu");
-	}
-
-
 	// get IP and PORT (executed by all players
 	public String GetHostIp()
 	{
-		return (String)currentSessionInfo.Get("host_ip");
+		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
+		return (String) currentSessionInfo.Get("host_ip");
 	}
 	public int GetHostPort()
 	{
+		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
 		return (int)currentSessionInfo.Get("host_port");
 	}
 	public int GetClientPort()
 	{
-		return (int)playerMenuInfo.Get("private_port");
+		var playerMenu = GetNode("/root/PlayerMenu");
+		return (int)playerMenu.Get("private_port");
 	}
 
 	// GET session necesary information
 	public int GetAmountPlayers()
 	{
+		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
 		return (int)currentSessionInfo.Get("players");
 	}
 	public bool GetTeams()
 	{
+		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
 		return (bool)currentSessionInfo.Get("teams");
 	}
 
 	// get session user names (only server, then broadcast)
 	public String[] GetSessionPlayerNames()
 	{
+		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
 		return (String[])currentSessionInfo.Get("players_list");
 	}
 	public bool GetIsServer()
 	{
-		return (bool)currentSessionInfo.Get("isServer");
+		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
+		return (bool)currentSessionInfo.Get("is_server");
+	}
+	public String GetName(int i)
+	{
+		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
+		String[] player_names = (String[])currentSessionInfo.Get("players_list");
+		return player_names[i];
+	}
+	public bool GetOS()
+	{
+		var currentSessionInfo = GetNode("/root/ConfigurationScript");
+		return (bool)currentSessionInfo.Get("mobile"); // return if is mobile version or not
 	}
 }

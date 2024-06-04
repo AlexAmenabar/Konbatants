@@ -27,9 +27,9 @@ public partial class PlayerController : RigidBody3D
 	private MultiplayerSynchronizer multiplayerSync;
 
 	// "temporal" attributes to control
-	private int hdir = -1;
-	private int vdir = -1;
-	private int jump = -1;
+	public int hdir = 0;
+	public int vdir = 0;
+	public int jump = -1;
 
 	// attributes to control player actions
 	private bool can = false;
@@ -41,6 +41,16 @@ public partial class PlayerController : RigidBody3D
 	private bool attacked = false;
 	private bool damageReceived = false;
 
+	// team
+	private int team; // 0 or 1
+
+	private PlayerGUIController playerGUIController;
+
+	GSCriptToCSharp parser;
+
+
+	public int Team { get => team; set => team = value; }
+	public PlayerGUIController PlayerGUIController { get => playerGUIController; set => playerGUIController = value; }
 
 	public override void _EnterTree()
 	{
@@ -49,16 +59,21 @@ public partial class PlayerController : RigidBody3D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		Variant vId = GetMeta("id");
-		
-		id = vId.AsInt32();
+		SetProcess(false);
+		SetPhysicsProcess(false);
+	}
 
-		GD.Print(id);
+	public void Initialize()
+	{
+		Variant vId = GetMeta("id");
+
+		// initialize stats
 		vitality = 100;
 		maxVitality = 100;
 		speed = 4;
 		attackDamage = 3;
 
+		// initialize nodes related to player
 		basicAttack = (Area3D)GetNode("./BasicAttack");
 		basicAttackCollider = (CollisionShape3D)GetNode("./BasicAttack/AttackCollisionShape");
 		basicAttackCollider.SetDeferred("disabled", true);
@@ -66,55 +81,53 @@ public partial class PlayerController : RigidBody3D
 
 		raycast = (RayCast3D)GetNode("./RayCast3D");
 
-		animationPlayer = (AnimationPlayer)GetNode("./3DGodotRobot/AnimationPlayer");
+		animationPlayer = (AnimationPlayer)GetNode("./AnimationPlayer");
 		animationPlayer.Play("Idle");
 
-		// set multiplayer authority
-		multiplayerSync = (MultiplayerSynchronizer)GetNode("./MultiplayerSynchronizer");
-
 		// get this player node index and unique id to set authority
-
-		GD.Print("Printing peers");
-		foreach(int peer in Multiplayer.GetPeers())
+		/*GD.Print("Printing peers");
+		foreach (int peer in Multiplayer.GetPeers())
 		{
 			GD.Print(peer.ToString());
-		}
+		}*/
 
-		// player authority is set in order to multiplayer ids
-		
+		// get multiplayer sync
+		multiplayerSync = (MultiplayerSynchronizer)GetNode("./MultiplayerSynchronizer");
+
+		// player authority is set in order to multiplayer ids (setted in connection order)
 		// array with all peers id-s
 		List<int> allpeers;
 		int myId = Multiplayer.GetUniqueId();
 
 		allpeers = new List<int>();
-		for(int i = 0; i<Multiplayer.GetPeers().Length; i++)
-		{
-			if(myId > Multiplayer.GetPeers()[i])
-			{
-				allpeers.Add(Multiplayer.GetPeers()[i]);
-				allpeers.Add(myId);
-			}
-			else
-			{
-				allpeers.Add(myId);
-				allpeers.Add(Multiplayer.GetPeers()[i]);
-			}
-		}
+		for (int i = 0; i < Multiplayer.GetPeers().Length; i++)
+			allpeers.Add(Multiplayer.GetPeers()[i]);
+
+		allpeers.Add(myId);
+		allpeers.Sort();
 
 		int playerIndex = this.Name.ToString().Split("r")[1].ToInt();
+		//GD.Print("Allpeers Lenght:" + allpeers.Count.ToString() + ", player Index: " + playerIndex.ToString());
+
 		id = allpeers[playerIndex];
-		
+		//GD.Print("Allpeers Lenght:" + allpeers.Count.ToString() + ", player Index: " + playerIndex.ToString() + ", id: " + id.ToString());
 
-		//multiplayerSync.SetMultiplayerAuthority(id);
-		//multiplayerSync.CallDeferred("set_multiplayer_authority", id);
 
-		GD.Print("Server " + Multiplayer.IsServer().ToString() + ", Authority id is " + id);
+		// set player GUI
+		playerGUIController = GetNode<PlayerGUIController>("../../CanvasLayer/p" + playerIndex.ToString());
 
-		//SetMultiplayerAuthority(id);
+		//GD.Print("Server " + Multiplayer.IsServer().ToString() + ", Authority id is " + id);
+
+		// SetMultiplayerAuthority(id);
 		CallDeferred("set_multiplayer_authority", id);
-		
+
+
+		SetProcess(true);
+		SetPhysicsProcess(true);
+
 		Start();
 	}
+
 
 	// Used to detect input
 	public override void _Process(double delta)
@@ -126,8 +139,8 @@ public partial class PlayerController : RigidBody3D
 		}
 		if(IsMultiplayerAuthority())//if (multiplayerSync.GetMultiplayerAuthority() == id)
 		{
-			DetectMovement();
-			DetectJump();
+			//DetectMovement();
+			//DetectJump();
 
 			SetAnimation();
 			Attack();
@@ -145,7 +158,6 @@ public partial class PlayerController : RigidBody3D
 			Jump();
 		}
 	}
-
 	public void DetectMovement()
 	{
 		if (Input.IsActionPressed("MoveRightDirection"))
@@ -189,7 +201,7 @@ public partial class PlayerController : RigidBody3D
 		if(hdir!=0 || vdir != 0)
 			LookAt(new Vector3(-hdir * 200, Position.Y, -vdir*200), Vector3.Up);
 
-		GD.Print("Moving player: (" + velx.ToString() + ", " + vely.ToString() + ", " + velz.ToString());
+		//GD.Print("Moving player: (" + velx.ToString() + ", " + vely.ToString() + ", " + velz.ToString());
 		
 	}
 
@@ -243,6 +255,13 @@ public partial class PlayerController : RigidBody3D
 		}
 	}
 
+	public void AttackInputDetected()
+	{
+		if(Input.IsActionPressed("Attack") && canAttack)
+		{
+
+		}
+	}
 	public void Attack()
 	{
 		if (Input.IsActionPressed("Attack") && canAttack)
@@ -287,7 +306,7 @@ public partial class PlayerController : RigidBody3D
 
 	public async void Start()
 	{
-		await ToSignal(GetTree().CreateTimer(5), "timeout");
+		await ToSignal(GetTree().CreateTimer(1), "timeout");
 		if(IsMultiplayerAuthority())
 		{ 
 			can = true;
@@ -295,6 +314,22 @@ public partial class PlayerController : RigidBody3D
 			canJump = true;
 			canAttack = true;
 			ActivateJump();
+
+			// set controller player
+			parser = (GSCriptToCSharp)GetNode("../../ParserNode");
+			if (parser.GetOS()) // Android
+			{
+				Control virtualController = (Control)GetNode("../../Controllers/VirtualController");
+				virtualController.Visible = true;
+				virtualController.Set("player_controller", this);
+			}
+			else // PC
+			{
+				DefaultController defaultController = (DefaultController)GetNode("../../Controllers/DefaultController");
+				defaultController.PlayerController = this;
+				defaultController.SetProcess(true);
+				defaultController.SetPhysicsProcess(true);
+			}
 		}
 	}
 

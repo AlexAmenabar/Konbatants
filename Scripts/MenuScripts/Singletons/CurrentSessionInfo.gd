@@ -49,3 +49,10 @@ func remove_player_by_name(name):
 func clear():
 	s_id = "null"
 	players_list.clear()
+	
+func get_players():
+	return players
+	
+func set_players(p):
+	players = p
+	print(p)

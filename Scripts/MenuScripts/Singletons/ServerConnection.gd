@@ -54,7 +54,8 @@ func _ready():
 	#server_ip = "34.170.146.101" # cloud server
 	server_ip = "192.168.1.36" # local server
 	server_port = 4444
-	server_udp.set_dest_address(server_ip, server_port)
+	#server_udp.set_dest_address(server_ip, server_port)
+
 	
 	# start listening in ports and initialize info in PlayerMenu 
 	var port_number = start_peer_udp(server_udp, 5125)
@@ -68,6 +69,8 @@ func _ready():
 
 	# get machine private ip
 	PlayerMenu.private_ip = get_private_ip()
+	
+	server_udp.connect_to_host(server_ip, server_port)
 
 func _process(delta):
 	# check if there is any package to process when client is waiting (to another users) in session room
@@ -486,12 +489,12 @@ func hole_punching():
 	
 		# can't contact server		
 		if res == 2:
-			print("Can't contact with server")	
+			print("Server: Can't contact with server")	
 	
 		if res==0:
 			var array_bytes = server_udp.get_packet()
 			var packet_string = array_bytes.get_string_from_ascii()
-			print("packet string")
+			print("Server: packet string")
 			print(packet_string)
 			
 			# server send ok message
@@ -535,6 +538,10 @@ func hole_punching():
 						#get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
 						
 						# add client info to ip and port list
+						CurrentSessionInfo.host_port = PlayerMenu.peer_port
+						print("ports in server")
+						print(PlayerMenu.private_port)
+						print(PlayerMenu.peer_port)
 						if res == 0: #use public information
 							CurrentSessionInfo.clients_ips.append(ip)
 							CurrentSessionInfo.clients_ports.append(port)
@@ -542,18 +549,22 @@ func hole_punching():
 							CurrentSessionInfo.clients_ips.append(private_ip)
 							CurrentSessionInfo.clients_ports.append(private_port)
 					else:
-						print("TIMEOUT, CANT CONTACT WITH " + str(i) + " ONE CLIENT")
+						print("Server: TIMEOUT, CANT CONTACT WITH " + str(i) + " ONE CLIENT")
 				
-				print("Peers contacted = " + str(peers_contacted))
-				if peers_contacted == CurrentSessionInfo.players-1:
-					print("GAME IS READY TO START")
-				
-				else:
-					print("CAN'T START GAME, REMOVING SESSION")
-				
+				print("Server: Peers contacted = " + str(peers_contacted))
+
 				# close sockets
 				peer_udp.close()
 				local_peer_udp.close()
+
+				if peers_contacted == CurrentSessionInfo.players-1:
+					print("Server: GAME IS READY TO START")
+
+					# load next scene
+					get_tree().change_scene_to_file("res://Scenes/GameScenes/PlayGround.tscn")
+					
+				else:
+					print("Server: CAN'T START GAME, REMOVING SESSION")
 				
 			# server send an error message
 			#TODO
@@ -610,25 +621,27 @@ func hole_punching():
 				res = await communicate_with_another_client(message, peers_udp, 1000)
 				print("res = " + str(res))
 				
+				# close ports
+				peer_udp.close()
+				local_peer_udp.close()
+				
 				# some socket get a result
 				if res >= 0:
 					print("message reached from server")
-					get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
 					
 					# store ip and port to communicate
 					if (res==0): # store private info
 						CurrentSessionInfo.host_ip = game_server_ip
-						CurrentSessionInfo.host_port = game_server_port
+						#CurrentSessionInfo.host_port = game_server_port
 					else: # store private info
 						CurrentSessionInfo.host_ip = game_server_private_ip
-						CurrentSessionInfo.host_port = game_server_private_port
+						#CurrentSessionInfo.host_port = game_server_private_port
+					CurrentSessionInfo.host_port = game_server_port
+					
+					# load next scene	
+					get_tree().change_scene_to_file("res://Scenes/GameScenes/PlayGround.tscn")
 				else:
 					print("TIMEOUT")
-					
-				# close ports
-				peer_udp.close()
-				local_peer_udp.close()
-
 
 #########################
 # FUNCTIONS FOR TESTING #
