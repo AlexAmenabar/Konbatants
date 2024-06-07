@@ -38,6 +38,7 @@ public partial class PlayerController : RigidBody3D
 	private bool canMove = false;
 
 	// varibales used in animations
+	private bool attackVar = false; // set true when player is going to attack
 	private bool attacked = false;
 	private bool damageReceived = false;
 
@@ -51,11 +52,9 @@ public partial class PlayerController : RigidBody3D
 
 	public int Team { get => team; set => team = value; }
 	public PlayerGUIController PlayerGUIController { get => playerGUIController; set => playerGUIController = value; }
+	public bool AttackVar { get => attackVar; set => attackVar = value; }
 
-	public override void _EnterTree()
-	{
 
-	}
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -107,23 +106,20 @@ public partial class PlayerController : RigidBody3D
 		allpeers.Sort();
 
 		int playerIndex = this.Name.ToString().Split("r")[1].ToInt();
-		//GD.Print("Allpeers Lenght:" + allpeers.Count.ToString() + ", player Index: " + playerIndex.ToString());
+		GD.Print("Allpeers Lenght:" + allpeers.Count.ToString() + ", player Index: " + playerIndex.ToString());
 
 		id = allpeers[playerIndex];
-		//GD.Print("Allpeers Lenght:" + allpeers.Count.ToString() + ", player Index: " + playerIndex.ToString() + ", id: " + id.ToString());
+		GD.Print("Allpeers Lenght:" + allpeers.Count.ToString() + ", player Index: " + playerIndex.ToString() + ", id: " + id.ToString());
 
 
 		// set player GUI
 		playerGUIController = GetNode<PlayerGUIController>("../../CanvasLayer/p" + playerIndex.ToString());
 
-		//GD.Print("Server " + Multiplayer.IsServer().ToString() + ", Authority id is " + id);
+		GD.Print("Server " + Multiplayer.IsServer().ToString() + ", Authority id is " + id);
 
 		// SetMultiplayerAuthority(id);
 		CallDeferred("set_multiplayer_authority", id);
 
-
-		SetProcess(true);
-		SetPhysicsProcess(true);
 
 		Start();
 	}
@@ -141,9 +137,10 @@ public partial class PlayerController : RigidBody3D
 		{
 			//DetectMovement();
 			//DetectJump();
+			//DetectAttack();
 
 			SetAnimation();
-			Attack();
+			//Attack();
 		}
 	}
 
@@ -156,6 +153,9 @@ public partial class PlayerController : RigidBody3D
 			if (canJump)
 				Move();
 			Jump();
+
+			if (AttackVar)
+				Attack();
 		}
 	}
 	public void DetectMovement()
@@ -255,17 +255,13 @@ public partial class PlayerController : RigidBody3D
 		}
 	}
 
-	public void AttackInputDetected()
-	{
-		if(Input.IsActionPressed("Attack") && canAttack)
-		{
-
-		}
-	}
 	public void Attack()
 	{
-		if (Input.IsActionPressed("Attack") && canAttack)
+		//if (Input.IsActionPressed("Attack") && canAttack)
+		//{
+		if (canAttack)
 		{
+			attackVar = false;
 			GD.Print("Attack used!");
 			attacked = true;
 			RefreshAttacketAnimation();
@@ -274,6 +270,7 @@ public partial class PlayerController : RigidBody3D
 			basicAttack.Visible = true;
 			DisableAttack();
 		}
+		//}
 	}
 
 	private async void RefreshAttacketAnimation()
@@ -293,9 +290,13 @@ public partial class PlayerController : RigidBody3D
 
 	public void TakeDamage(int damage)
 	{
+		GD.Print("Damage taken! Max vitality = " + maxVitality + ", Vitality = " + vitality);
 		vitality -= damage;
 		damageReceived = true;
 		RefreshDamageReceivedAnimation();
+
+		// refresh vitality bar
+		playerGUIController.RefreshLifeBar(vitality, maxVitality);
 	}
 
 	private async void RefreshDamageReceivedAnimation()
@@ -314,6 +315,8 @@ public partial class PlayerController : RigidBody3D
 			canJump = true;
 			canAttack = true;
 			ActivateJump();
+			SetPhysicsProcess(true);
+			SetProcess(true);
 
 			// set controller player
 			parser = (GSCriptToCSharp)GetNode("../../ParserNode");
@@ -370,9 +373,19 @@ public partial class PlayerController : RigidBody3D
 		if (body.GetGroups().Contains("player"))
 		{
 			PlayerController enemyPlayer = (PlayerController)body;
-			enemyPlayer.TakeDamage(attackDamage);
-			basicAttackCollider.SetDeferred("disabled", true);
-			GD.Print("Damage taken\n");
+			if(team != enemyPlayer.Team) // player can't hit players of his team
+			{ 
+				enemyPlayer.TakeDamage(attackDamage);
+				DisableAttackCollider();
+			}
+			//basicAttackCollider.SetDeferred("disabled", true);
+			//GD.Print("Damage taken\n");
 		}
+	}
+	private async void DisableAttackCollider()
+	{
+		await ToSignal(GetTree().CreateTimer(0.25f), "timeout");
+		basicAttackCollider.SetDeferred("disabled", true);
+		GD.Print("Damage taken\n");
 	}
 }

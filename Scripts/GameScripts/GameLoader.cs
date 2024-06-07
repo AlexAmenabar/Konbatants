@@ -27,6 +27,8 @@ public partial class GameLoader : Node
 	int connected_players = 0;
 	bool initialized = false;
 
+	PacketPeerUdp socket;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -53,6 +55,10 @@ public partial class GameLoader : Node
 		// instantiate map scene
 		LoadMap(mapName);
 
+		// start Map music
+		GetNode("/root/MusicControllerScene/AudioStreamPlayer2D").Set("playing", false);
+		GetNode("/root/MusicControllerScene/" + mapName + "Map").Set("playing", true);
+
 		// spawn players (nodes) in scene using map spawn points
 		SpawnPlayers(amountPlayers);
 
@@ -63,22 +69,77 @@ public partial class GameLoader : Node
 		ManageGUI(amountPlayers, teams);
 
 
+
+		//CreateSocket();
+		//HolePunching();
+
+		//CreateSocketAndSendMessage();
+
+		
 		// create server
 		if (isServer == true)
 		{
 			CreateServer(hostPort);
-			GD.Print("Server: hostPort: " + hostPort.ToString());
+			GD.Print(parser.GetMyName() + ": Server: hostPort: " + hostPort.ToString());
 		}
 		// create client
 		else
 		{
 			CreateClient(hostIp, hostPort, clientPort);
-			GD.Print("Client: hostPort: " + hostPort.ToString() + ", hostIP: " + hostIp + ", clientPort: " + clientPort.ToString());
+			GD.Print(parser.GetMyName() + ": Client: hostPort: " + hostPort.ToString() + ", hostIP: " + hostIp + ", clientPort: " + clientPort.ToString());
 		}
-
+		
 		// activate virtual controller
 		//if(parser.GetOS())
-			//(GetNode("../Controllers/Virtual Joystick") as Control).Visible = true;
+		//(GetNode("../Controllers/Virtual Joystick") as Control).Visible = true;
+	}
+
+	public void CreateSocket()
+	{
+		socket = new PacketPeerUdp();
+		if(isServer)
+		{
+			GD.Print("Server bind on " + hostPort.ToString() + " port, and set dest in (" + parser.GetClientIp(0) + ", " + parser.GetClientPort(0).ToString() + ")");
+			socket.SetDestAddress(parser.GetClientIp(0), parser.GetClientPort(0));
+			Error err = socket.Bind(hostPort);
+			GD.Print("Server: error " + err.ToString());
+		}
+		else
+		{
+			GD.Print("Client bind on " + clientPort.ToString() + " port, and set dest in (" + hostIp + ", " + hostPort.ToString() + ")");
+			socket.SetDestAddress(hostIp, hostPort);
+			Error err = socket.Bind(clientPort);
+			GD.Print("Client: error " + err.ToString());
+		}
+	}
+	public async void CreateSocketAndSendMessage()
+	{
+		// check if it is possible to communicate with others
+		socket = new PacketPeerUdp();
+		if (isServer)
+		{
+			GD.Print("Server bind on " + hostPort.ToString() + " port, and set dest in (" + parser.GetClientIp(0) + ", " + parser.GetClientPort(0).ToString() + ")");
+			socket.SetDestAddress(parser.GetClientIp(0), parser.GetClientPort(0));
+			Error err = socket.Bind(hostPort);
+			GD.Print("Server: error " + err.ToString());
+
+			await ToSignal(GetTree().CreateTimer(3), "timeout");
+
+			socket.PutPacket("Yeah".ToAsciiBuffer());
+			GD.Print("Server: Message send");
+		}
+		else
+		{
+			GD.Print("Client bind on " + clientPort.ToString() + " port, and set dest in (" + hostIp + ", " + hostPort.ToString() + ")");
+			socket.SetDestAddress(hostIp, hostPort);
+			Error err = socket.Bind(clientPort);
+			GD.Print("Client: error " + err.ToString());
+
+			await ToSignal(GetTree().CreateTimer(3), "timeout");
+
+			socket.PutPacket("Yeah".ToAsciiBuffer());
+			GD.Print("Client: Message send");
+		}
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -87,17 +148,25 @@ public partial class GameLoader : Node
 		if(connected_players + 1 == amountPlayers && !initialized)
 		{
 			initialized = true;
-			// initialize players
-			for (int i = 0; i < amountPlayers; i++)
-			{
-				//int team = i / (amountPlayers / 2);
-
-				(GetNode("../Players/player" + i.ToString()) as PlayerController).Initialize();
-			}
-
-			// quit loading panel
-			(GetNode("../CanvasLayer/LoadingPanel") as ColorRect).Visible = false;
+			StartGame();
 		}
+		/*if(socket.GetAvailablePacketCount() > 0)
+		{
+			String data = socket.GetPacket().GetStringFromAscii();
+			GD.Print("IsServer = " + isServer.ToString() + ", Data: " + data);
+		}*/
+	}
+
+	public async void StartGame()
+	{
+		await ToSignal(GetTree().CreateTimer(3), "timeout"); // CREATE A VISUAL TIMER BEFORE STARTING THE GAME
+		// quit loading panel
+		(GetNode("../CanvasLayer/LoadingPanel") as ColorRect).Visible = false;
+
+		// initialize players
+		for (int i = 0; i < amountPlayers; i++)
+			(GetNode("../Players/player" + i.ToString()) as PlayerController).Initialize();
+
 	}
 
 	private void LoadMap(String mapName)
@@ -152,19 +221,56 @@ public partial class GameLoader : Node
 
 	private void ManageGUI(int players, bool teams)
 	{
-		for (int i = 0; i < players; i++)
+		if (teams)
 		{
-			PlayerController p = GetNode("../Players/player" + i.ToString()) as PlayerController;
-			PlayerGUIController pGUI = GetNode("../CanvasLayer/p" + i.ToString()) as PlayerGUIController;
+			// set one team GUI
+			int nGUI = 0;
+			for(int i = 0; i < players-1; i+=2)
+			{
+				GD.Print("Entered on teams");
 
-			p.PlayerGUIController = pGUI;
+				PlayerController p = GetNode("../Players/player" + i.ToString()) as PlayerController;
+				PlayerGUIController pGUI = GetNode("../CanvasLayer/p" + (nGUI).ToString()) as PlayerGUIController;
 
-			ColorRect nodeGUI = (ColorRect)GetNode("../CanvasLayer/p" + i.ToString());
+				ColorRect nodeGUI = (ColorRect)GetNode("../CanvasLayer/p" + nGUI.ToString());
 
-			// username
-			pGUI.SetPlayerName(parser.GetName(i));
-			
-			nodeGUI.Visible = true;
+				// username
+				pGUI.SetPlayerName(parser.GetName(i));
+				nodeGUI.Visible = true;
+
+				nGUI++;
+			}
+			for(int i = 1; i<players; i+=2)
+			{
+				PlayerController p = GetNode("../Players/player" + i.ToString()) as PlayerController;
+				PlayerGUIController pGUI = GetNode("../CanvasLayer/p" + (nGUI).ToString()) as PlayerGUIController;
+
+				ColorRect nodeGUI = (ColorRect)GetNode("../CanvasLayer/p" + nGUI.ToString());
+
+				// username
+				pGUI.SetPlayerName(parser.GetName(i));
+				nodeGUI.Visible = true;
+
+				nGUI++;
+			}
+		}
+		else
+		{
+			for (int i = 0; i < players; i++)
+			{
+				GD.Print(i.ToString() + " GUI initializiging");
+				PlayerController p = GetNode("../Players/player" + i.ToString()) as PlayerController;
+				PlayerGUIController pGUI = GetNode("../CanvasLayer/p" + i.ToString()) as PlayerGUIController;
+
+				p.PlayerGUIController = pGUI;
+
+				ColorRect nodeGUI = (ColorRect)GetNode("../CanvasLayer/p" + i.ToString());
+
+				// username
+				pGUI.SetPlayerName(parser.GetName(i));
+
+				nodeGUI.Visible = true;
+			}
 		}
 	}
 
@@ -174,68 +280,39 @@ public partial class GameLoader : Node
 	/// <param name="port">Port in which server will be hearing</param>
 	private void CreateServer(int port)
 	{
-		GD.Print("Server starting");
+		GD.Print(parser.GetMyName() + ": Server starting");
 	   
 		// create client
 		peer = new ENetMultiplayerPeer();
-		Error err = peer.CreateServer(port, 2);
+		Error err = peer.CreateServer(port, parser.GetAmountPlayers() - 1);
 
 		if (err != Error.Ok)
 		{
-			GD.Print("An error occurred!");
+			GD.Print(parser.GetMyName() + ": An error occurred!");
 			GD.Print(err);
 			return;
 		}
 
 		Multiplayer.MultiplayerPeer = peer;
-		GD.Print("Server started!");
+		GD.Print(parser.GetMyName() + ": Server started!");
 	}
 
 	private void CreateClient(String hostIp, int hostPort, int localPort)
 	{
-		GD.Print("Client starting");
+		GD.Print(parser.GetMyName() + ": Client starting");
 		peer = new ENetMultiplayerPeer();
 		Error err = peer.CreateClient(hostIp, hostPort, 0, 0, 0, localPort); // communicate using localPort (almost hole punched)
 
 		if (err != Error.Ok)
 		{
-			GD.Print("An error occurred!");
+			GD.Print(parser.GetMyName() + ": An error occurred!");
 			GD.Print(err);
 			return;
 		}
 
 		Multiplayer.MultiplayerPeer = peer;
-		GD.Print("Client created");
+		GD.Print(parser.GetMyName() + ": Client created");
 	}
-
-	private void StartGame()
-	{
-
-	}
-
-	// for now simulate, then load from playerInfo (GDSCRIPT)
-	private void LoadPLayersInfo()
-	{
-		for(int i=0; i<amountPlayers; i++)
-		{
-			LoadPlayerInfo(i);
-
-			//for now simulate
-			PlayerInfoInGame playerInfo = new PlayerInfoInGame();
-
-			// load this information from singleton
-			playerInfo.name = i.ToString();
-			playerInfo.ip = "192.168.1.37";
-			playerInfo.port = 6666;
-		}
-	}
-
-	private void LoadPlayerInfo(int index)
-	{
-		GD.Print("loading player information...\n");
-	}
-
-
 
 	/** Signals */
 
@@ -245,7 +322,7 @@ public partial class GameLoader : Node
 	/// <param name="id"></param>
 	private void PeerConnected(long id)
 	{
-		GD.Print("Player connected:" + id.ToString());
+		GD.Print(parser.GetMyName() + ": Player connected:" + id.ToString());
 		connected_players = Multiplayer.GetPeers().Length;
 	}
 
@@ -255,7 +332,7 @@ public partial class GameLoader : Node
 	/// <param name="id"></param>
 	private void PeerDisconnected(long id)
 	{
-		GD.Print("Player disconnected:" + id.ToString());
+		GD.Print(parser.GetMyName() + ": Player disconnected:" + id.ToString());
 	}
 
 	/// <summary>
@@ -264,7 +341,7 @@ public partial class GameLoader : Node
 	/// <param name="id"></param>
 	private void ConnectedToServer()
 	{
-		GD.Print("Connected to server!");
+		GD.Print(parser.GetMyName() + ": Connected to server!");
 	}
 
 	/// <summary>
@@ -273,7 +350,42 @@ public partial class GameLoader : Node
 	/// <param name="id"></param>
 	private void ConnectionFailed()
 	{
-		GD.Print("Connection to server failed!");
+		GD.Print(parser.GetMyName() + ": Connection to server failed!");
 	}
 
+
+	public async void HolePunching()
+	{
+		bool responseReceived = false;
+		bool ACKreceived = false;
+		String message = "message";
+		String ACKmessage = "ACK";
+		while(!responseReceived || !ACKreceived)
+		{
+			GD.Print("Sending message");
+			socket.PutPacket(message.ToAsciiBuffer());
+
+			await ToSignal(GetTree().CreateTimer(0.15f), "timeout");
+
+			// if message reached
+			if(socket.GetAvailablePacketCount()>0)
+			{
+				if(socket.GetPacket().GetStringFromAscii().StartsWith("message"))
+				{
+					GD.Print("message received");
+					responseReceived = true;
+
+					//send ACK
+					socket.PutPacket(ACKmessage.ToAsciiBuffer());
+				}
+				if(socket.GetPacket().GetStringFromAscii().StartsWith("ACK"))
+				{
+					GD.Print("ACK received");
+					ACKreceived = true;
+				}
+			}
+		}
+
+		GD.Print("Hole Punched");
+	}
 }

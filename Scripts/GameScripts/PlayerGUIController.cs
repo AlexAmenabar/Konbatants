@@ -6,7 +6,7 @@ public partial class PlayerGUIController : ColorRect
 {
 	private PlayerController player;
 	private ColorRect actualVitBar;
-	private int vitBarInitialSizeX;
+	private float vitBarInitialSizeX;
 	private RichTextLabel textLabel;
 
 	private TextureRect abilityTexture;
@@ -26,7 +26,7 @@ public partial class PlayerGUIController : ColorRect
 
 	public void RefreshLifeBar(int actualVit, int totalVit)
 	{
-		int per = actualVit / totalVit;
+		float per = (float)actualVit / (float)totalVit;
 		actualVitBar.Size = new Vector2(per * vitBarInitialSizeX, actualVitBar.Size.Y);
 	}
 	public void RefreshAbilityContainer(bool hasAbility)

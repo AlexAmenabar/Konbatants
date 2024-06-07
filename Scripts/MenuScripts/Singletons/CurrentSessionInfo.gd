@@ -39,9 +39,9 @@ func clear_session():
 	players_list.clear()
 	
 	
-func remove_player_by_name(name):
+func remove_player_by_name(p_name):
 	for i in range(0, players_in_room):
-		if players_list[i] == name:
+		if players_list[i] == p_name:
 			players_list.remove(i)
 			
 	players_in_room -= 1

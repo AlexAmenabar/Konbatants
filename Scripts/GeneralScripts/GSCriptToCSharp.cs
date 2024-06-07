@@ -17,7 +17,7 @@ public partial class GSCriptToCSharp : Node
 	public int GetClientPort()
 	{
 		var playerMenu = GetNode("/root/PlayerMenu");
-		return (int)playerMenu.Get("private_port");
+		return (int)playerMenu.Get("peer_port");
 	}
 
 	// GET session necesary information
@@ -49,9 +49,24 @@ public partial class GSCriptToCSharp : Node
 		String[] player_names = (String[])currentSessionInfo.Get("players_list");
 		return player_names[i];
 	}
+	public String GetMyName()
+	{
+		var playerInfo = GetNode("/root/PlayerMenu");
+		return (String)playerInfo.Get("usr_name");
+	}
 	public bool GetOS()
 	{
 		var currentSessionInfo = GetNode("/root/ConfigurationScript");
 		return (bool)currentSessionInfo.Get("mobile"); // return if is mobile version or not
+	}
+	public String GetClientIp(int i)
+	{
+		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
+		return ((String[])currentSessionInfo.Get("clients_ips"))[i];
+	}
+	public int GetClientPort(int i)
+	{
+		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
+		return ((int[])currentSessionInfo.Get("clients_ports"))[i];
 	}
 }

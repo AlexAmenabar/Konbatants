@@ -43,17 +43,19 @@ func change_button_colors(button_selected, button_not_selected):
 	button_not_selected.modulate = Color(button_not_selected.modulate.r - color_int, button_not_selected.modulate.g - color_int, button_not_selected.modulate.b - color_int) 
 
 # manage players list options depending if there are teams or not
-func manage_teams_list(teams):	
+func manage_teams_list(p_teams):	
 	#refresh players list values 
 	var player_list = get_node("GeneralVBoxContainer/VBoxContainer/PlayersHBox/OptionButton")
 	player_list.clear()
 	
-	if teams:
+	if p_teams:
 		for n in list_teams_yes:
 			player_list.add_item(str(n))
+			CurrentSessionInfo.players = 4
 	else:
 		for n in list_teams_no:
-			player_list.add_item(str(n))				
+			player_list.add_item(str(n))
+			CurrentSessionInfo.players = 2
 			
 
 ## BUTTON SIGNALS ##
@@ -103,7 +105,7 @@ func _on_find_pressed():
 		error_label.text = err
 
 
-func _on_option_button_item_selected(index):
+func _on_option_button_item_selected(_index):
 	#get value on the list and set it to players
 	var player_list = get_node("GeneralVBoxContainer/VBoxContainer/PlayersHBox/OptionButton")
 	var item = player_list.get_item_text(player_list.get_selected_id()) #id is used to get item

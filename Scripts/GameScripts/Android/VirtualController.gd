@@ -17,11 +17,10 @@ func _ready():
 	tip.texture = load("res://addons/virtual_joystick/textures/joystick_tip.png")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	if player_controller != null:
 		player_controller.jump = 0
 		DetectMovement()
-
 
 func DetectMovement():
 	player_controller.hdir = movement_joystick.hdir
@@ -31,10 +30,8 @@ func DetectAbilityDirection():
 	pass
 
 
-func _on_jump_gui_input(event):
+func _on_jump_gui_input(_event):
 	player_controller.jump = 1
-	pass # Replace with function body.
 
-
-func _on_attack_gui_input(event):
-	pass # Replace with function body.
+func _on_attack_gui_input(_event):
+	player_controller.attackVar = true

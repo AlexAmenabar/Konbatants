@@ -51,14 +51,17 @@ const CLEAR_SERVER = "cl:"
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	#server_ip = "34.170.146.101" # cloud server
-	server_ip = "192.168.1.36" # local server
-	server_port = 4444
-	#server_udp.set_dest_address(server_ip, server_port)
+	server_ip = "34.68.157.37" # cloud server
+	server_port = 39000
+	var err = server_udp.set_dest_address(server_ip, server_port)
+	print("ERR")
+	print(err)
+	if err != 0:
+		server_ip = "192.168.1.36" # local server
+		server_udp.set_dest_address(server_ip, server_port)
 
-	
 	# start listening in ports and initialize info in PlayerMenu 
-	var port_number = start_peer_udp(server_udp, 5125)
+	var port_number = start_peer_udp(server_udp, 39010)
 	server_udp.connect_to_host(server_ip, server_port)
 		
 	port_number = start_peer_udp(peer_udp, port_number)
@@ -72,7 +75,7 @@ func _ready():
 	
 	server_udp.connect_to_host(server_ip, server_port)
 
-func _process(delta):
+func _process(_delta):
 	# check if there is any package to process when client is waiting (to another users) in session room
 	'''if server_udp.get_available_packet_count() > 0 and CurrentSessionInfo.waiting: #use this only if player is waiting on session room
 		var array_bytes = server_udp.get_packet()
@@ -102,7 +105,7 @@ func _process(delta):
 # HELPER FUNCTIONS
 func get_private_ip():
 	for ip in IP.get_local_addresses():
-		if ip.begins_with("192.168.1"):
+		if ip.begins_with("192.168"):
 			return ip
 
 
@@ -147,8 +150,6 @@ func send_message(message, peer_udp):
 
 # if return -1, timoeut, else return index of peer that get a message
 func communicate_with_another_client(message, peers_udp, timeout):
-	var finished = false
-	
 	var message_from_peer_received = false
 	var confirmation_from_peer_received = false
 	
@@ -166,8 +167,8 @@ func communicate_with_another_client(message, peers_udp, timeout):
 				peer_udp.put_packet(buffer)
 		
 		# wait 
-		await get_tree().create_timer(0.5).timeout
-		timer+=0.5
+		await get_tree().create_timer(0.2).timeout
+		timer+=0.2
 
 		# see if client send any message
 		for i in len(peers_udp):
@@ -194,7 +195,7 @@ func communicate_with_another_client(message, peers_udp, timeout):
 					print("HELLO RECEIVED")
 					
 					# send ack
-					await get_tree().create_timer(0.5).timeout
+					await get_tree().create_timer(0.2).timeout
 					
 					var ack_message = ACK
 					buffer.append_array(ack_message.to_utf8_buffer())
@@ -215,6 +216,10 @@ func communicate_with_another_client(message, peers_udp, timeout):
 ## SERVER COMMUNICATION FUNCTIONS
 # register player in the server
 func register_player():
+	print(PlayerMenu.usr_name)
+	print(PlayerMenu.private_ip)
+	print(PlayerMenu.private_port)
+	print(PlayerMenu.peer_port)
 	var message = REGISTER_PLAYER + PlayerMenu.usr_name + ":" + PlayerMenu.private_ip + ":" + str(PlayerMenu.private_port) + ":" + str(PlayerMenu.peer_port)
 	var res = await send_message(message, server_udp)
 	
@@ -283,12 +288,12 @@ func find_session(teams, players):
 		if packet_string.begins_with(OK):
 			# load session information in singleton
 			CurrentSessionInfo.s_id = packet_string.split(":")[1]
-			CurrentSessionInfo.teams = packet_string.split(":")[2]
+			CurrentSessionInfo.teams = (packet_string.split(":")[2] == "true")
 			CurrentSessionInfo.private = packet_string.split(":")[3]
 			CurrentSessionInfo.players = int(packet_string.split(":")[4])
 			CurrentSessionInfo.players_in_room = int(packet_string.split(":")[5]) #get actual players in room
 
-			var username = ""
+			#var username = ""
 			# wait until all session user usernmaes reach
 			'''for i in range(0, CurrentSessionInfo.players_in_room-1):
 				res = await wait_message()
@@ -441,7 +446,7 @@ func _notification(what):
 		if CurrentSessionInfo.s_id == null:
 			CurrentSessionInfo.s_id = "null"
 		var message = EXIT_GAME + CurrentSessionInfo.s_id + ":" + str(PlayerMenu.id) 
-		var res = await send_message(message, server_udp)
+		await send_message(message, server_udp)
 		get_tree().quit()
 
 		
@@ -452,7 +457,7 @@ func exit_game():
 
 	var message = EXIT_GAME + str(PlayerMenu.id) 
 	print(message)
-	var res = await send_message(message, server_udp)
+	await send_message(message, server_udp)
 	
 	if server_udp.get_available_packet_count() > 0:
 		var array_bytes = server_udp.get_packet()
@@ -472,7 +477,7 @@ func start_game():
 
 # hole punch ip and ports to communicate clients P2P
 func hole_punching():
-	var buffer = PackedByteArray()
+	#var buffer = PackedByteArray()
 	
 	# if there is a packet that it isn't needed
 	if server_udp.get_available_packet_count() > 0:
@@ -528,6 +533,8 @@ func hole_punching():
 					peers_udp.append(peer_udp)
 					peers_udp.append(local_peer_udp)
 					
+					print("My info: " + "public port = " + str(PlayerMenu.peer_port) + ", private port = " + str(PlayerMenu.private_port))
+					print("Punching hole: (" + ip + ", " + str(port) + ") / (" + private_ip + ", " + str(private_port) + ")")
 					#peer_udp.connect_to_host(private_ip, private_port)
 					#print("sending message to client " + str(i) + " whoes ip and port are: (" + private_ip + ":" + str(private_port) + ")")
 					res = await communicate_with_another_client(message, peers_udp, 1000)
@@ -611,6 +618,9 @@ func hole_punching():
 				message = SAY_HELLO
 				#send_message(message, peer_udp)
 				
+				print("My info: " + "public port = " + str(PlayerMenu.peer_port) + ", private port = " + str(PlayerMenu.private_port))
+				print("Client Punching hole: (" + game_server_ip + ", " + str(game_server_port) + ") / (" + game_server_private_ip + ", " + str(game_server_private_port) + ")")
+				
 				# try first with private info (not necesary to hole punch
 				#peer_udp.connect_to_host(game_server_private_ip, int(game_server_private_port))
 				var peers_udp = []
@@ -636,7 +646,10 @@ func hole_punching():
 					else: # store private info
 						CurrentSessionInfo.host_ip = game_server_private_ip
 						#CurrentSessionInfo.host_port = game_server_private_port
+					
 					CurrentSessionInfo.host_port = game_server_port
+					
+					print("Stored info: (" + CurrentSessionInfo.host_ip + ", " + str(CurrentSessionInfo.host_port) + ")")
 					
 					# load next scene	
 					get_tree().change_scene_to_file("res://Scenes/GameScenes/PlayGround.tscn")
