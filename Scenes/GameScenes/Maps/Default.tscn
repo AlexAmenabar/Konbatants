@@ -1,16 +1,17 @@
-[gd_scene load_steps=4 format=3 uid="uid://dlm1vke1p377k"]
+[gd_scene load_steps=5 format=3 uid="uid://dlm1vke1p377k"]
 
-[ext_resource type="Script" path="res://Scripts/GameScripts/Map.cs" id="1_7d7sh"]
 [ext_resource type="PackedScene" uid="uid://15tqsm6m0f3p" path="res://3D models/Maps/mapCube.glb" id="1_gnfgb"]
+[ext_resource type="Script" path="res://Scripts/GameScripts/Maps/DefaultMap.cs" id="1_vgk4q"]
+[ext_resource type="AudioStream" uid="uid://dyyrrds8drnwo" path="res://Assets/GameAssets/Sounds and Music/Big-Band-Swingin_Looping.mp3" id="3_atxef"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_um37m"]
 
 [node name="Default" type="Node3D"]
 transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0)
-script = ExtResource("1_7d7sh")
+script = ExtResource("1_vgk4q")
 
 [node name="MapCamera" type="Camera3D" parent="."]
-transform = Transform3D(-0.2, -8.18861e-17, -1.74846e-08, -1.02715e-08, 0.161851, 0.117492, 1.41494e-08, 0.117492, -0.161851, 1.67246, 4.9894, -0.69959)
+transform = Transform3D(0.0878562, -0.0715798, 0.0527506, 0.00525181, 0.0782047, 0.0973727, -0.0887621, -0.066222, 0.0579735, 3.02125, 4.80421, 2.96434)
 current = true
 
 [node name="Sketchfab_Scene" parent="." instance=ExtResource("1_gnfgb")]
@@ -49,3 +50,6 @@ freeze = true
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
 transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 1.58543, 7.42147, 1.53558)
 shape = SubResource("BoxShape3D_um37m")
+
+[node name="MapMusic" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_atxef")

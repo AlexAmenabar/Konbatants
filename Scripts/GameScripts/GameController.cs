@@ -109,7 +109,7 @@ public partial class GameController : Node
 			(GetNode("./Players/player" + i.ToString()) as PlayerController).Initialize();
 
 		await ToSignal(GetTree().CreateTimer(1), "timeout"); // CREATE A VISUAL TIMER BEFORE STARTING THE GAME
-		(GetNode("./CanvasLayer/LoadingPanel") as ColorRect).Visible = false;
+		(GetNode("./GUI/LoadingPanel") as ColorRect).Visible = false;
 
 		// Create a visual timer
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://c471wjjt5sta3"]
+[gd_scene load_steps=36 format=3 uid="uid://c471wjjt5sta3"]
 
 [ext_resource type="PackedScene" uid="uid://dt352rfintkdu" path="res://3D models/3DGodotRobot.glb" id="1_3newx"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/PlayerController.cs" id="1_18xpu"]
@@ -6,6 +6,11 @@
 [ext_resource type="PackedScene" uid="uid://v07vchdhs8o4" path="res://Assets/GameAssets/GeneralAssets/flecha_azul.glb" id="4_khbio"]
 [ext_resource type="PackedScene" uid="uid://bxy0b0ixea2s0" path="res://Assets/GameAssets/GeneralAssets/flecha_roja.glb" id="5_bmdec"]
 [ext_resource type="PackedScene" uid="uid://bhwmkvrhb7213" path="res://Assets/GameAssets/GeneralAssets/flecha_verde.glb" id="6_bq3cs"]
+[ext_resource type="AudioStream" uid="uid://cai133hiwas1h" path="res://Assets/GameAssets/Sounds and Music/meleeAttackSound.mp3" id="7_w6aua"]
+[ext_resource type="AudioStream" uid="uid://u2qdd2iiemhx" path="res://Assets/GameAssets/Sounds and Music/jumpSound.mp3" id="8_34xuy"]
+[ext_resource type="AudioStream" uid="uid://dhv6nucbvmwru" path="res://Assets/GameAssets/Sounds and Music/runSound.mp3" id="9_uwutr"]
+[ext_resource type="AudioStream" uid="uid://cuwhd1pckvuc1" path="res://Assets/GameAssets/Sounds and Music/dieSound.mp3" id="10_4c11r"]
+[ext_resource type="AudioStream" uid="uid://dtylplt0cu2np" path="res://Assets/GameAssets/Sounds and Music/takeDamageSound.mp3" id="11_mim5p"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_j62kg"]
 
@@ -32,7 +37,22 @@ properties/5/spawn = true
 properties/5/replication_mode = 2
 properties/6/path = NodePath("Arrow:position")
 properties/6/spawn = true
-properties/6/replication_mode = 1
+properties/6/replication_mode = 2
+properties/7/path = NodePath("SoundNodes/MeleeAttackSound:playing")
+properties/7/spawn = true
+properties/7/replication_mode = 2
+properties/8/path = NodePath("SoundNodes/JumpSound:playing")
+properties/8/spawn = true
+properties/8/replication_mode = 2
+properties/9/path = NodePath("SoundNodes/RunSound:playing")
+properties/9/spawn = true
+properties/9/replication_mode = 2
+properties/10/path = NodePath("SoundNodes/DieSound:playing")
+properties/10/spawn = true
+properties/10/replication_mode = 2
+properties/11/path = NodePath("SoundNodes/TakeDamageSound:playing")
+properties/11/spawn = true
+properties/11/replication_mode = 2
 
 [sub_resource type="Animation" id="Animation_hb2bb"]
 resource_name = "Attack1"
@@ -4389,5 +4409,22 @@ visible = false
 [node name="greenArrow" parent="Arrow" instance=ExtResource("6_bq3cs")]
 transform = Transform3D(0.15, 0, 0, 0, -6.55671e-09, 0.15, 0, -0.15, -6.55671e-09, 0, 2.5, 0)
 visible = false
+
+[node name="SoundNodes" type="Node3D" parent="."]
+
+[node name="MeleeAttackSound" type="AudioStreamPlayer3D" parent="SoundNodes"]
+stream = ExtResource("7_w6aua")
+
+[node name="JumpSound" type="AudioStreamPlayer3D" parent="SoundNodes"]
+stream = ExtResource("8_34xuy")
+
+[node name="RunSound" type="AudioStreamPlayer3D" parent="SoundNodes"]
+stream = ExtResource("9_uwutr")
+
+[node name="DieSound" type="AudioStreamPlayer3D" parent="SoundNodes"]
+stream = ExtResource("10_4c11r")
+
+[node name="TakeDamageSound" type="AudioStreamPlayer3D" parent="SoundNodes"]
+stream = ExtResource("11_mim5p")
 
 [connection signal="body_entered" from="BasicAttack" to="." method="_on_basic_attack_body_entered"]

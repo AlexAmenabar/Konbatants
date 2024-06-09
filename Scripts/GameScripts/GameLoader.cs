@@ -65,7 +65,7 @@ public partial class GameLoader : Node
 
 		// start Map music
 		GetNode("/root/MusicControllerScene/AudioStreamPlayer2D").Set("playing", false);
-		GetNode("/root/MusicControllerScene/" + gameController.MapName + "Map").Set("playing", true);
+		//GetNode("/root/MusicControllerScene/" + gameController.MapName + "Map").Set("playing", true);
 
 		// spawn players (nodes) in scene using map spawn points
 		SpawnPlayers(gameController.Map, gameController.AmountPlayers);
@@ -196,8 +196,8 @@ public partial class GameLoader : Node
 		for (int i = 0; i < players; i++)
 		{
 			PlayerController p = GetNode("../Players/player" + i.ToString()) as PlayerController;
-			PlayerGUIController pGUI = GetNode("../CanvasLayer/p" + i.ToString()) as PlayerGUIController;
-			ColorRect nodeGUI = (ColorRect)GetNode("../CanvasLayer/p" + i.ToString());
+			PlayerGUIController pGUI = GetNode("../GUI/p" + i.ToString()) as PlayerGUIController;
+			ColorRect nodeGUI = (ColorRect)GetNode("../GUI/p" + i.ToString());
 
 			p.PlayerGUIController = pGUI;
 

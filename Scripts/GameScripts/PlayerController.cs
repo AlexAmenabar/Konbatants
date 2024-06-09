@@ -51,12 +51,15 @@ public partial class PlayerController : RigidBody3D
 
 	GameController gameController;
 
-	private Node3D positionIndicatorArrow; 
+	private Node3D positionIndicatorArrow;
+
+	private Node3D soundNodes;
 
 	public int Team { get => team; set => team = value; }
 	public PlayerGUIController PlayerGUIController { get => playerGUIController; set => playerGUIController = value; }
 	public bool AttackVar { get => attackVar; set => attackVar = value; }
 	public Node3D PositionIndicatorArrow { get => positionIndicatorArrow; set => positionIndicatorArrow = value; }
+	public Node3D SoundNodes { get => soundNodes; set => soundNodes = value; }
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -116,6 +119,7 @@ public partial class PlayerController : RigidBody3D
 		CallDeferred("set_multiplayer_authority", id);
 
 		parser = (GSCriptToCSharp)GetNode("../../ParserNode");
+		soundNodes = (Node3D)GetNode("./SoundNodes");
 	}
 	public async void Start()
 	{
@@ -197,6 +201,11 @@ public partial class PlayerController : RigidBody3D
 			vdir = -1;
 		else
 			vdir = 0;
+
+		if (vdir != 0 || hdir != 0)
+			(soundNodes.GetNode("./RunSound") as AudioStreamPlayer3D).Play();
+		else
+			(soundNodes.GetNode("./RunSound") as AudioStreamPlayer3D).Stop();
 	}
 	public void Move()
 	{
@@ -204,15 +213,9 @@ public partial class PlayerController : RigidBody3D
 		float vely = LinearVelocity.Y;
 		float velz = LinearVelocity.Z;
 		float velx = LinearVelocity.X;
-		
-		if (hdir == 1) velx = 4;
-		else if (hdir == -1) velx = -4;
-		else velx = 0;
 
-		if (vdir == 1) velz = 4;
-		else if (vdir == -1) velz = -4;
-		else velz = 0;
-
+		velx = hdir * 4;
+		velz = vdir * 4;
 
 		if(hdir != 0 && vdir != 0) // calculate velocity in each dimension to resultant be 4
 		{
@@ -242,6 +245,9 @@ public partial class PlayerController : RigidBody3D
 		int mlt = 50;
 		if(jump==1 && canJump) // and raycast floor 
 		{
+			// souns
+			(soundNodes.GetNode("./JumpSound") as AudioStreamPlayer3D).Play();
+
 			float velz = LinearVelocity.Z;
 			float velx;
 			if (hdir == 1)
@@ -293,6 +299,9 @@ public partial class PlayerController : RigidBody3D
 			canAttack = false;
 			basicAttack.Visible = true;
 			DisableAttack();
+
+			// sound
+			(soundNodes.GetNode("./MeleeAttackSound") as AudioStreamPlayer3D).Play();
 		}
 		//}
 	}
@@ -314,6 +323,9 @@ public partial class PlayerController : RigidBody3D
 
 	public void TakeDamage(int damage)
 	{
+		// play sound
+		(soundNodes.GetNode("./TakeDamageSound") as AudioStreamPlayer3D).Play();
+
 		GD.Print("Damage taken! Max vitality = " + maxVitality + ", Vitality = " + vitality);
 		vitality -= damage;
 		damageReceived = true;
@@ -359,7 +371,7 @@ public partial class PlayerController : RigidBody3D
 
 		// die animation
 	}
-	
+
 	// signal emitted when body shape enters
 	private void _on_basic_attack_body_entered(Node3D body)
 	{
