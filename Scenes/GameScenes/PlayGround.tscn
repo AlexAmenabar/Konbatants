@@ -69,7 +69,6 @@ offset_right = 1565.0
 offset_bottom = 363.0
 
 [node name="LoadingPanel" type="ColorRect" parent="CanvasLayer"]
-visible = false
 offset_right = 1931.0
 offset_bottom = 1086.0
 color = Color(0, 0, 0, 1)

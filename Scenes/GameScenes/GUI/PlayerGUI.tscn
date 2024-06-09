@@ -21,7 +21,7 @@ offset_top = 5.11062
 offset_right = 306.236
 offset_bottom = 45.1106
 rotation = 0.0311105
-color = Color(0.247059, 0.403922, 1, 1)
+color = Color(0.647059, 0.890196, 0, 1)
 
 [node name="AbilityTexture" type="TextureRect" parent="."]
 layout_mode = 0

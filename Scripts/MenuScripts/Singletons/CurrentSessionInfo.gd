@@ -7,17 +7,16 @@ var players_in_room = 0 #players entered session
 var teams = false
 var s_id = null
 
-# player names
+# session player names
 var players_list = []
 
 # user is server or not
 var is_server = false
 
-# client own port
-var own_port
+
 var waiting=false #this is used to know when in ServerConnection must be used proccess
 
-# clients store here session host info (stored after 
+# clients store here session host info (also host store here his information)
 var host_ip
 var host_port
 

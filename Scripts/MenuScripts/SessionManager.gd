@@ -1,12 +1,14 @@
 extends Node
 
-var teams = false
-var players = 2
+# session parameters
+#var teams = false
+#var players = 2
+#var private = true
+
+# button color to feed player about what button is pressed
 var color_int = 0.15
-var private = true
 
-var player
-
+# lists with player options depending on if there are teams or not
 var list_teams_yes
 var list_teams_no
 
@@ -24,14 +26,13 @@ func _ready():
 	var public_button_sprite = get_node("GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer/PublicButton/Sprite2D")
 	public_button_sprite.modulate = Color(public_button_sprite.modulate.r - color_int, public_button_sprite.modulate.g - color_int, public_button_sprite.modulate.b - color_int)
 	
-	
+	# list information
 	list_teams_yes = [4, 6, 8]
 	list_teams_no = [2, 3, 4, 5, 6]
 
-
+	# load list options in node
 	var player_list = get_node("GeneralVBoxContainer/VBoxContainer/PlayersHBox/OptionButton")
 	player_list.clear()
-	
 	for n in list_teams_no:
 		player_list.add_item(str(n))				
 	

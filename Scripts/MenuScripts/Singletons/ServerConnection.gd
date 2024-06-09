@@ -2,13 +2,9 @@ extends Node
 
 var server_ip
 var server_port
-var hole_puncher
-
 
 #variable to communicate with server
 var server_udp = PacketPeerUDP.new()
-#TCP server
-var server_tcp = StreamPeerTCP.new()
 
 #peer connection
 var peer_udp = PacketPeerUDP.new()
@@ -51,14 +47,15 @@ const CLEAR_SERVER = "cl:"
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	server_ip = "34.68.157.37" # cloud server
+	# initialize sockets
+	
+	server_ip = "34.44.165.196" # cloud server
 	server_port = 39000
-	var err = server_udp.set_dest_address(server_ip, server_port)
-	print("ERR")
-	print(err)
-	if err != 0:
-		server_ip = "192.168.1.36" # local server
-		server_udp.set_dest_address(server_ip, server_port)
+	var _err = server_udp.set_dest_address(server_ip, server_port)
+
+	#if err != 0:
+	server_ip = "192.168.1.36" # local server
+	server_udp.set_dest_address(server_ip, server_port)
 
 	# start listening in ports and initialize info in PlayerMenu 
 	var port_number = start_peer_udp(server_udp, 39010)
@@ -115,10 +112,11 @@ func start_peer_udp(socket_udp, port_number):
 		err = socket_udp.bind(port_number)
 		port_number += 1
 	return port_number
-	
-func wait_message(peer_udp):
+
+# wait until message response is reached
+func wait_message(socket_udp):
 	var timer = 0
-	while peer_udp.get_available_packet_count() == 0 and timer<TIMEOUT:
+	while socket_udp.get_available_packet_count() == 0 and timer<TIMEOUT:
 		await get_tree().create_timer(0.1).timeout
 		timer+=0.1
 	
@@ -127,19 +125,19 @@ func wait_message(peer_udp):
 		return 1 
 	
 	# response reached
-	if peer_udp.get_available_packet_count() > 0:
+	if socket_udp.get_available_packet_count() > 0:
 		return 0 
 
 # send message and return response
-func send_message(message, peer_udp):
+func send_message(message, socket_udp):
 	var buffer = PackedByteArray()
 	buffer.append_array(message.to_utf8_buffer())
 	var res = 1
 	
 	# loop while message response is not reached
 	while res==1 and resend_count < MAX_RESEND_COUNT:
-		peer_udp.put_packet(buffer)
-		res = await wait_message(peer_udp)
+		socket_udp.put_packet(buffer)
+		res = await wait_message(socket_udp)
 		resend_count += 1
 	
 	# can't contact server
@@ -148,7 +146,7 @@ func send_message(message, peer_udp):
 	
 	return res # 0
 
-# if return -1, timoeut, else return index of peer that get a message
+# if return -1, timoeut, else return index of peer that get a message (HOLE PUNCHING)
 func communicate_with_another_client(message, peers_udp, timeout):
 	var message_from_peer_received = false
 	var confirmation_from_peer_received = false
@@ -159,12 +157,12 @@ func communicate_with_another_client(message, peers_udp, timeout):
 		# send message if peer confimation not received
 		var buffer = PackedByteArray()
 		if !confirmation_from_peer_received:
-			print("Sending message!")
+			#print("Sending message!")
 			buffer.append_array(message.to_utf8_buffer())
 			
 			# send message from all sockets (usually 2)
-			for peer_udp in peers_udp:
-				peer_udp.put_packet(buffer)
+			for socket_udp in peers_udp:
+				socket_udp.put_packet(buffer)
 		
 		# wait 
 		await get_tree().create_timer(0.2).timeout
@@ -172,13 +170,13 @@ func communicate_with_another_client(message, peers_udp, timeout):
 
 		# see if client send any message
 		for i in len(peers_udp):
-			peer_udp = peers_udp[i]
-			if peer_udp.get_available_packet_count() > 0:
-				print("MESSAGE REACHED TO " + str(i) + " SOCKET!!!!!")
+			var socket_udp = peers_udp[i]
+			if socket_udp.get_available_packet_count() > 0:
+				#print("MESSAGE REACHED TO " + str(i) + " SOCKET!!!!!")
 				
 				if i<res or res==-1:
 					res = i
-				var array_bytes = peer_udp.get_packet()
+				var array_bytes = socket_udp.get_packet()
 				var packet_string = array_bytes.get_string_from_ascii()
 				#print("packet string")
 				print(packet_string)
@@ -187,19 +185,19 @@ func communicate_with_another_client(message, peers_udp, timeout):
 				# confirmation received
 				if packet_string.find(ACK) > -1:
 					confirmation_from_peer_received = true
-					print("ACK RECEIVED")
+					#print("ACK RECEIVED")
 					
 				# hello message received
 				if packet_string.begins_with(SAY_HELLO):
 					message_from_peer_received = true
-					print("HELLO RECEIVED")
+					#print("HELLO RECEIVED")
 					
 					# send ack
 					await get_tree().create_timer(0.2).timeout
 					
 					var ack_message = ACK
 					buffer.append_array(ack_message.to_utf8_buffer())
-					peer_udp.put_packet(buffer)
+					socket_udp.put_packet(buffer)
 
 	if timer > timeout:
 		return res
@@ -216,10 +214,10 @@ func communicate_with_another_client(message, peers_udp, timeout):
 ## SERVER COMMUNICATION FUNCTIONS
 # register player in the server
 func register_player():
-	print(PlayerMenu.usr_name)
+	'''print(PlayerMenu.usr_name)
 	print(PlayerMenu.private_ip)
 	print(PlayerMenu.private_port)
-	print(PlayerMenu.peer_port)
+	print(PlayerMenu.peer_port)'''
 	var message = REGISTER_PLAYER + PlayerMenu.usr_name + ":" + PlayerMenu.private_ip + ":" + str(PlayerMenu.private_port) + ":" + str(PlayerMenu.peer_port)
 	var res = await send_message(message, server_udp)
 	
@@ -335,8 +333,8 @@ func find_session_by_code(code):
 		var packet_string = array_bytes.get_string_from_ascii()
 		if packet_string.begins_with(OK):
 			#load session information
-			CurrentSessionInfo.teams = packet_string.split(":")[1]
-			CurrentSessionInfo.private = packet_string.split(":")[2]
+			CurrentSessionInfo.teams = (packet_string.split(":")[1] == "true")
+			CurrentSessionInfo.private = (packet_string.split(":")[2] == "true")
 			CurrentSessionInfo.players = int(packet_string.split(":")[3])
 			CurrentSessionInfo.players_in_room = int(packet_string.split(":")[4])
 			CurrentSessionInfo.s_id = packet_string.split(":")[5]
@@ -478,6 +476,8 @@ func start_game():
 # hole punch ip and ports to communicate clients P2P
 func hole_punching():
 	#var buffer = PackedByteArray()
+
+	await get_tree().create_timer(2).timeout
 	
 	# if there is a packet that it isn't needed
 	if server_udp.get_available_packet_count() > 0:
@@ -504,17 +504,10 @@ func hole_punching():
 			
 			# server send ok message
 			if packet_string.begins_with(OK):
-				
-				await get_tree().create_timer(3).timeout
+				#await get_tree().create_timer(1).timeout
 				# close server socket
 				var ip_and_ports = packet_string.split(":")
 				server_udp.close()
-		
-				# start listening in own_port port
-				'''var own_ip = ip_and_ports[1].split("-")[0]
-				var own_port = int(ip_and_ports[1].split("-")[1])
-				var own_private_ip = ip_and_ports[1].split("-")[2]
-				var own_private_port = ip_and_ports[1].split("-")[3]'''
 
 				# contact with all clients
 				for i in range(2, len(ip_and_ports)):
@@ -544,8 +537,10 @@ func hole_punching():
 						#print("Response reached from " + str(i) + " client")
 						#get_tree().change_scene_to_file("res://Scenes/MenuScenes/PC/InitialMenu.tscn")
 						
-						# add client info to ip and port list
+						# server will host on peer_port
 						CurrentSessionInfo.host_port = PlayerMenu.peer_port
+						
+						# add client info to ip and port list (depending on what socket give a response)
 						print("ports in server")
 						print(PlayerMenu.private_port)
 						print(PlayerMenu.peer_port)
@@ -596,7 +591,7 @@ func hole_punching():
 			# server send ok message
 			if packet_string.begins_with(OK):
 				
-				await get_tree().create_timer(3).timeout
+				#await get_tree().create_timer(1).timeout
 				# store information and close udp server connection
 				var game_server_ip = packet_string.split(":")[1]
 				var game_server_port = packet_string.split(":")[2]
@@ -609,8 +604,7 @@ func hole_punching():
 				peer_udp.connect_to_host(game_server_ip, int(game_server_port))
 				local_peer_udp.connect_to_host(game_server_private_ip, int(game_server_private_port))
 				
-				await get_tree().create_timer(2).timeout # time to server server listening
-				
+				await get_tree().create_timer(2).timeout # time to server to connect 
 				# start listening in this port --> PORT IS ALREADY BINDING
 				#peer_udp.bind(int(own_port), "*")
 				# try to communicate with server
@@ -639,7 +633,7 @@ func hole_punching():
 				if res >= 0:
 					print("message reached from server")
 					
-					# store ip and port to communicate
+					# store host ip and port to communicate
 					if (res==0): # store private info
 						CurrentSessionInfo.host_ip = game_server_ip
 						#CurrentSessionInfo.host_port = game_server_port

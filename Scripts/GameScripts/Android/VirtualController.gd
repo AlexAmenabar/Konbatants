@@ -1,6 +1,5 @@
 extends Node
 
-
 var player_controller
 
 # joysticks

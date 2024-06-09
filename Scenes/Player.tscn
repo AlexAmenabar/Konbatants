@@ -1,8 +1,11 @@
-[gd_scene load_steps=28 format=3 uid="uid://c471wjjt5sta3"]
+[gd_scene load_steps=31 format=3 uid="uid://c471wjjt5sta3"]
 
 [ext_resource type="PackedScene" uid="uid://dt352rfintkdu" path="res://3D models/3DGodotRobot.glb" id="1_3newx"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/PlayerController.cs" id="1_18xpu"]
 [ext_resource type="PackedScene" uid="uid://cb3ygq07m17qe" path="res://3D models/Cube/cube/source/cube.glb" id="3_igvtk"]
+[ext_resource type="PackedScene" uid="uid://v07vchdhs8o4" path="res://Assets/GameAssets/GeneralAssets/flecha_azul.glb" id="4_khbio"]
+[ext_resource type="PackedScene" uid="uid://bxy0b0ixea2s0" path="res://Assets/GameAssets/GeneralAssets/flecha_roja.glb" id="5_bmdec"]
+[ext_resource type="PackedScene" uid="uid://bhwmkvrhb7213" path="res://Assets/GameAssets/GeneralAssets/flecha_verde.glb" id="6_bq3cs"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_j62kg"]
 
@@ -27,6 +30,9 @@ properties/4/replication_mode = 2
 properties/5/path = NodePath("AnimationPlayer:current_animation")
 properties/5/spawn = true
 properties/5/replication_mode = 2
+properties/6/path = NodePath("Arrow:position")
+properties/6/spawn = true
+properties/6/replication_mode = 1
 
 [sub_resource type="Animation" id="Animation_hb2bb"]
 resource_name = "Attack1"
@@ -4352,6 +4358,7 @@ target_position = Vector3(0, -0.5, 0)
 
 [node name="BasicAttack" type="Area3D" parent="." groups=["basicAttack"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.793089, 0.764785)
+visible = false
 
 [node name="AttackCollisionShape" type="CollisionShape3D" parent="BasicAttack"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.311241)
@@ -4368,5 +4375,19 @@ root_node = NodePath("../3DGodotRobot")
 libraries = {
 "": SubResource("AnimationLibrary_4gohe")
 }
+
+[node name="Arrow" type="Node3D" parent="."]
+
+[node name="blueArrow" parent="Arrow" instance=ExtResource("4_khbio")]
+transform = Transform3D(0.15, 0, 0, 0, -6.55671e-09, 0.15, 0, -0.15, -6.55671e-09, 0, 2.5, 0)
+visible = false
+
+[node name="redArrow" parent="Arrow" instance=ExtResource("5_bmdec")]
+transform = Transform3D(0.15, 0, 0, 0, -6.55671e-09, 0.15, 0, -0.15, -6.55671e-09, 0, 2.5, 0)
+visible = false
+
+[node name="greenArrow" parent="Arrow" instance=ExtResource("6_bq3cs")]
+transform = Transform3D(0.15, 0, 0, 0, -6.55671e-09, 0.15, 0, -0.15, -6.55671e-09, 0, 2.5, 0)
+visible = false
 
 [connection signal="body_entered" from="BasicAttack" to="." method="_on_basic_attack_body_entered"]
