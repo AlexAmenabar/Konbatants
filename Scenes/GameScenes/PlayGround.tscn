@@ -212,3 +212,17 @@ theme_override_constants/outline_size = 2
 theme_override_font_sizes/normal_font_size = 50
 bbcode_enabled = true
 text = "[center]Loading..."
+
+[node name="Timer" type="Label" parent="GUI"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -40.0
+offset_right = 40.0
+offset_bottom = 55.0
+grow_horizontal = 2
+size_flags_vertical = 0
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 40
+text = "3:00"

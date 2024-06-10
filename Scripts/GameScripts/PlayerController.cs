@@ -55,11 +55,15 @@ public partial class PlayerController : RigidBody3D
 
 	private Node3D soundNodes;
 
+	// ability
+	private Ability ability;
+
 	public int Team { get => team; set => team = value; }
 	public PlayerGUIController PlayerGUIController { get => playerGUIController; set => playerGUIController = value; }
 	public bool AttackVar { get => attackVar; set => attackVar = value; }
 	public Node3D PositionIndicatorArrow { get => positionIndicatorArrow; set => positionIndicatorArrow = value; }
 	public Node3D SoundNodes { get => soundNodes; set => soundNodes = value; }
+	public Ability Ability { get => ability; set => ability = value; }
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -390,6 +394,23 @@ public partial class PlayerController : RigidBody3D
 			//GD.Print("Damage taken\n");
 		}
 	}
+
+	// emitted when player colides with ability cube
+	private void _on_body_shape_entered(Rid body_rid, Node body, long body_shape_index, long local_shape_index)
+	{
+		if(body.IsInGroup("AbilityCube"))
+		{
+			GD.Print("Ability cube collided");
+			AbilityCube abilityCube = (AbilityCube)body;
+
+			ability = abilityCube.GetAbility();
+
+			// Destroy abilityCube
+			abilityCube.Destroy();
+		}
+	}
+
+
 	private async void DisableAttackCollider()
 	{
 		await ToSignal(GetTree().CreateTimer(0.25f), "timeout");

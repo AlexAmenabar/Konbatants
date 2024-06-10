@@ -1,55 +1,59 @@
-[gd_scene load_steps=5 format=3 uid="uid://dlm1vke1p377k"]
+[gd_scene load_steps=6 format=3 uid="uid://dlm1vke1p377k"]
 
 [ext_resource type="PackedScene" uid="uid://15tqsm6m0f3p" path="res://3D models/Maps/mapCube.glb" id="1_gnfgb"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/Maps/DefaultMap.cs" id="1_vgk4q"]
 [ext_resource type="AudioStream" uid="uid://dyyrrds8drnwo" path="res://Assets/GameAssets/Sounds and Music/Big-Band-Swingin_Looping.mp3" id="3_atxef"]
+[ext_resource type="PackedScene" uid="uid://c6ifg22qnx3b0" path="res://Scenes/GameScenes/AbilityCube/AbilityCube.tscn" id="4_7ojrp"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_um37m"]
+size = Vector3(8.1886, 8.16444, 8.17676)
 
 [node name="Default" type="Node3D"]
-transform = Transform3D(8, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0)
 script = ExtResource("1_vgk4q")
 
 [node name="MapCamera" type="Camera3D" parent="."]
-transform = Transform3D(0.0878562, -0.0715798, 0.0527506, 0.00525181, 0.0782047, 0.0973727, -0.0887621, -0.066222, 0.0579735, 3.02125, 4.80421, 2.96434)
+transform = Transform3D(0.707107, -0.612372, 0.353553, 0, 0.5, 0.866025, -0.707107, -0.612372, 0.353553, 23, 40, 23)
 current = true
 
-[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_gnfgb")]
-transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0)
+[node name="Map_Scene" parent="." instance=ExtResource("1_gnfgb")]
+transform = Transform3D(24, 0, 0, 0, 24, 0, 0, 0, 24, 0, 0, 0)
 
 [node name="SpawnPoints" type="Node3D" parent="."]
 
 [node name="point0" type="Node3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.51235, 3.16054, 0.325984)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 26, 22)
 
 [node name="point1" type="Node3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.702755, 2.881, 2.41954)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 26, 2)
 
 [node name="point2" type="Node3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.563371, 2.881, 0.334866)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 26, 22)
 
 [node name="point3" type="Node3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.29958, 2.881, 2.39353)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 26, 2)
 
 [node name="point4" type="Node3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.72831, 2.881, 0.353977)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 26, 22)
 
 [node name="point5" type="Node3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.05798, 2.881, 2.29435)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 26, 2)
 
 [node name="point6" type="Node3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.938969, 2.881, 0.47674)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 26, 22)
 
 [node name="point7" type="Node3D" parent="SpawnPoints"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.91876, 2.881, 2.43665)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 26, 2)
 
 [node name="RigidBody3D" type="RigidBody3D" parent="." groups=["floor"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0913711, -5.92111, -0.0455348)
 freeze = true
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
-transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 1.58543, 7.42147, 1.53558)
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, 12.0873, 17.6591, 11.9928)
 shape = SubResource("BoxShape3D_um37m")
 
 [node name="MapMusic" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("3_atxef")
+
+[node name="AbilityCube" parent="." instance=ExtResource("4_7ojrp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 30, 21.2663)

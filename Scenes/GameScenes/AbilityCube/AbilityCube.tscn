@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://c6ifg22qnx3b0"]
+
+[ext_resource type="Script" path="res://Scripts/GameScripts/GameManagement/AbilityCube.cs" id="1_1fuwc"]
+[ext_resource type="PackedScene" uid="uid://dyn448ecxqn12" path="res://3D models/AbilityCube/cube_mario.glb" id="1_jdonn"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_52l4i"]
+size = Vector3(0.632996, 0.63752, 0.639534)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_uy427"]
+size = Vector3(0.686432, 0.68689, 0.685791)
+
+[node name="AbilityCube" type="RigidBody3D" groups=["AbilityCube"]]
+script = ExtResource("1_1fuwc")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00515747, 0.354748, -0.00526047)
+shape = SubResource("BoxShape3D_52l4i")
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_jdonn")]
+transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 0, 0, 0)
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00706482, 0.350492, -0.00134277)
+shape = SubResource("BoxShape3D_uy427")

@@ -35,6 +35,12 @@ public partial class GameController : Node
 	// game start
 	private bool gameStarted = false;
 
+
+	/* Game management variables */
+	private double timer; // seconds
+	private int time; // seconds
+	private Label timerLabel;
+
 	// Getters and setters
 	public int AmountPlayers { get => amountPlayers; set => amountPlayers = value; }
 	public bool Teams { get => teams; set => teams = value; }
@@ -54,6 +60,7 @@ public partial class GameController : Node
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		timerLabel = (Label)GetNode("./GUI/Timer");
 		LoadBasicInformation();
 		LoadGame();
 		InitializeMultiplayerAPI();
@@ -66,11 +73,16 @@ public partial class GameController : Node
 		{
 			gameStarted = true;
 			StartGame();
-		}
-		// control game
-		if (gameStarted)
-		{
 
+			// only server manages map events and ability spawn
+			if(isServer)
+			{
+				NextAbilitySpawn();
+			}
+		}
+		if(gameStarted)
+		{
+			ManageGameTimer(delta);
 		}
 	}
 	public void LoadBasicInformation()
@@ -142,6 +154,51 @@ public partial class GameController : Node
 
 	}
 
+	public async void NextAbilitySpawn()
+	{
+		Random rnd = new Random();
+		int timeToNextAbility;
+		Variant buffPosvariant;
+
+		while (true)
+		{ 
+			timeToNextAbility = rnd.Next(10);
+			if (timeToNextAbility < 3) timeToNextAbility = 3;
+
+			await ToSignal(GetTree().CreateTimer(timeToNextAbility), "timeout");
+
+			// generate buff on all players with RPC function
+			buffPosvariant = Map.GetCubePosition();
+			Rpc("GenerateAbilityCube", buffPosvariant);
+		}
+	}
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable, CallLocal = true)]
+	public void GenerateAbilityCube(Vector3 position)
+	{
+		var abilityCube = ResourceLoader.Load<PackedScene>("res://Scenes/GameScenes/AbilityCube/AbilityCube.tscn").Instantiate<AbilityCube>();
+		abilityCube.Position = position;
+		Map.AddChild(abilityCube);
+	}
+
+	public void ManageGameTimer(double delta)
+	{
+		timer += delta;
+		int timerAsInt = (int)timer;
+
+		int minutes = (int)(timerAsInt / 60);
+		int seconds = (int)(timerAsInt % 60);
+
+		// when time finished call map final event
+		if (minutes == 3)
+		{
+			Map.FinalMapEvent();
+		}
+
+		timerLabel.Text = (2 - minutes).ToString() + ":" + (60 - seconds).ToString();
+	}
+
+
 	/// <summary>
 	/// Create a Server using Godot MultiplayerAPI
 	/// </summary>
@@ -181,6 +238,7 @@ public partial class GameController : Node
 		Multiplayer.MultiplayerPeer = peer;
 		//GD.Print(parser.GetMyName() + ": Client created");
 	}
+
 
 	/** Signals */
 

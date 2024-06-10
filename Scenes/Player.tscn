@@ -4365,6 +4365,8 @@ _data = {
 [node name="Player" type="RigidBody3D" groups=["player"]]
 mass = 60.0
 lock_rotation = true
+max_contacts_reported = 10
+contact_monitor = true
 script = ExtResource("1_18xpu")
 metadata/id = 0
 
@@ -4427,4 +4429,5 @@ stream = ExtResource("10_4c11r")
 [node name="TakeDamageSound" type="AudioStreamPlayer3D" parent="SoundNodes"]
 stream = ExtResource("11_mim5p")
 
+[connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]
 [connection signal="body_entered" from="BasicAttack" to="." method="_on_basic_attack_body_entered"]

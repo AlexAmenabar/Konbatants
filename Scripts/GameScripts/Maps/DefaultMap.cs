@@ -24,4 +24,11 @@ public partial class DefaultMap : Map
 	{
 		throw new NotImplementedException();
 	}
+
+	public override Vector3 GetCubePosition()
+	{
+		// from x = 2 to x = 22 and z = 2 to z = 22
+		Random rnd = new Random();
+		return new Vector3(rnd.Next(2,22), 30, rnd.Next(2,22));
+	}
 }
