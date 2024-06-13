@@ -11,12 +11,14 @@ public partial class PlayerGUIController : ColorRect
 
 	private TextureRect abilityTexture;
 
+	public PlayerController Player { get => player; set => player = value; }
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
 		// find nodes
 		actualVitBar = (ColorRect)GetNode("./PlayerVit/PlayerActualVit");
-		vitBarInitialSizeX = 200;
+		vitBarInitialSizeX = 300;
 
 		abilityTexture = (TextureRect)GetNode("./AbilityTexture");
 
@@ -28,6 +30,11 @@ public partial class PlayerGUIController : ColorRect
 	{
 		float per = (float)actualVit / (float)totalVit;
 		actualVitBar.Size = new Vector2(per * vitBarInitialSizeX, actualVitBar.Size.Y);
+	}
+
+	public void SetAbilityTexture(Texture2D texture)
+	{
+		abilityTexture.Texture = texture; // (player.Ability as Ability).GetTexture();
 	}
 	public void RefreshAbilityContainer(bool hasAbility)
 	{

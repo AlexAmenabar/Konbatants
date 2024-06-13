@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dsqnc1nvx1o65"
+path="res://.godot/imported/boost-100537.mp3-148d3d6d8102427e846e9f0cf4fe70b4.mp3str"
+
+[deps]
+
+source_file="res://Assets/GameAssets/Sounds and Music/boost-100537.mp3"
+dest_files=["res://.godot/imported/boost-100537.mp3-148d3d6d8102427e846e9f0cf4fe70b4.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

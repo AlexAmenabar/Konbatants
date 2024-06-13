@@ -4,13 +4,14 @@ using System;
 public partial class FootballTeam : Attack
 {
 
-    public FootballTeam()
-    {
-        InitializeValues(0, new Vector3(0,0,0));
-    }
-    // Called when the node enters the scene tree for the first time.
-    public override void _Ready()
+	public FootballTeam()
 	{
+		InitializeValues(0, 0, 0, "Football");
+	}
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
+	{
+
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -18,8 +19,8 @@ public partial class FootballTeam : Attack
 	{
 	}
 
-    public override void Use()
-    {
-        throw new NotImplementedException();
-    }
+	public override void Use()
+	{
+		GD.Print("Football team not implemented yet");
+	}
 }

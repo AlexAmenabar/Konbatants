@@ -200,6 +200,7 @@ public partial class GameLoader : Node
 			ColorRect nodeGUI = (ColorRect)GetNode("../GUI/p" + i.ToString());
 
 			p.PlayerGUIController = pGUI;
+			pGUI.Player = p;
 
 			// change GUI bar color and set arrow visibility
 			Node3D arrowNode;

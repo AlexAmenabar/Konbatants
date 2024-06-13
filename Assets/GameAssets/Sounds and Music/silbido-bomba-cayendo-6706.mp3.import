@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://x1vkg4us3216"
+path="res://.godot/imported/silbido-bomba-cayendo-6706.mp3-b1bdabdd3403966bd91596ea7fd2a43f.mp3str"
+
+[deps]
+
+source_file="res://Assets/GameAssets/Sounds and Music/silbido-bomba-cayendo-6706.mp3"
+dest_files=["res://.godot/imported/silbido-bomba-cayendo-6706.mp3-b1bdabdd3403966bd91596ea7fd2a43f.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://b3igc4oxd38ss"]
+
+[ext_resource type="Script" path="res://Scripts/GameScripts/Abilities/FootballTeam.cs" id="1_pty3m"]
+[ext_resource type="Texture2D" uid="uid://b4rphhgvfr01k" path="res://Assets/GameAssets/Images/ballImage.png" id="2_0quqb"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ndhmh"]
+
+[node name="Football" type="RigidBody3D"]
+script = ExtResource("1_pty3m")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_ndhmh")
+disabled = true
+
+[node name="Image" type="TextureRect" parent="."]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_0quqb")

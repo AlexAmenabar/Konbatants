@@ -3,13 +3,14 @@ using System;
 
 public partial class Speed : Buff
 {
-    public Speed()
-    {
-        InitializeValues(10, 10); // 10 seconds
-    }
+	int playerOriginalSpeed = 4;
+	public Speed()
+	{
+		InitializeValues(4, 5); // 5 seconds
+	}
 
-    // Called when the node enters the scene tree for the first time.
-    public override void _Ready()
+	// Called when the node enters the scene tree for the first time.
+	public override void _Ready()
 	{
 	}
 
@@ -18,8 +19,30 @@ public partial class Speed : Buff
 	{
 	}
 
-    public override void Use()
-    {
-        throw new NotImplementedException();
-    }
+	public override void Use()
+	{
+		// player has used the ability, set null
+		player.Ability = null;
+
+		//GD.Print("Speed buf");
+		player.Speed = playerOriginalSpeed + bufValue;
+
+		// play sound
+		UseSound();
+
+		player.AddChild(this);
+
+		// after duration reset speed
+		ResetSpeed(playerOriginalSpeed);
+	}
+
+
+	public async void ResetSpeed(int playerOriginalSpeed)
+	{
+		// await until buf time finish
+		await ToSignal(GetTree().CreateTimer(duration), "timeout");
+		player.Speed = playerOriginalSpeed;
+		//GD.Print("Setting player original speed (" + playerOriginalSpeed.ToString() +")");
+		QueueFree();
+	}
 }

@@ -5,40 +5,51 @@ using System.Collections.Generic;
 public partial class AbilityCube : RigidBody3D
 {
 	private Ability ability;
-
-	String[] abilityNames;
-
+	String[] abilitySceneNames;
+	String childName;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		abilityNames = new String[4];
-		abilityNames[0] = "Bomb";
-		abilityNames[1] = "FootballTeam";
-		abilityNames[2] = "Speed";
-		abilityNames[3] = "RestoreVitality";
 
-		GenerateAbility();
 	}
 
-	public void GenerateAbility()
+	// Spawn ability node and set as cube child
+	public void GenerateAbility(int abilityIndex)
 	{
-		Random rnd = new Random();
-		int index = rnd.Next(4);
+		abilitySceneNames = new String[4];
+		abilitySceneNames[0] = "Bomb";
+		abilitySceneNames[1] = "Football";
+		abilitySceneNames[2] = "RestoreVitality";
+		abilitySceneNames[3] = "Speed";
 
-		if (index == 0)
+		childName = abilitySceneNames[abilityIndex];
+		var abilityScene = ResourceLoader.Load<PackedScene>("res://Scenes/GameScenes/AbilityScenes/" + childName + ".tscn").Instantiate<Node3D>();
+		AddChild(abilityScene);
+
+		/*if (abilityIndex == 0)
+		{
 			ability = new Bomb();
-		else if (index == 1)
+		}
+		else if (abilityIndex == 1)
+		{
 			ability = new FootballTeam();
-		else if (index == 2)
+		}
+		else if (abilityIndex == 2)
+		{
 			ability = new Speed();
-		else if (index == 3)
+		}
+		else if (abilityIndex == 3)
+		{
 			ability = new RestoreVitality();
+		}*/
 	}
 
-	public Ability GetAbility()
+	// return child node
+	public Node3D GetAbility()
 	{
-		return ability;
+		return (Node3D)GetNode(childName);
+		//return ability;
 	}
 
 	public void Destroy()

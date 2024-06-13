@@ -5,6 +5,7 @@ var player_controller
 # joysticks
 var movement_joystick
 var ability_joystick
+var ability_used
 
 # movement joystick
 
@@ -34,3 +35,7 @@ func _on_jump_gui_input(_event):
 
 func _on_attack_gui_input(_event):
 	player_controller.attackVar = true
+
+
+func _on_ability_gui_input(_event):
+	player_controller.abilityUsed = true

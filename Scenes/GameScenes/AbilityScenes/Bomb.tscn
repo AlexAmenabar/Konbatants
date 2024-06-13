@@ -1,0 +1,52 @@
+[gd_scene load_steps=9 format=3 uid="uid://dt1wfen0tyr67"]
+
+[ext_resource type="PackedScene" uid="uid://btblpgsofdoy8" path="res://3D models/AbilityModels/Bomb/low_poly_bomb_shadeless.glb" id="1_1ydr8"]
+[ext_resource type="Script" path="res://Scripts/GameScripts/Abilities/Bomb.cs" id="1_uo0ur"]
+[ext_resource type="PackedScene" uid="uid://bkttcon3t1nkm" path="res://3D models/AbilityModels/Bomb/Explosion/timeframe_explosion (1).glb" id="3_hv7ot"]
+[ext_resource type="AudioStream" uid="uid://x1vkg4us3216" path="res://Assets/GameAssets/Sounds and Music/silbido-bomba-cayendo-6706.mp3" id="4_brnbm"]
+[ext_resource type="AudioStream" uid="uid://c5w28vybf7bpx" path="res://Assets/GameAssets/Sounds and Music/medium-explosion-40472.mp3" id="5_jifyo"]
+[ext_resource type="Texture2D" uid="uid://57xdhdxdyo1v" path="res://Assets/GameAssets/Images/bombImage.png" id="6_njyv7"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_xyrbw"]
+radius = 0.379502
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_77oe1"]
+height = 9.16014
+radius = 1.63329
+
+[node name="Bomb" type="RigidBody3D"]
+gravity_scale = 3.0
+freeze = true
+max_contacts_reported = 1
+contact_monitor = true
+script = ExtResource("1_uo0ur")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_xyrbw")
+disabled = true
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("1_1ydr8")]
+
+[node name="Explosion" parent="." instance=ExtResource("3_hv7ot")]
+visible = false
+
+[node name="ExplosionArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ExplosionArea"]
+shape = SubResource("CylinderShape3D_77oe1")
+disabled = true
+
+[node name="UseSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("4_brnbm")
+
+[node name="ExplosionSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("5_jifyo")
+
+[node name="Image" type="TextureRect" parent="."]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("6_njyv7")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_entered" from="ExplosionArea" to="." method="_on_explosion_area_body_entered"]

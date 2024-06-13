@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-public abstract partial class Buff : Node, Ability
+public abstract partial class Buff : Node3D, Ability
 {
     protected PlayerController player;
     protected int bufValue;
@@ -17,4 +17,13 @@ public abstract partial class Buff : Node, Ability
         player = pPlayer;
     }
     public abstract void Use();
+
+    public void UseSound()
+    {
+        (GetNode("./UseSound") as AudioStreamPlayer3D).Play();
+    }
+    public Texture2D GetTexture()
+    {
+        return (GetNode("./Image") as TextureRect).Texture;
+    }
 }

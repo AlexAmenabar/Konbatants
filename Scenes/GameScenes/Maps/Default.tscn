@@ -1,14 +1,14 @@
-[gd_scene load_steps=6 format=3 uid="uid://dlm1vke1p377k"]
+[gd_scene load_steps=5 format=3 uid="uid://dlm1vke1p377k"]
 
 [ext_resource type="PackedScene" uid="uid://15tqsm6m0f3p" path="res://3D models/Maps/mapCube.glb" id="1_gnfgb"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/Maps/DefaultMap.cs" id="1_vgk4q"]
 [ext_resource type="AudioStream" uid="uid://dyyrrds8drnwo" path="res://Assets/GameAssets/Sounds and Music/Big-Band-Swingin_Looping.mp3" id="3_atxef"]
-[ext_resource type="PackedScene" uid="uid://c6ifg22qnx3b0" path="res://Scenes/GameScenes/AbilityCube/AbilityCube.tscn" id="4_7ojrp"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_um37m"]
 size = Vector3(8.1886, 8.16444, 8.17676)
 
 [node name="Default" type="Node3D"]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, 0, 0, 0)
 script = ExtResource("1_vgk4q")
 
 [node name="MapCamera" type="Camera3D" parent="."]
@@ -55,5 +55,7 @@ shape = SubResource("BoxShape3D_um37m")
 [node name="MapMusic" type="AudioStreamPlayer3D" parent="."]
 stream = ExtResource("3_atxef")
 
-[node name="AbilityCube" parent="." instance=ExtResource("4_7ojrp")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 30, 21.2663)
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 38.1665, 12.1842)
+light_energy = 0.6
+shadow_enabled = true

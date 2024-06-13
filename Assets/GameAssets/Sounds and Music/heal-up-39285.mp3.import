@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://2s4dxgosdh21"
+path="res://.godot/imported/heal-up-39285.mp3-aca92baa53055b5c25ce46d0e8108f78.mp3str"
+
+[deps]
+
+source_file="res://Assets/GameAssets/Sounds and Music/heal-up-39285.mp3"
+dest_files=["res://.godot/imported/heal-up-39285.mp3-aca92baa53055b5c25ce46d0e8108f78.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

@@ -20,7 +20,10 @@ shape = SubResource("BoxShape3D_52l4i")
 transform = Transform3D(0.02, 0, 0, 0, 0.02, 0, 0, 0, 0.02, 0, 0, 0)
 
 [node name="Area3D" type="Area3D" parent="."]
+monitoring = false
+monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00706482, 0.350492, -0.00134277)
 shape = SubResource("BoxShape3D_uy427")
+disabled = true

@@ -1,7 +1,8 @@
-[gd_scene load_steps=36 format=3 uid="uid://c471wjjt5sta3"]
+[gd_scene load_steps=38 format=3 uid="uid://c471wjjt5sta3"]
 
 [ext_resource type="PackedScene" uid="uid://dt352rfintkdu" path="res://3D models/3DGodotRobot.glb" id="1_3newx"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/PlayerController.cs" id="1_18xpu"]
+[ext_resource type="Script" path="res://Scripts/GameScripts/Abilities/NormalAttack.cs" id="3_gj501"]
 [ext_resource type="PackedScene" uid="uid://cb3ygq07m17qe" path="res://3D models/Cube/cube/source/cube.glb" id="3_igvtk"]
 [ext_resource type="PackedScene" uid="uid://v07vchdhs8o4" path="res://Assets/GameAssets/GeneralAssets/flecha_azul.glb" id="4_khbio"]
 [ext_resource type="PackedScene" uid="uid://bxy0b0ixea2s0" path="res://Assets/GameAssets/GeneralAssets/flecha_roja.glb" id="5_bmdec"]
@@ -11,8 +12,10 @@
 [ext_resource type="AudioStream" uid="uid://dhv6nucbvmwru" path="res://Assets/GameAssets/Sounds and Music/runSound.mp3" id="9_uwutr"]
 [ext_resource type="AudioStream" uid="uid://cuwhd1pckvuc1" path="res://Assets/GameAssets/Sounds and Music/dieSound.mp3" id="10_4c11r"]
 [ext_resource type="AudioStream" uid="uid://dtylplt0cu2np" path="res://Assets/GameAssets/Sounds and Music/takeDamageSound.mp3" id="11_mim5p"]
+[ext_resource type="AudioStream" uid="uid://2l3xihg0n10v" path="res://Assets/GameAssets/Sounds and Music/GetCubeSound.mp3" id="13_fls6w"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_j62kg"]
+size = Vector3(0.49176, 1.49805, 0.562317)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_d034c"]
 
@@ -53,6 +56,18 @@ properties/10/replication_mode = 2
 properties/11/path = NodePath("SoundNodes/TakeDamageSound:playing")
 properties/11/spawn = true
 properties/11/replication_mode = 2
+properties/12/path = NodePath("SoundNodes/GetCubeSound:playing")
+properties/12/spawn = true
+properties/12/replication_mode = 2
+properties/13/path = NodePath("BasicAttack:freeze")
+properties/13/spawn = true
+properties/13/replication_mode = 2
+properties/14/path = NodePath("BasicAttack:position")
+properties/14/spawn = true
+properties/14/replication_mode = 2
+properties/15/path = NodePath("BasicAttack:rotation")
+properties/15/spawn = true
+properties/15/replication_mode = 2
 
 [sub_resource type="Animation" id="Animation_hb2bb"]
 resource_name = "Attack1"
@@ -4373,21 +4388,26 @@ metadata/id = 0
 [node name="3DGodotRobot" parent="." instance=ExtResource("1_3newx")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0179138, 0.725586, 0.0412292)
 shape = SubResource("BoxShape3D_j62kg")
 
 [node name="RayCast3D" type="RayCast3D" parent="."]
 target_position = Vector3(0, -0.5, 0)
 
-[node name="BasicAttack" type="Area3D" parent="." groups=["basicAttack"]]
+[node name="BasicAttack" type="RigidBody3D" parent="." groups=["Ability"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.793089, 0.764785)
-visible = false
+gravity_scale = 0.0
+max_contacts_reported = 1
+contact_monitor = true
+script = ExtResource("3_gj501")
 
-[node name="AttackCollisionShape" type="CollisionShape3D" parent="BasicAttack"]
+[node name="AttackCollisionShape" type="CollisionShape3D" parent="BasicAttack" groups=["Ability"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.311241)
 shape = SubResource("BoxShape3D_d034c")
 
 [node name="cube" parent="BasicAttack" instance=ExtResource("3_igvtk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.311241)
+visible = false
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_a2h54")
@@ -4399,17 +4419,18 @@ libraries = {
 }
 
 [node name="Arrow" type="Node3D" parent="."]
+transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, 0, 0, 0)
 
 [node name="blueArrow" parent="Arrow" instance=ExtResource("4_khbio")]
-transform = Transform3D(0.15, 0, 0, 0, -6.55671e-09, 0.15, 0, -0.15, -6.55671e-09, 0, 2.5, 0)
+transform = Transform3D(0.10692, -0.105205, -4.59868e-09, 0, -6.55671e-09, 0.15, -0.105205, -0.10692, -4.67361e-09, 0, 2.5, 0)
 visible = false
 
 [node name="redArrow" parent="Arrow" instance=ExtResource("5_bmdec")]
-transform = Transform3D(0.15, 0, 0, 0, -6.55671e-09, 0.15, 0, -0.15, -6.55671e-09, 0, 2.5, 0)
+transform = Transform3D(0.10692, -0.105205, -4.59868e-09, 0, -6.55671e-09, 0.15, -0.105205, -0.10692, -4.67361e-09, 0, 2.5, 0)
 visible = false
 
 [node name="greenArrow" parent="Arrow" instance=ExtResource("6_bq3cs")]
-transform = Transform3D(0.15, 0, 0, 0, -6.55671e-09, 0.15, 0, -0.15, -6.55671e-09, 0, 2.5, 0)
+transform = Transform3D(0.10692, -0.105205, -4.59868e-09, 0, -6.55671e-09, 0.15, -0.105205, -0.10692, -4.67361e-09, 0, 2.5, 0)
 visible = false
 
 [node name="SoundNodes" type="Node3D" parent="."]
@@ -4429,5 +4450,10 @@ stream = ExtResource("10_4c11r")
 [node name="TakeDamageSound" type="AudioStreamPlayer3D" parent="SoundNodes"]
 stream = ExtResource("11_mim5p")
 
+[node name="GetCubeSound" type="AudioStreamPlayer3D" parent="SoundNodes"]
+stream = ExtResource("13_fls6w")
+
+[node name="Ability" type="Node3D" parent="."]
+
 [connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]
-[connection signal="body_entered" from="BasicAttack" to="." method="_on_basic_attack_body_entered"]
+[connection signal="body_entered" from="BasicAttack" to="BasicAttack" method="_on_body_entered"]

@@ -22,7 +22,7 @@ public partial class DefaultMap : Map
 
 	public override void FinalMapEvent()
 	{
-		throw new NotImplementedException();
+		GD.Print("Final event running...");
 	}
 
 	public override Vector3 GetCubePosition()

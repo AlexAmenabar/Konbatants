@@ -20,6 +20,7 @@ public partial class DefaultController : Node
 		DetectMovement();
 		DetectJump();
 		DetectAttack();
+		DetectAbility();
 	}
 	public void DetectMovement()
 	{
@@ -48,5 +49,10 @@ public partial class DefaultController : Node
 	{
 		if(Input.IsActionPressed("Attack"))
 			playerController.AttackVar = true;
+	}
+	public void DetectAbility()
+	{
+		if (Input.IsActionPressed("AbilityUsed"))
+			playerController.AbilityUsed = true;
 	}
 }

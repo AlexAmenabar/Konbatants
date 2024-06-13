@@ -15,9 +15,7 @@ public partial class PlayerController : RigidBody3D
 	private int attackDamage;
 
 	// nodes
-	private Area3D basicAttack;
-	private CollisionShape3D basicAttackCollider;
-	//private Ability ability;
+	private NormalAttack basicAttack; // normal attack is an especial ability that player can use at any moment
 	private RayCast3D raycast;
 
 	// Animation Player
@@ -26,7 +24,11 @@ public partial class PlayerController : RigidBody3D
 	// MultiplayerSynchonizer
 	private MultiplayerSynchronizer multiplayerSync;
 
-	// "temporal" attributes to control
+	// attributes to control in which direction is player lookin
+	private int lookingHDir = 0;
+	private int lookingVDir = 0;
+
+	// "temporal" attributes to control movement
 	public int hdir = 0;
 	public int vdir = 0;
 	public int jump = -1;
@@ -42,28 +44,41 @@ public partial class PlayerController : RigidBody3D
 	private bool attacked = false;
 	private bool damageReceived = false;
 
+	// ability use
+	private Node3D ability;
+	private bool abilityUsed;
+
 	// team
 	private int team; // 0 or 1
+
+	// game controller
+	private GameController gameController;
 
 	private PlayerGUIController playerGUIController;
 
 	GSCriptToCSharp parser;
 
-	GameController gameController;
-
 	private Node3D positionIndicatorArrow;
 
 	private Node3D soundNodes;
 
-	// ability
-	private Ability ability;
 
 	public int Team { get => team; set => team = value; }
 	public PlayerGUIController PlayerGUIController { get => playerGUIController; set => playerGUIController = value; }
 	public bool AttackVar { get => attackVar; set => attackVar = value; }
 	public Node3D PositionIndicatorArrow { get => positionIndicatorArrow; set => positionIndicatorArrow = value; }
 	public Node3D SoundNodes { get => soundNodes; set => soundNodes = value; }
-	public Ability Ability { get => ability; set => ability = value; }
+	public Node3D Ability { get => ability; set => ability = value; }
+	public bool Attacked { get => attacked; set => attacked = value; }
+	public Node3D SoundNodes1 { get => soundNodes; set => soundNodes = value; }
+	public int MaxVitality { get => maxVitality; set => maxVitality = value; }
+	public int Vitality { get => vitality; set => vitality = value; }
+	public int Speed { get => speed; set => speed = value; }
+	public int AttackDamage { get => attackDamage; set => attackDamage = value; }
+	public bool AbilityUsed { get => abilityUsed; set => abilityUsed = value; }
+	public MultiplayerSynchronizer MultiplayerSync { get => multiplayerSync; set => multiplayerSync = value; }
+	public int LookingHDir { get => lookingHDir; set => lookingHDir = value; }
+	public int LookingVDir { get => lookingVDir; set => lookingVDir = value; }
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -84,10 +99,10 @@ public partial class PlayerController : RigidBody3D
 		attackDamage = 3;
 
 		// initialize nodes related to player
-		basicAttack = (Area3D)GetNode("./BasicAttack");
-		basicAttackCollider = (CollisionShape3D)GetNode("./BasicAttack/AttackCollisionShape");
-		basicAttackCollider.SetDeferred("disabled", true);
-		basicAttack.Visible = false;
+		basicAttack = (NormalAttack)GetNode("./BasicAttack");
+		//basicAttackCollider = (CollisionShape3D)GetNode("./BasicAttack/AttackCollisionShape");
+		//basicAttackCollider.SetDeferred("disabled", true);
+		//(basicAttack as Node3D).Visible = false;
 
 		raycast = (RayCast3D)GetNode("./RayCast3D");
 
@@ -124,6 +139,8 @@ public partial class PlayerController : RigidBody3D
 
 		parser = (GSCriptToCSharp)GetNode("../../ParserNode");
 		soundNodes = (Node3D)GetNode("./SoundNodes");
+
+		gameController = (GameController)GetNode("../..");
 	}
 	public async void Start()
 	{
@@ -159,13 +176,9 @@ public partial class PlayerController : RigidBody3D
 	// Used to detect input
 	public override void _Process(double delta)
 	{
+		// move arrow that indicates of which team is each player
 		positionIndicatorArrow.Position = new Vector3(Position.X, Position.Y + 0.5f, Position.Z);
 
-		//SetMultiplayerAuthority(id);
-		if(IsMultiplayerAuthority())
-		{
-			//GD.Print("In Node " + Name + " id is " + id.ToString() + " is multiplayer authority for this node");
-		}
 		if(IsMultiplayerAuthority())//if (multiplayerSync.GetMultiplayerAuthority() == id)
 		{
 			//DetectMovement();
@@ -180,17 +193,39 @@ public partial class PlayerController : RigidBody3D
 	// used to call physics functions
 	public override void _PhysicsProcess(double delta)
 	{
-		
-		if(IsMultiplayerAuthority())//if (multiplayerSync.GetMultiplayerAuthority() == id)
+		if(IsMultiplayerAuthority() && can)//if (multiplayerSync.GetMultiplayerAuthority() == id)
 		{
 			if (canJump)
 				Move();
 			Jump();
 
+			// normalAttack
 			if (AttackVar)
+			{
+				AttackVar = false;
 				Attack();
+			}
+
+			// use ability
+			if (abilityUsed && ability != null)
+			{
+				//GD.Print("Ability used!");
+				abilityUsed = false;
+				(ability as Ability).Use();
+
+				// ability use is not synchronized by multiplayer sync, so call RCP function
+				String nodeName = Name;
+				int myIndex = nodeName.Split("r")[1].ToInt();
+				gameController.AbilityUsed(myIndex, lookingHDir, lookingVDir);
+
+				// set ability texture
+				playerGUIController.SetAbilityTexture(null); // quit texture
+			}
+			else
+				abilityUsed = false;
 		}
 	}
+
 	public void DetectMovement()
 	{
 		if (Input.IsActionPressed("MoveRightDirection"))
@@ -218,13 +253,33 @@ public partial class PlayerController : RigidBody3D
 		float velz = LinearVelocity.Z;
 		float velx = LinearVelocity.X;
 
-		velx = hdir * 4;
-		velz = vdir * 4;
+		// looking direction
+		if (hdir != 0)
+			lookingHDir = hdir;
+		if (vdir != 0)
+			lookingVDir = vdir;
+		if (hdir != 0 && vdir == 0)
+			lookingVDir = 0;
+		if (hdir == 0 && vdir != 0)
+			lookingHDir = 0;
+
+		// movement
+		velx = hdir * speed;
+		velz = vdir * speed;
+
 
 		if(hdir != 0 && vdir != 0) // calculate velocity in each dimension to resultant be 4
 		{
-			velx = (float)Math.Sqrt(8.0f) * hdir;
-			velz = (float)Math.Sqrt(8.0f) * vdir;
+			// velx == velz
+
+			float x = (float)(Math.Sqrt((speed * speed) / 2));
+
+			//velx = (float)Math.Sqrt(8.0f) * hdir;
+			//velz = (float)Math.Sqrt(8.0f) * vdir;
+
+			velx = velz = x;
+			velx *= hdir;
+			velz *= vdir;
 		}
 
 		LinearVelocity = new Vector3(velx, LinearVelocity.Y, velz);
@@ -291,58 +346,70 @@ public partial class PlayerController : RigidBody3D
 
 	public void Attack()
 	{
-		//if (Input.IsActionPressed("Attack") && canAttack)
-		//{
 		if (canAttack)
 		{
-			attackVar = false;
-			GD.Print("Attack used!");
-			attacked = true;
-			RefreshAttacketAnimation();
-			basicAttackCollider.SetDeferred("disabled", false);
-			canAttack = false;
-			basicAttack.Visible = true;
-			DisableAttack();
-
-			// sound
-			(soundNodes.GetNode("./MeleeAttackSound") as AudioStreamPlayer3D).Play();
+			basicAttack.Use();
 		}
-		//}
 	}
 
-	private async void RefreshAttacketAnimation()
-	{
-		await ToSignal(GetTree().CreateTimer(1.1f), "timeout");
-		attacked = false;
-	}
-
-	public async void DisableAttack()
-	{
-		await ToSignal(GetTree().CreateTimer(0.25f), "timeout");
-		basicAttack.Visible = false;
-		basicAttackCollider.SetDeferred("disabled", true); // desactive attack collider
-		await ToSignal(GetTree().CreateTimer(0.75f), "timeout");
-		canAttack = true;
-	}
-
-	public void TakeDamage(int damage)
+	public void TakeDamage(Attack attack)
 	{
 		// play sound
 		(soundNodes.GetNode("./TakeDamageSound") as AudioStreamPlayer3D).Play();
+		
+		//GD.Print("Damage taken! Max vitality = " + maxVitality + ", Vitality = " + vitality);
+		
+		// reduce vitality and run animation
+		vitality -= attack.Damage;
 
-		GD.Print("Damage taken! Max vitality = " + maxVitality + ", Vitality = " + vitality);
-		vitality -= damage;
-		damageReceived = true;
+		// push player
+		PushPlayer(attack);
+
 		RefreshDamageReceivedAnimation();
 
 		// refresh vitality bar
+		RefreshLifeBar();
+	}
+	public void PushPlayer(Attack attack)
+	{
+		// can not do anything
+		can = false;
+
+		float forceX = 0, forceZ = 0;
+
+		// calculate force in each dimension
+
+		// calculate distance between attack and player
+		Vector3 distance = Position - attack.Position;
+		if(Math.Abs(distance.X) > 0.1f && Math.Abs(distance.Z) > 0.1f)
+		{
+			// distribute HorizontalPushForce in X and Z
+			forceX = forceZ = (float)Math.Sqrt(attack.HorizontalPushForce * attack.HorizontalPushForce / 2);
+		}
+		else if (Math.Abs(distance.X) > 0.1f)
+		{
+			forceX = attack.VerticalPushForce;
+		}
+		else // distanceZ > 0.1
+		{
+			forceZ = attack.HorizontalPushForce;
+		}
+
+		ApplyImpulse(new Vector3(forceX * 10, attack.VerticalPushForce * 10, forceZ * 10));
+	}
+
+	public void RefreshLifeBar()
+	{
 		playerGUIController.RefreshLifeBar(vitality, maxVitality);
 	}
 
-	private async void RefreshDamageReceivedAnimation()
+	public async void RefreshDamageReceivedAnimation()
 	{
+		can = false;
+		damageReceived = true;
 		await ToSignal(GetTree().CreateTimer(0.5f), "timeout");
 		damageReceived = false;
+		can = true;
 	}
 
 	public void SetAnimation()
@@ -376,45 +443,43 @@ public partial class PlayerController : RigidBody3D
 		// die animation
 	}
 
-	// signal emitted when body shape enters
-	private void _on_basic_attack_body_entered(Node3D body)
-	{
-		if (body.GetGroups().Contains("player"))
-		{
-			PlayerController enemyPlayer = (PlayerController)body;
-			if(team != enemyPlayer.Team) // player can't hit players of his team
-			{ 
-				enemyPlayer.TakeDamage(attackDamage);
-				DisableAttackCollider();
-
-				// push player
-				//PushPlayer(enemyPlayer, 0);
-			}
-			//basicAttackCollider.SetDeferred("disabled", true);
-			//GD.Print("Damage taken\n");
-		}
-	}
-
-	// emitted when player colides with ability cube
+	// emitted when player colides with ability cube. It sets an ability to player
 	private void _on_body_shape_entered(Rid body_rid, Node body, long body_shape_index, long local_shape_index)
 	{
 		if(body.IsInGroup("AbilityCube"))
 		{
-			GD.Print("Ability cube collided");
+			// play sound
+			(GetNode("./SoundNodes/GetCubeSound") as AudioStreamPlayer3D).Play();
+
+			//GD.Print("Ability cube collided");
 			AbilityCube abilityCube = (AbilityCube)body;
 
-			ability = abilityCube.GetAbility();
+			// get ability node and make map child
+			Node3D abilityTempNode = abilityCube.GetAbility(); // sometimes player collides with the same cube more than one time
+			if (abilityTempNode != null)
+			{
+				//GD.Print("Ability is null? " + (ability == null).ToString());
 
-			// Destroy abilityCube
-			abilityCube.Destroy();
+				// if player has an ability delete (child node)
+				if(ability != null)
+				{
+					GetNode("./Ability").GetChild(0).QueueFree();
+				}
+
+				abilityTempNode.Reparent(GetNode("./Ability")); // set player as new parent
+
+				// set player ability and ability player
+				this.ability = abilityTempNode;
+
+				// set ability playerController
+				(ability as Ability).SetPlayer(this);
+
+				// set ability texture
+				playerGUIController.SetAbilityTexture((ability as Ability).GetTexture());
+
+				// Destroy abilityCube
+				abilityCube.Destroy();
+			}
 		}
-	}
-
-
-	private async void DisableAttackCollider()
-	{
-		await ToSignal(GetTree().CreateTimer(0.25f), "timeout");
-		basicAttackCollider.SetDeferred("disabled", true);
-		GD.Print("Damage taken\n");
 	}
 }

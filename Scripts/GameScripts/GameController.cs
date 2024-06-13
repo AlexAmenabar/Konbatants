@@ -41,6 +41,9 @@ public partial class GameController : Node
 	private int time; // seconds
 	private Label timerLabel;
 
+	// how much abilities are implemented
+	int abilityAmount = 4;
+
 	// Getters and setters
 	public int AmountPlayers { get => amountPlayers; set => amountPlayers = value; }
 	public bool Teams { get => teams; set => teams = value; }
@@ -167,18 +170,37 @@ public partial class GameController : Node
 
 			await ToSignal(GetTree().CreateTimer(timeToNextAbility), "timeout");
 
+			// decide what ability must be generated (server must decide, and inform the rest about that)
+			Variant abilityIndex = rnd.Next(abilityAmount);
+
 			// generate buff on all players with RPC function
 			buffPosvariant = Map.GetCubePosition();
-			Rpc("GenerateAbilityCube", buffPosvariant);
+
+			Rpc("GenerateAbilityCube", buffPosvariant, abilityIndex);
 		}
 	}
 
 	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable, CallLocal = true)]
-	public void GenerateAbilityCube(Vector3 position)
+	public void GenerateAbilityCube(Vector3 position, int abilityIndex)
 	{
 		var abilityCube = ResourceLoader.Load<PackedScene>("res://Scenes/GameScenes/AbilityCube/AbilityCube.tscn").Instantiate<AbilityCube>();
+		abilityCube.GenerateAbility(abilityIndex);
 		abilityCube.Position = position;
 		Map.AddChild(abilityCube);
+	}
+
+	public void AbilityUsed(int playerIndex, int hdir, int vdir)
+	{
+		Rpc("UseOtherPlayerAbility", playerIndex, hdir, vdir);
+	}
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable, CallLocal = false)]
+	public void UseOtherPlayerAbility(int playerIndex, int hdir, int vdir)
+	{
+		// get player and use ability
+		PlayerController pPlayer = (PlayerController)GetNode("./Players/player" + playerIndex.ToString());
+		pPlayer.LookingHDir = hdir;
+		pPlayer.LookingVDir = vdir;
+		((GetNode("./Players/player" + playerIndex.ToString()) as PlayerController).Ability as Ability).Use();
 	}
 
 	public void ManageGameTimer(double delta)
@@ -190,13 +212,24 @@ public partial class GameController : Node
 		int seconds = (int)(timerAsInt % 60);
 
 		// when time finished call map final event
-		if (minutes == 3)
+		if (minutes == 3 && seconds == 0)
 		{
 			Map.FinalMapEvent();
 		}
 
 		timerLabel.Text = (2 - minutes).ToString() + ":" + (60 - seconds).ToString();
 	}
+
+	// instantiate ability
+	/*public void InstantiateAbility(Attack attack)
+	{
+		GD.Print("Before calling attack.Instantiate in gameController");
+		Node3D ability = (Attack)attack.Instantiate();
+		GD.Print("On GameConstroller after instantiating");
+		ability.GlobalPosition = new Vector3(10, 25, 15);
+		GD.Print("Bomb name: " + ability.Name);
+		Map.AddChild(ability);
+	}*/
 
 
 	/// <summary>
