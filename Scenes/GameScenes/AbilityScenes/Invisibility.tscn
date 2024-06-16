@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://c8scc0bky8thg"]
+
+[ext_resource type="Script" path="res://Scripts/GameScripts/Abilities/Invisibility.cs" id="1_vwrsa"]
+[ext_resource type="Texture2D" uid="uid://bg4rpthv3ter2" path="res://Assets/GameAssets/Images/eye.png" id="2_qtacm"]
+[ext_resource type="AudioStream" uid="uid://7fannibwx7ep" path="res://Assets/GameAssets/Sounds and Music/invisibilitySound.mp3" id="3_k5juc"]
+
+[node name="Invisibility" type="Node3D"]
+script = ExtResource("1_vwrsa")
+
+[node name="Image" type="TextureRect" parent="."]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_qtacm")
+
+[node name="UseSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_k5juc")

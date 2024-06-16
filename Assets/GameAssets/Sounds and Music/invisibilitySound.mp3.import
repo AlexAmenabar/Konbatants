@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://7fannibwx7ep"
+path="res://.godot/imported/invisibilitySound.mp3-b3ca8ce49f9cad2646e811d86a609bfd.mp3str"
+
+[deps]
+
+source_file="res://Assets/GameAssets/Sounds and Music/invisibilitySound.mp3"
+dest_files=["res://.godot/imported/invisibilitySound.mp3-b3ca8ce49f9cad2646e811d86a609bfd.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

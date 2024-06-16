@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://wdxog3lbh5d6"]
+
+[ext_resource type="PackedScene" uid="uid://cjjtb4e0g55mu" path="res://3D models/AbilityModels/Magical shield/hex-sphere.glb" id="1_7wgo3"]
+
+[node name="Sketchfab_Scene" instance=ExtResource("1_7wgo3")]
+
+[node name="Sphere_0" parent="Sketchfab_model/Root/Sphere" index="0"]
+visible = false

@@ -42,7 +42,7 @@ public partial class GameController : Node
 	private Label timerLabel;
 
 	// how much abilities are implemented
-	int abilityAmount = 4;
+	int abilityAmount = 8;
 
 	// Getters and setters
 	public int AmountPlayers { get => amountPlayers; set => amountPlayers = value; }
@@ -201,6 +201,9 @@ public partial class GameController : Node
 		pPlayer.LookingHDir = hdir;
 		pPlayer.LookingVDir = vdir;
 		((GetNode("./Players/player" + playerIndex.ToString()) as PlayerController).Ability as Ability).Use();
+
+		// quit ability texture
+		(GetNode("./Players/player" + playerIndex.ToString()) as PlayerController).PlayerGUIController.SetAbilityTexture(null);
 	}
 
 	public void ManageGameTimer(double delta)

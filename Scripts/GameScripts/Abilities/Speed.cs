@@ -12,6 +12,7 @@ public partial class Speed : Buff
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
+		InitializeValues(4, 5); // 5 seconds
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -30,7 +31,7 @@ public partial class Speed : Buff
 		// play sound
 		UseSound();
 
-		player.AddChild(this);
+		//player.AddChild(this);
 
 		// after duration reset speed
 		ResetSpeed(playerOriginalSpeed);

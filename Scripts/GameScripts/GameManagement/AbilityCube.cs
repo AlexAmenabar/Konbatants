@@ -17,11 +17,15 @@ public partial class AbilityCube : RigidBody3D
 	// Spawn ability node and set as cube child
 	public void GenerateAbility(int abilityIndex)
 	{
-		abilitySceneNames = new String[4];
+		abilitySceneNames = new String[8];
 		abilitySceneNames[0] = "Bomb";
 		abilitySceneNames[1] = "Football";
 		abilitySceneNames[2] = "RestoreVitality";
 		abilitySceneNames[3] = "Speed";
+		abilitySceneNames[4] = "Invisibility";
+		abilitySceneNames[5] = "Punch";
+		abilitySceneNames[6] = "Stole";
+		abilitySceneNames[7] = "MagicalShield";
 
 		childName = abilitySceneNames[abilityIndex];
 		var abilityScene = ResourceLoader.Load<PackedScene>("res://Scenes/GameScenes/AbilityScenes/" + childName + ".tscn").Instantiate<Node3D>();

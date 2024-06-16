@@ -4394,7 +4394,7 @@ shape = SubResource("BoxShape3D_j62kg")
 [node name="RayCast3D" type="RayCast3D" parent="."]
 target_position = Vector3(0, -0.5, 0)
 
-[node name="BasicAttack" type="RigidBody3D" parent="." groups=["Ability"]]
+[node name="BasicAttack" type="RigidBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.793089, 0.764785)
 gravity_scale = 0.0
 max_contacts_reported = 1
@@ -4404,10 +4404,10 @@ script = ExtResource("3_gj501")
 [node name="AttackCollisionShape" type="CollisionShape3D" parent="BasicAttack" groups=["Ability"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.311241)
 shape = SubResource("BoxShape3D_d034c")
+disabled = true
 
 [node name="cube" parent="BasicAttack" instance=ExtResource("3_igvtk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.311241)
-visible = false
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("SceneReplicationConfig_a2h54")
@@ -4457,3 +4457,4 @@ stream = ExtResource("13_fls6w")
 
 [connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]
 [connection signal="body_entered" from="BasicAttack" to="BasicAttack" method="_on_body_entered"]
+[connection signal="body_shape_entered" from="BasicAttack" to="BasicAttack" method="_on_body_shape_entered"]

@@ -79,6 +79,7 @@ public partial class PlayerController : RigidBody3D
 	public MultiplayerSynchronizer MultiplayerSync { get => multiplayerSync; set => multiplayerSync = value; }
 	public int LookingHDir { get => lookingHDir; set => lookingHDir = value; }
 	public int LookingVDir { get => lookingVDir; set => lookingVDir = value; }
+	public bool Can { get => can; set => can = value; }
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -381,7 +382,9 @@ public partial class PlayerController : RigidBody3D
 
 		// calculate distance between attack and player
 		Vector3 distance = Position - attack.Position;
-		if(Math.Abs(distance.X) > 0.1f && Math.Abs(distance.Z) > 0.1f)
+		int xdir = 0, zdir = 0;
+
+		if (Math.Abs(distance.X) > 0.1f && Math.Abs(distance.Z) > 0.1f)
 		{
 			// distribute HorizontalPushForce in X and Z
 			forceX = forceZ = (float)Math.Sqrt(attack.HorizontalPushForce * attack.HorizontalPushForce / 2);
@@ -395,7 +398,13 @@ public partial class PlayerController : RigidBody3D
 			forceZ = attack.HorizontalPushForce;
 		}
 
-		ApplyImpulse(new Vector3(forceX * 10, attack.VerticalPushForce * 10, forceZ * 10));
+		if (distance.X > 0) xdir = 1;
+		else if (distance.X < 0) xdir = -1;
+
+		if (distance.Z > 0) zdir = 1;
+		else if (distance.Z < 0) zdir = -1;
+
+		ApplyImpulse(new Vector3(forceX * 10 * xdir, attack.VerticalPushForce * 10, forceZ * 10 * zdir));
 	}
 
 	public void RefreshLifeBar()
@@ -446,7 +455,7 @@ public partial class PlayerController : RigidBody3D
 	// emitted when player colides with ability cube. It sets an ability to player
 	private void _on_body_shape_entered(Rid body_rid, Node body, long body_shape_index, long local_shape_index)
 	{
-		if(body.IsInGroup("AbilityCube"))
+		if (body.IsInGroup("AbilityCube"))
 		{
 			// play sound
 			(GetNode("./SoundNodes/GetCubeSound") as AudioStreamPlayer3D).Play();
@@ -461,10 +470,8 @@ public partial class PlayerController : RigidBody3D
 				//GD.Print("Ability is null? " + (ability == null).ToString());
 
 				// if player has an ability delete (child node)
-				if(ability != null)
-				{
+				if (ability != null)
 					GetNode("./Ability").GetChild(0).QueueFree();
-				}
 
 				abilityTempNode.Reparent(GetNode("./Ability")); // set player as new parent
 

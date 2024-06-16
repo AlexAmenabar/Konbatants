@@ -18,7 +18,7 @@ public partial class PlayerGUIController : ColorRect
 	{
 		// find nodes
 		actualVitBar = (ColorRect)GetNode("./PlayerVit/PlayerActualVit");
-		vitBarInitialSizeX = 300;
+		vitBarInitialSizeX = 250;
 
 		abilityTexture = (TextureRect)GetNode("./AbilityTexture");
 

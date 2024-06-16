@@ -75,6 +75,7 @@ public partial class Bomb : Attack
 			// play sound
 			(GetNode("./UseSound") as AudioStreamPlayer3D).Stop();
 			(GetNode("./ExplosionSound") as AudioStreamPlayer3D).Play();
+			RefreshExplosionPosition();
 
 			Finish();
 		}
@@ -94,8 +95,15 @@ public partial class Bomb : Attack
 	private void _on_explosion_area_body_entered(Node3D body)
 	{
 		if(body.IsInGroup("player"))
-		{
 			(body as PlayerController).TakeDamage(this);
+	}
+
+	private async void RefreshExplosionPosition()
+	{
+		while(true)
+		{ 
+			await ToSignal(GetTree().CreateTimer(0.01f), "timeout");
+			explosion.Position -= new Vector3(0, 0.1f, 0);
 		}
 	}
 }

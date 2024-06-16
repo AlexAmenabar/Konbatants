@@ -1,0 +1,34 @@
+[gd_scene load_steps=6 format=3 uid="uid://dsmrd0y0wh47u"]
+
+[ext_resource type="Script" path="res://Scripts/GameScripts/Abilities/Punch.cs" id="1_6qoqq"]
+[ext_resource type="Texture2D" uid="uid://c860ctmd7vd2e" path="res://Assets/GameAssets/Images/punch glove.png" id="1_nmtpc"]
+[ext_resource type="AudioStream" uid="uid://cf7wc3lbghqow" path="res://Assets/GameAssets/Sounds and Music/punchSound.mp3" id="2_ox4vg"]
+[ext_resource type="PackedScene" uid="uid://b20kj3dyeypbh" path="res://3D models/AbilityModels/Punch/boxing_glove.glb" id="3_qs727"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_s4vef"]
+
+[node name="Punch" type="RigidBody3D" groups=["Attack"]]
+visible = false
+gravity_scale = 0.0
+freeze = true
+max_contacts_reported = 10
+contact_monitor = true
+script = ExtResource("1_6qoqq")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_s4vef")
+disabled = true
+
+[node name="Image" type="TextureRect" parent="."]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("1_nmtpc")
+
+[node name="UseSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("2_ox4vg")
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("3_qs727")]
+transform = Transform3D(0.15, 0, 0, 0, 0.15, 0, 0, 0, 0.15, 0, 0, 0)
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

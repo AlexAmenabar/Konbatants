@@ -11,10 +11,10 @@
 radius = 0.379502
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_77oe1"]
-height = 9.16014
-radius = 1.63329
+height = 27.4182
+radius = 2.03
 
-[node name="Bomb" type="RigidBody3D"]
+[node name="Bomb" type="RigidBody3D" groups=["Attack"]]
 gravity_scale = 3.0
 freeze = true
 max_contacts_reported = 1

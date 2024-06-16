@@ -1,0 +1,34 @@
+[gd_scene load_steps=7 format=3 uid="uid://cc5ovbtr0rhdn"]
+
+[ext_resource type="AudioStream" uid="uid://cjqmoi0umpqvr" path="res://Assets/GameAssets/Sounds and Music/magicalShield.mp3" id="1_3ne0n"]
+[ext_resource type="Script" path="res://Scripts/GameScripts/Abilities/MagicalShield.cs" id="1_i3okf"]
+[ext_resource type="Texture2D" uid="uid://ctlukpthg140k" path="res://Assets/GameAssets/Images/mirror.png" id="2_2dxgi"]
+[ext_resource type="AudioStream" uid="uid://hk4mmo6qta23" path="res://Assets/GameAssets/Sounds and Music/reboundSound.mp3" id="3_w5v7q"]
+[ext_resource type="PackedScene" uid="uid://wdxog3lbh5d6" path="res://3D models/AbilityModels/Magical shield/sketchfab_scene2.tscn" id="4_v4g44"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_g5qom"]
+radius = 1.98157
+
+[node name="MagicalShield" type="Area3D"]
+script = ExtResource("1_i3okf")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_g5qom")
+disabled = true
+
+[node name="UseSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("1_3ne0n")
+
+[node name="Image" type="TextureRect" parent="."]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_2dxgi")
+
+[node name="ReboundSound" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("3_w5v7q")
+
+[node name="Sketchfab_Scene" parent="." instance=ExtResource("4_v4g44")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
