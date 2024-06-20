@@ -2,19 +2,19 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
+/// <summary>
+/// Ability cube in which abilities are stored.
+/// </summary>
 public partial class AbilityCube : RigidBody3D
 {
-	private Ability ability;
 	String[] abilitySceneNames;
 	String childName;
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
 
-	}
-
-	// Spawn ability node and set as cube child
+	/// <summary>
+	/// Spawn ability node and set as cube child
+	/// </summary>
+	/// <param name="abilityIndex">Index of the ability to spawn</param>
 	public void GenerateAbility(int abilityIndex)
 	{
 		abilitySceneNames = new String[8];
@@ -28,34 +28,24 @@ public partial class AbilityCube : RigidBody3D
 		abilitySceneNames[7] = "MagicalShield";
 
 		childName = abilitySceneNames[abilityIndex];
+
+		// instantiate ability and set as a child of the ability cube
 		var abilityScene = ResourceLoader.Load<PackedScene>("res://Scenes/GameScenes/AbilityScenes/" + childName + ".tscn").Instantiate<Node3D>();
 		AddChild(abilityScene);
-
-		/*if (abilityIndex == 0)
-		{
-			ability = new Bomb();
-		}
-		else if (abilityIndex == 1)
-		{
-			ability = new FootballTeam();
-		}
-		else if (abilityIndex == 2)
-		{
-			ability = new Speed();
-		}
-		else if (abilityIndex == 3)
-		{
-			ability = new RestoreVitality();
-		}*/
 	}
 
-	// return child node
+	/// <summary>
+	/// return child node (ability)
+	/// </summary>
+	/// <returns>Child node, node of the ability</returns>
 	public Node3D GetAbility()
 	{
 		return (Node3D)GetNode(childName);
-		//return ability;
 	}
 
+	/// <summary>
+	/// Destroys the ability cube
+	/// </summary>
 	public void Destroy()
 	{
 		QueueFree();

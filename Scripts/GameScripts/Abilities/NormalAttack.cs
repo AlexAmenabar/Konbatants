@@ -1,16 +1,17 @@
 using Godot;
 using System;
 
+/// <summary>
+/// A special type of attack. It is an ability to use it as the rest, but player can always use it and it is not spawned on ability cubes.
+/// </summary>
 public partial class NormalAttack : Attack
 {
+	// area to collide
 	private CollisionShape3D collider;
 	private int activationTime; // time between uses
-	private bool canUse;
+	private bool canUse; // set true when activationTime passes
 
-	/*public NormalAttack()
-	{
-		InitializeValues(3, 10, 0);
-	}*/
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -30,6 +31,7 @@ public partial class NormalAttack : Attack
 
 	public override void _Process(double delta)
 	{
+		// refresh position always locally to player
 		if (Player.Attacked)
 		{
 			Position = new Vector3(0, 1, 1);
@@ -41,7 +43,6 @@ public partial class NormalAttack : Attack
 	{
 		if(canUse)
 		{
-			//(this as Node3D).Visible = true;
 			canUse = false;
 			Position = new Vector3(0, 1, 1);
 			Rotation = new Vector3(0, 0, 0);
@@ -57,10 +58,14 @@ public partial class NormalAttack : Attack
 		}
 	}
 
+	/// <summary>
+	/// After some time active attack is deactivated.
+	/// </summary>
+	/// <param name="timeToDesactivate"></param>
 	public async void Desactivate(float timeToDesactivate)
 	{
 		await ToSignal(GetTree().CreateTimer(timeToDesactivate - 0.5f), "timeout");
-		//(this as Node3D).Visible = false;
+
 		Player.Attacked = false;
 
 		collider.SetDeferred("disabled", true);
@@ -77,34 +82,32 @@ public partial class NormalAttack : Attack
 		collider.SetDeferred("disabled", true);
 		// buf solving finalized
 
+		// start reactivation timer
 		Reactivate();
 	}
 
+	/// <summary>
+	/// This function gives player the opportunity to attack again after activation time.
+	/// </summary>
 	public async void Reactivate()
 	{
 		await ToSignal(GetTree().CreateTimer(activationTime), "timeout");
 		canUse = true;
 	}
 
-	private void _on_body_entered(Node body)
-	{
-		/*if (body.IsInGroup("player"))
-		{
-			PlayerController enemyPlayer = body as PlayerController;
-			if(enemyPlayer.Team != Player.Team)
-			{ 
-				enemyPlayer.TakeDamage(this);
-				Desactivate(0);
-			}
-		}*/
-	}
-
+	/// <summary>
+	/// When attack collides with a player of another team, push player and do damage.
+	/// </summary>
+	/// <param name="body_rid"></param>
+	/// <param name="body"></param>
+	/// <param name="body_shape_index"></param>
+	/// <param name="local_shape_index"></param>
 	private void _on_body_shape_entered(Rid body_rid, Node body, long body_shape_index, long local_shape_index)
 	{
 		if (body.IsInGroup("player"))
 		{
 			PlayerController enemyPlayer = body as PlayerController;
-			if (enemyPlayer.Team != Player.Team)
+			if (enemyPlayer.Team != Player.Team) // if teams are different do damage
 			{
 				enemyPlayer.TakeDamage(this);
 				Desactivate(0);

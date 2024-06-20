@@ -2,6 +2,9 @@ using Godot;
 using System;
 using System.Reflection.Metadata.Ecma335;
 
+/// <summary>
+/// This class is used to manage GUI elements that are associated to a player.
+/// </summary>
 public partial class PlayerGUIController : ColorRect
 {
 	private PlayerController player;
@@ -25,27 +28,30 @@ public partial class PlayerGUIController : ColorRect
 		textLabel = (RichTextLabel)GetNode("./PlayerName");
 	}
 
-
+	/// <summary>
+	/// Refresh life bar.
+	/// </summary>
+	/// <param name="actualVit"></param>
+	/// <param name="totalVit"></param>
 	public void RefreshLifeBar(int actualVit, int totalVit)
 	{
 		float per = (float)actualVit / (float)totalVit;
 		actualVitBar.Size = new Vector2(per * vitBarInitialSizeX, actualVitBar.Size.Y);
 	}
 
+	/// <summary>
+	/// Ability has a texture to identify it.
+	/// </summary>
+	/// <param name="texture"></param>
 	public void SetAbilityTexture(Texture2D texture)
 	{
 		abilityTexture.Texture = texture; // (player.Ability as Ability).GetTexture();
 	}
-	public void RefreshAbilityContainer(bool hasAbility)
-	{
-		if (hasAbility)
-			// set abiltity texture
-			GD.Print("Not implemented yet");
 
-		else
-			// set texture null
-			abilityTexture.Texture = null;
-	}
+	/// <summary>
+	/// Set player username to see it in the game visually.
+	/// </summary>
+	/// <param name="name"></param>
 	public void SetPlayerName(String name)
 	{
 		textLabel.Text = name;

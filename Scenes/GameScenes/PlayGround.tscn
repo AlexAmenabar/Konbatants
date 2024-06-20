@@ -1,100 +1,28 @@
-[gd_scene load_steps=7 format=3 uid="uid://dij5gdt5ajqo3"]
+[gd_scene load_steps=9 format=3 uid="uid://dij5gdt5ajqo3"]
 
 [ext_resource type="Script" path="res://Scripts/GameScripts/GameController.cs" id="1_7pvyy"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/GameLoader.cs" id="1_34u3b"]
 [ext_resource type="PackedScene" uid="uid://diaufti6nn5sn" path="res://Scenes/GameScenes/GUI/PlayerGUI.tscn" id="2_1t7ij"]
 [ext_resource type="Script" path="res://Scripts/GeneralScripts/GSCriptToCSharp.cs" id="2_s64c6"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/PC/DefaultController.cs" id="6_3o87v"]
+[ext_resource type="Script" path="res://Scripts/GameScripts/MultiplayerManagement/MultiplayerManager.cs" id="7_dy3fr"]
 [ext_resource type="PackedScene" uid="uid://bd35xg8x32g03" path="res://Scenes/GameScenes/Android/VirtualController.tscn" id="7_rghjd"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_m31pp"]
+size = Vector3(157.919, 67.1785, 152.279)
 
 [node name="PlayGround" type="Node3D"]
 script = ExtResource("1_7pvyy")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-visible = false
-
-[node name="p0" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
-visible = false
-offset_left = 5.0
-offset_top = 2.0
-offset_right = 5.0
-offset_bottom = 2.0
-
-[node name="p2" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
-visible = false
-offset_left = 29.0
-offset_top = 107.0
-offset_right = 29.0
-offset_bottom = 107.0
-
-[node name="p4" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
-visible = false
-offset_left = 52.0
-offset_top = 211.0
-offset_right = 52.0
-offset_bottom = 211.0
-
-[node name="p6" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
-visible = false
-offset_left = 76.0
-offset_top = 311.0
-offset_right = 76.0
-offset_bottom = 311.0
-
-[node name="p1" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
-visible = false
-offset_left = 1494.0
-offset_top = 54.0
-offset_right = 1494.0
-offset_bottom = 54.0
-
-[node name="p3" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
-visible = false
-offset_left = 1518.0
-offset_top = 159.0
-offset_right = 1518.0
-offset_bottom = 159.0
-
-[node name="p5" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
-visible = false
-offset_left = 1541.0
-offset_top = 263.0
-offset_right = 1541.0
-offset_bottom = 263.0
-
-[node name="p7" parent="CanvasLayer" instance=ExtResource("2_1t7ij")]
-visible = false
-offset_left = 1565.0
-offset_top = 363.0
-offset_right = 1565.0
-offset_bottom = 363.0
-
-[node name="LoadingPanel" type="ColorRect" parent="CanvasLayer"]
-offset_right = 1931.0
-offset_bottom = 1086.0
-color = Color(0, 0, 0, 1)
-
-[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/LoadingPanel"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -152.5
-offset_top = -33.0
-offset_right = 152.5
-offset_bottom = 85.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/normal_font_size = 50
-bbcode_enabled = true
-text = "[center]Loading..."
-
 [node name="Players" type="Node3D" parent="."]
 
 [node name="Map" type="Node3D" parent="."]
+
+[node name="DeadArea" type="Area3D" parent="Map" groups=["DeadArea"]]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Map/DeadArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.76801, -44.5468, 17.1213)
+shape = SubResource("BoxShape3D_m31pp")
 
 [node name="ParserNode" type="Node3D" parent="."]
 script = ExtResource("2_s64c6")
@@ -203,26 +131,69 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -152.5
-offset_top = -33.0
+offset_top = -75.0
 offset_right = 152.5
-offset_bottom = 85.0
+offset_bottom = 43.0
 grow_horizontal = 2
 grow_vertical = 2
+rotation = -0.219953
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 50
+theme_override_font_sizes/bold_italics_font_size = 60
 bbcode_enabled = true
-text = "[center]Loading..."
+text = "[i][b][center]Loading..."
 
-[node name="Timer" type="Label" parent="GUI"]
+[node name="FinalEventLabel" type="RichTextLabel" parent="GUI"]
+visible = false
+layout_mode = 0
+offset_left = -474.0
+offset_top = 516.0
+offset_right = 483.0
+offset_bottom = 884.0
+rotation = -0.219987
+theme_override_font_sizes/normal_font_size = 100
+theme_override_font_sizes/bold_font_size = 100
+theme_override_font_sizes/bold_italics_font_size = 100
+bbcode_enabled = true
+text = "[i][b][center]Game Final Event!"
+
+[node name="Timer" type="RichTextLabel" parent="GUI"]
+visible = false
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -40.0
-offset_right = 40.0
-offset_bottom = 55.0
+offset_left = -60.0
+offset_top = 34.0
+offset_right = 155.0
+offset_bottom = 193.0
 grow_horizontal = 2
-size_flags_vertical = 0
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 40
-text = "3:00"
+rotation = -0.118704
+theme_override_font_sizes/bold_italics_font_size = 40
+bbcode_enabled = true
+text = "[i][b][center]3:00"
+scroll_active = false
+
+[node name="WinnerLabel" type="RichTextLabel" parent="GUI"]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -295.0
+offset_top = 457.0
+offset_right = 253.0
+offset_bottom = 616.0
+grow_horizontal = 2
+rotation = -0.118704
+theme_override_font_sizes/bold_italics_font_size = 40
+bbcode_enabled = true
+text = "[i][b][center]
+"
+scroll_active = false
+
+[node name="NetworkingNode" type="Node3D" parent="."]
+script = ExtResource("7_dy3fr")
+
+[connection signal="body_entered" from="Map/DeadArea" to="." method="_on_dead_area_body_entered"]

@@ -1,6 +1,9 @@
 using Godot;
 using System;
 
+/// <summary>
+/// Makes player faster during some seconds.
+/// </summary>
 public partial class Speed : Buff
 {
 	int playerOriginalSpeed = 4;
@@ -14,14 +17,10 @@ public partial class Speed : Buff
 	{
 		InitializeValues(4, 5); // 5 seconds
 	}
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
-
 	public override void Use()
 	{
+		isUsed = true;
+
 		// player has used the ability, set null
 		player.Ability = null;
 
@@ -31,19 +30,18 @@ public partial class Speed : Buff
 		// play sound
 		UseSound();
 
-		//player.AddChild(this);
-
 		// after duration reset speed
-		ResetSpeed(playerOriginalSpeed);
+		ResetSpeed();
 	}
 
-
-	public async void ResetSpeed(int playerOriginalSpeed)
+	/// <summary>
+	/// Reset player speed to initial value after buff effect is finished.
+	/// </summary>
+	/// <param name="playerOriginalSpeed"></param>
+	public async void ResetSpeed()
 	{
-		// await until buf time finish
 		await ToSignal(GetTree().CreateTimer(duration), "timeout");
 		player.Speed = playerOriginalSpeed;
-		//GD.Print("Setting player original speed (" + playerOriginalSpeed.ToString() +")");
 		QueueFree();
 	}
 }

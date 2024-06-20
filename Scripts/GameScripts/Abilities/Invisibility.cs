@@ -1,6 +1,9 @@
 using Godot;
 using System;
 
+/// <summary>
+/// Player that use this ability will be invisible for some seconds.
+/// </summary>
 public partial class Invisibility : Buff
 {
 	public Invisibility()
@@ -13,16 +16,14 @@ public partial class Invisibility : Buff
 		InitializeValues(0, 4);
 	}
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
 	public override void Use()
 	{
+		isUsed = true;
+
 		// player has used the ability
 		player.Ability = null;
 
-		// player who is controlling this must see his model
+		// player who is controlling this must see his model, so become invisible only in other players (feedback to invisible player?)
 		if(!player.IsMultiplayerAuthority())
 		{ 
 			(player.GetNode("3DGodotRobot") as Node3D).Visible = false;
@@ -32,12 +33,13 @@ public partial class Invisibility : Buff
 		// play sound
 		UseSound();
 
-		//player.AddChild(this);
-
 		// after duration reset visibility
 		ResetVisibility();
 	}
 
+	/// <summary>
+	/// Set visible to true when buff time finish.
+	/// </summary>
 	public async void ResetVisibility()
 	{
 		await ToSignal(GetTree().CreateTimer(duration), "timeout");

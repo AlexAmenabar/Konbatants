@@ -4396,6 +4396,7 @@ target_position = Vector3(0, -0.5, 0)
 
 [node name="BasicAttack" type="RigidBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.793089, 0.764785)
+visible = false
 gravity_scale = 0.0
 max_contacts_reported = 1
 contact_monitor = true
@@ -4456,5 +4457,4 @@ stream = ExtResource("13_fls6w")
 [node name="Ability" type="Node3D" parent="."]
 
 [connection signal="body_shape_entered" from="." to="." method="_on_body_shape_entered"]
-[connection signal="body_entered" from="BasicAttack" to="BasicAttack" method="_on_body_entered"]
 [connection signal="body_shape_entered" from="BasicAttack" to="BasicAttack" method="_on_body_shape_entered"]

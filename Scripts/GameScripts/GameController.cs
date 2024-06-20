@@ -2,96 +2,124 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
+/// <summary>
+/// This class controls the game proggession: start timer, generate ability cubes, control when game must finish...
+/// </summary>
 public partial class GameController : Node
 {
-	ENetMultiplayerPeer peer;
-	int connectedPlayers = 0;
+	/* Player info */
+	private String myName;
+
+	// player (client) port
+	private int clientPort;
+	private bool isServer; // if player is server
+
+	// host information (server use this directly)
+	private String hostIp;
+	private int hostPort;
+
+	// all players
+	private List<PlayerController> players;
 
 	// game general information
 	private int amountPlayers;
 	private bool teams;
 	private String mapName;
+	private List<int> deadPlayersCounter; // each element of the list represent a team, if no teams then list only has one element
+	private bool allPlayersConnected = false;
 
 	// game nodes
 	private Map map;
-
-	// players information
-//	List<String> playerNames;
-//	List<PlayerController> players;
-
-	// player information
-//	private String playerName;
-//	private PlayerController player; // player that is controlled by this system
-	private int clientPort;
-	private bool isServer;
-
-	// host information
-	private String hostIp;
-	private int hostPort;
 		
 	// parser
 	private GSCriptToCSharp parser;
 
 	// game start
 	private bool gameStarted = false;
-
+	private bool timerFinished = false;
 
 	/* Game management variables */
 	private double timer; // seconds
-	private int time; // seconds
-	private Label timerLabel;
+	private RichTextLabel timerLabel;
 
 	// how much abilities are implemented
-	int abilityAmount = 8;
+	private int abilityAmount = 8;
+	private bool gameFinished = false;
+
+	// multiplayer manager
+	private MultiplayerManager multiplayerManager;
+
 
 	// Getters and setters
 	public int AmountPlayers { get => amountPlayers; set => amountPlayers = value; }
 	public bool Teams { get => teams; set => teams = value; }
 	public string MapName { get => mapName; set => mapName = value; }
 	public Map Map { get => map; set => map = value; }
-//	public string[] PlayerNames { get => playerNames; set => playerNames = value; }
-//	public PlayerController[] Players { get => players; set => players = value; }
-//	public string PlayerName { get => playerName; set => playerName = value; }
-//	public PlayerController Player { get => player; set => player = value; }
 	public int ClientPort { get => clientPort; set => clientPort = value; }
 	public bool IsServer { get => isServer; set => isServer = value; }
 	public string HostIp { get => hostIp; set => hostIp = value; }
 	public int HostPort { get => hostPort; set => hostPort = value; }
 	public GSCriptToCSharp Parser { get => parser; set => parser = value; }
 	public bool GameStarted { get => gameStarted; set => gameStarted = value; }
+	public List<PlayerController> Players { get => players; set => players = value; }
+	public string MyName { get => myName; set => myName = value; }
+	public bool AllPlayersConnected { get => allPlayersConnected; set => allPlayersConnected = value; }
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		timerLabel = (Label)GetNode("./GUI/Timer");
+		// load information from GDScripts and look for some nodes
 		LoadBasicInformation();
+
+		// load game (gameloader)
 		LoadGame();
-		InitializeMultiplayerAPI();
+
+		// Initialize multiplayer API (create server and clients)
+		//InitializeMultiplayerAPI();
+		multiplayerManager.InitializeNetworking(this);
+
+
+		// create player list and add players
+		players = new List<PlayerController>();
+		for(int i = 0; i<amountPlayers; i++)
+			players.Add(GetNode("./Players/player" + i.ToString()) as PlayerController);
+
+		// now only can be two teams
+		deadPlayersCounter = new List<int>();
+		deadPlayersCounter.Add(0);
+		if (!teams)
+			deadPlayersCounter.Add(0);
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-		if (connectedPlayers + 1 == amountPlayers && !gameStarted)
+		// when all players connected to server start
+		if (allPlayersConnected && !gameStarted)
 		{
 			gameStarted = true;
 			StartGame();
 
-			// only server manages map events and ability spawn
+			// only server manages map events and ability spawn (then inform the rest of player by RCP functions)
 			if(isServer)
-			{
 				NextAbilitySpawn();
-			}
 		}
-		if(gameStarted)
-		{
+
+		// manage timer
+		if(gameStarted && !timerFinished)
 			ManageGameTimer(delta);
-		}
 	}
+
+	/// <summary>
+	/// Load game basic information: information from GDSCripts and load some nodes from PlayGround Scene.
+	/// </summary>
 	public void LoadBasicInformation()
 	{
 		// load parser
 		parser = (GSCriptToCSharp)GetNode("./ParserNode");
+
+		// load player information
+		myName = parser.GetMyName(); // username
 
 		// load info from CurrentSessionInfo and PlayerMenu
 		mapName = "Default";
@@ -103,62 +131,94 @@ public partial class GameController : Node
 		hostPort = parser.GetHostPort();
 		clientPort = parser.GetClientPort();
 
-		//String[] playerNamesList = parser.GetSessionPlayerNames();
-		//for(int i = 0; i < playerNamesList.Length; i++)
-		//	playerNames.Add(playerNamesList[i]);
+		// get neccesary nodes
+		timerLabel = (RichTextLabel)GetNode("./GUI/Timer");
 
-		//playerName = parser.GetMyName();
+		multiplayerManager = (MultiplayerManager)GetNode("./NetworkingNode");
 	}
 
+	/// <summary>
+	/// Call GetLoader to load game (instantiate map, players...)
+	/// </summary>
 	public void LoadGame()
 	{
 		GameLoader gameLoader = (GameLoader)GetNode("./GameLoader");
 		gameLoader.LoadGame(this);
 	}
 
+	/// <summary>
+	/// WHen all is prepared start game. 
+	/// </summary>
 	public async void StartGame()
 	{ 
-		// quit loading panel
 		// initialize players
 		for (int i = 0; i < amountPlayers; i++)
 			(GetNode("./Players/player" + i.ToString()) as PlayerController).Initialize();
 
 		await ToSignal(GetTree().CreateTimer(1), "timeout"); // CREATE A VISUAL TIMER BEFORE STARTING THE GAME
+
+		// quit loading panel
 		(GetNode("./GUI/LoadingPanel") as ColorRect).Visible = false;
 
-		// Create a visual timer
+		// set timer visible
+		(GetNode("./GUI/Timer") as RichTextLabel).Visible = true;
 
-		// start 
+		// Call start function in players to start game 
 		for (int i = 0; i < amountPlayers; i++)
 			(GetNode("./Players/player" + i.ToString()) as PlayerController).Start();
 
 	}
 
-
-	// Network functions
-	private void InitializeMultiplayerAPI()
+	/// <summary>
+	/// Count player as dead and check if game finished.
+	/// </summary>
+	/// <param name="player">Player that died</param>
+	public void PlayerDied(PlayerController player)
 	{
-		Multiplayer.PeerConnected += PeerConnected;
-		Multiplayer.PeerDisconnected += PeerDisconnected;
-		Multiplayer.ConnectedToServer += ConnectedToServer;
-		Multiplayer.ConnectionFailed += ConnectionFailed;
-
-		if (isServer == true)
+		if (!teams)
 		{
-			CreateServer(hostPort);
-			//GD.Print(parser.GetMyName() + ": Server: hostPort: " + hostPort.ToString());
+			deadPlayersCounter[0] += 1;
+			if (deadPlayersCounter[0] == (amountPlayers - 1))
+				FinishGame();
 		}
-		// create client
 		else
 		{
-			CreateClient(hostIp, hostPort, clientPort);
-			//GD.Print(parser.GetMyName() + ": Client: hostPort: " + hostPort.ToString() + ", hostIP: " + hostIp + ", clientPort: " + clientPort.ToString());
+			deadPlayersCounter[player.Team] += 1;
+			if (deadPlayersCounter[0] == (amountPlayers / 2) || deadPlayersCounter[1] == (amountPlayers / 2))
+				FinishGame();
 		}
-
 	}
 
+	/// <summary>
+	/// Function called when game must finish. Sets the winner player or team.
+	/// </summary>
+	public void FinishGame()
+	{
+		foreach (PlayerController p in players)
+			if (p.Vitality > 0)
+			{
+				p.SetProcess(false);
+				p.SetPhysicsProcess(false);
+				p.Freeze = false;
+				p.Winner = true;
+				p.SetAnimation();
+
+				gameFinished = true;
+
+				// set as visible winner label
+				RichTextLabel winnerLabel = (GetNode("./GUI/WinnerLabel") as RichTextLabel);
+
+				//if(!teams)
+				//	winnerLabel.Text = "[i][b][center]" + p.
+			}
+	}
+	
+	/// <summary>
+	/// Spawn next ability cube in the map. Only server runs this, so must inform the rest clients.
+	/// </summary>
 	public async void NextAbilitySpawn()
 	{
+		// set when next ability will be spawned.
 		Random rnd = new Random();
 		int timeToNextAbility;
 		Variant buffPosvariant;
@@ -168,6 +228,7 @@ public partial class GameController : Node
 			timeToNextAbility = rnd.Next(10);
 			if (timeToNextAbility < 3) timeToNextAbility = 3;
 
+			// await time until next ability is spawned
 			await ToSignal(GetTree().CreateTimer(timeToNextAbility), "timeout");
 
 			// decide what ability must be generated (server must decide, and inform the rest about that)
@@ -176,36 +237,42 @@ public partial class GameController : Node
 			// generate buff on all players with RPC function
 			buffPosvariant = Map.GetCubePosition();
 
-			Rpc("GenerateAbilityCube", buffPosvariant, abilityIndex);
+			// inform rest players about what ability is spawned an where ability cube must be spawned
+			multiplayerManager.Rpc("GenerateAbilityCube", buffPosvariant, abilityIndex);
 		}
 	}
 
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable, CallLocal = true)]
-	public void GenerateAbilityCube(Vector3 position, int abilityIndex)
+	/// <summary>
+	/// Kill a player when it enters in this are (falling)
+	/// </summary>
+	/// <param name="body"></param>
+	private void _on_dead_area_body_entered(Node3D body)
 	{
-		var abilityCube = ResourceLoader.Load<PackedScene>("res://Scenes/GameScenes/AbilityCube/AbilityCube.tscn").Instantiate<AbilityCube>();
-		abilityCube.GenerateAbility(abilityIndex);
-		abilityCube.Position = position;
-		Map.AddChild(abilityCube);
+		// kill player
+		if (body.IsInGroup("player"))
+		{
+			(body as PlayerController).Vitality = 0;
+			(body as PlayerController).RefreshLifeBar();
+			(body as PlayerController).Die();
+		}
 	}
 
+	/// <summary>
+	/// When player uses an ability has to inform the rest about that. Ability is not synchronized by multiplayer synchronizer,
+	/// so inform about it
+	/// </summary>
+	/// <param name="playerIndex">Index of the player in player list (nodes)</param>
+	/// <param name="hdir">Attack direction in x axis</param>
+	/// <param name="vdir">Attack direction in z axis</param>
 	public void AbilityUsed(int playerIndex, int hdir, int vdir)
 	{
-		Rpc("UseOtherPlayerAbility", playerIndex, hdir, vdir);
-	}
-	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable, CallLocal = false)]
-	public void UseOtherPlayerAbility(int playerIndex, int hdir, int vdir)
-	{
-		// get player and use ability
-		PlayerController pPlayer = (PlayerController)GetNode("./Players/player" + playerIndex.ToString());
-		pPlayer.LookingHDir = hdir;
-		pPlayer.LookingVDir = vdir;
-		((GetNode("./Players/player" + playerIndex.ToString()) as PlayerController).Ability as Ability).Use();
-
-		// quit ability texture
-		(GetNode("./Players/player" + playerIndex.ToString()) as PlayerController).PlayerGUIController.SetAbilityTexture(null);
+		multiplayerManager.Rpc("UseOtherPlayerAbility", playerIndex, hdir, vdir);
 	}
 
+	/// <summary>
+	/// Manage what will be printed next in timer label
+	/// </summary>
+	/// <param name="delta"></param>
 	public void ManageGameTimer(double delta)
 	{
 		timer += delta;
@@ -214,104 +281,31 @@ public partial class GameController : Node
 		int minutes = (int)(timerAsInt / 60);
 		int seconds = (int)(timerAsInt % 60);
 
-		// when time finished call map final event
+		// when time finished call map final event and print something in the screen
 		if (minutes == 3 && seconds == 0)
 		{
 			Map.FinalMapEvent();
+			timerFinished = true;
+
+			// visualize final event label
+			ManageFinalEventLabel();
 		}
 
-		timerLabel.Text = (2 - minutes).ToString() + ":" + (60 - seconds).ToString();
-	}
+		// print time left
+		String minutesLeft = (2 - minutes).ToString();
+		String secondsLeft = (60 - seconds).ToString();
+		if (60 - seconds < 10) secondsLeft = "0" + secondsLeft;
 
-	// instantiate ability
-	/*public void InstantiateAbility(Attack attack)
-	{
-		GD.Print("Before calling attack.Instantiate in gameController");
-		Node3D ability = (Attack)attack.Instantiate();
-		GD.Print("On GameConstroller after instantiating");
-		ability.GlobalPosition = new Vector3(10, 25, 15);
-		GD.Print("Bomb name: " + ability.Name);
-		Map.AddChild(ability);
-	}*/
-
-
-	/// <summary>
-	/// Create a Server using Godot MultiplayerAPI
-	/// </summary>
-	/// <param name="port">Port in which server will be hearing</param>
-	private void CreateServer(int port)
-	{
-		//GD.Print(parser.GetMyName() + ": Server starting");
-
-		// create client
-		peer = new ENetMultiplayerPeer();
-		Error err = peer.CreateServer(port, parser.GetAmountPlayers() - 1);
-
-		if (err != Error.Ok)
-		{
-			//GD.Print(parser.GetMyName() + ": An error occurred!");
-			//GD.Print(err);
-			return;
-		}
-
-		Multiplayer.MultiplayerPeer = peer;
-		//GD.Print(parser.GetMyName() + ": Server started!");
-	}
-
-	private void CreateClient(String hostIp, int hostPort, int localPort)
-	{
-		//GD.Print(parser.GetMyName() + ": Client starting");
-		peer = new ENetMultiplayerPeer();
-		Error err = peer.CreateClient(hostIp, hostPort, 0, 0, 0, localPort); // communicate using localPort (almost hole punched)
-
-		if (err != Error.Ok)
-		{
-			//GD.Print(parser.GetMyName() + ": An error occurred!");
-			//GD.Print(err);
-			return;
-		}
-
-		Multiplayer.MultiplayerPeer = peer;
-		//GD.Print(parser.GetMyName() + ": Client created");
-	}
-
-
-	/** Signals */
-
-	/// <summary>
-	/// runs when the connection is succesful and only runs on the clients
-	/// </summary>
-	/// <param name="id"></param>
-	private void PeerConnected(long id)
-	{
-		GD.Print(parser.GetMyName() + ": Player connected:" + id.ToString());
-		connectedPlayers = Multiplayer.GetPeers().Length;
+		timerLabel.Text = "[i][b]" + minutesLeft + ":" + secondsLeft;
 	}
 
 	/// <summary>
-	/// runs when a player disconnects and runs on all peers
+	/// Manage when final event label appears and disappears
 	/// </summary>
-	/// <param name="id"></param>
-	private void PeerDisconnected(long id)
+	public  async void ManageFinalEventLabel()
 	{
-		GD.Print(parser.GetMyName() + ": Player disconnected:" + id.ToString());
-	}
-
-	/// <summary>
-	/// runs when the connection is succesful and only runs on the clients
-	/// </summary>
-	/// <param name="id"></param>
-	private void ConnectedToServer()
-	{
-		GD.Print(parser.GetMyName() + ": Connected to server!");
-	}
-
-	/// <summary>
-	/// runs when the connection fails and it runs only on the client
-	/// </summary>
-	/// <param name="id"></param>
-	private void ConnectionFailed()
-	{
-		GD.Print(parser.GetMyName() + ": Connection to server failed!");
+		(GetNode("./GUI/FinalEventLabel") as RichTextLabel).Visible = true;
+		await ToSignal(GetTree().CreateTimer(3), "timeout");
+		(GetNode("./GUI/FinalEventLabel") as RichTextLabel).Visible = false;
 	}
 }

@@ -1,19 +1,13 @@
 using Godot;
 using System;
 
+/// <summary>
+/// This type of ability are spawned in the map and interact is different ways between players. 
+/// </summary>
 public abstract partial class Interaction : Area3D, Ability
 {
     protected PlayerController player;
-
-    // Called when the node enters the scene tree for the first time.
-    public override void _Ready()
-	{
-	}
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
+    protected bool isUsed;
 
     public void SetPlayer(PlayerController pPlayer)
     {
@@ -30,5 +24,10 @@ public abstract partial class Interaction : Area3D, Ability
     public Texture2D GetTexture()
     {
         return (GetNode("./Image") as TextureRect).Texture;
+    }
+
+    public bool AbilityIsUsed()
+    {
+        return isUsed;
     }
 }

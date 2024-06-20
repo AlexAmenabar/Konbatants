@@ -15,6 +15,7 @@ height = 27.4182
 radius = 2.03
 
 [node name="Bomb" type="RigidBody3D" groups=["Attack"]]
+visible = false
 gravity_scale = 3.0
 freeze = true
 max_contacts_reported = 1

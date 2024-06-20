@@ -1,20 +1,17 @@
 using Godot;
 using System;
 
+/// <summary>
+/// Generates a shield that protects player from another attack. When an attack collides with a shield attack
+/// will be rebound.
+/// Shield dissapears after some seconds or when an attack collides with it.
+/// </summary>
 public partial class MagicalShield : Interaction
 {
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-	}
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
-
 	public override void Use()
 	{
+		isUsed = true;
+
 		Position = new Vector3(0, 1, 0);
 		player.Ability = null;
 		UseSound();
@@ -27,8 +24,13 @@ public partial class MagicalShield : Interaction
 		Finish();
 	}
 
+	/// <summary>
+	/// Signal emtted when body collides with the shield.
+	/// </summary>
+	/// <param name="body"></param>
 	private void _on_body_entered(Node3D body)
 	{
+		// if body is an attack rebound it (an ability owner will be shield owner)
 		if (body.IsInGroup("Attack"))
 		{
 			// rebound ability
@@ -36,35 +38,40 @@ public partial class MagicalShield : Interaction
 
 			// now ability parent is this player, change and return
 			attack.Player = player;
-			attack.ApplyImpulse(new Vector3(-attack.LinearVelocity.X, -attack.LinearVelocity.Y, -attack.LinearVelocity.Z));
+			attack.ApplyImpulse(new Vector3(-attack.LinearVelocity.X * 2f, -attack.LinearVelocity.Y * 2f, -attack.LinearVelocity.Z * 2f));
 
 			// destroy after colliding with something
-			Destroy();
+			player.Can = true;
+			QueueFree();
 		}
+		// if it is a player push it
 		else if(body.IsInGroup("player"))
 		{
-			// push player
-			PushEnemyPlayer(body as PlayerController);
+			if((body as PlayerController).Id != player.Id)
+				// push player
+				PushEnemyPlayer(body as PlayerController);
 		}
 	}
 
+	/// <summary>
+	/// After some seconds shield dissapears.
+	/// </summary>
 	public async void Finish()
 	{
 		await ToSignal(GetTree().CreateTimer(3), "timeout");
-		Destroy();
+		player.Can = true;
+		QueueFree();
 	}
 
+	/// <summary>
+	/// If player collides with the shield push it.
+	/// </summary>
+	/// <param name="enemyPlayer"></param>
 	public async void PushEnemyPlayer(PlayerController enemyPlayer)
 	{
 		enemyPlayer.Can = false;
-		enemyPlayer.ApplyImpulse(new Vector3(-enemyPlayer.LinearVelocity.X * 1.5f, 0, -enemyPlayer.LinearVelocity.Z * 1.5f));
-
-		await ToSignal(GetTree().CreateTimer(1), "timeout");
+		enemyPlayer.ApplyImpulse(new Vector3(-enemyPlayer.LookingHDir * 500f, 0, -enemyPlayer.LookingVDir * 500f));
+		await ToSignal(GetTree().CreateTimer(1.5f), "timeout");
 		enemyPlayer.Can = true;
-	}
-	public void Destroy()
-	{
-		player.Can = true;
-		QueueFree();
 	}
 }

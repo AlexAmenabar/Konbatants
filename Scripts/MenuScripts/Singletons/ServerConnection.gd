@@ -49,13 +49,13 @@ const CLEAR_SERVER = "cl:"
 func _ready():
 	# initialize sockets
 	
-	server_ip = "34.44.165.196" # cloud server
+	server_ip = "34.172.222.104" # cloud server
 	server_port = 39000
 	var _err = server_udp.set_dest_address(server_ip, server_port)
 
 	#if err != 0:
-	server_ip = "192.168.1.36" # local server
-	server_udp.set_dest_address(server_ip, server_port)
+	#server_ip = "192.168.1.36" # local server
+	#server_udp.set_dest_address(server_ip, server_port)
 
 	# start listening in ports and initialize info in PlayerMenu 
 	var port_number = start_peer_udp(server_udp, 39010)
@@ -246,7 +246,7 @@ func create_session(teams, players, private):
 	var message = CREATE_SESSION + PlayerMenu.id + ":" + teams + ":" + players + ":" + private 
 	# send message and receive response
 	var res = await send_message(message, server_udp)
-		
+	
 	# can't contact server		
 	if res == 2:
 		print("Can't contact with server")	
@@ -254,6 +254,7 @@ func create_session(teams, players, private):
 	if res == 0:
 		var array_bytes = server_udp.get_packet()
 		var packet_string = array_bytes.get_string_from_ascii()
+		print("packet string when create session: " + packet_string)
 		
 		# all ok
 		if packet_string.begins_with(OK):
@@ -281,7 +282,7 @@ func find_session(teams, players):
 	if res == 0:
 		var array_bytes = server_udp.get_packet()
 		var packet_string = array_bytes.get_string_from_ascii()
-		
+		print("packet string when find session: " + packet_string)
 		# server send ok message
 		if packet_string.begins_with(OK):
 			# load session information in singleton

@@ -10,6 +10,7 @@
 radius = 1.98157
 
 [node name="MagicalShield" type="Area3D"]
+visible = false
 script = ExtResource("1_i3okf")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]

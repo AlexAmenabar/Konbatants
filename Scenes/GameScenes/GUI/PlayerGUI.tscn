@@ -42,4 +42,6 @@ offset_bottom = 89.0
 rotation = -0.105455
 theme_override_constants/outline_size = 3
 theme_override_font_sizes/normal_font_size = 35
-text = "User1"
+theme_override_font_sizes/bold_italics_font_size = 30
+bbcode_enabled = true
+text = "[i][b]User1"

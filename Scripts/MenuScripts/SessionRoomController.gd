@@ -31,7 +31,7 @@ func _ready():
 	ask_for_players()
 
 
-func _process(_delta):
+'''func _process(_delta):
 	# start game when all players connected
 	if CurrentSessionInfo.players == len(CurrentSessionInfo.players_list) and !game_started:
 		# ensure that session is really full (it's possible that some players left and 
@@ -45,7 +45,7 @@ func _process(_delta):
 			game_started = true
 			# game already starting
 			
-			start_game()
+			start_game()'''
 
 func start_game():
 	await get_tree().create_timer(2).timeout
@@ -71,6 +71,11 @@ func reload_players_list():
 
 func ask_for_players():
 	while(!game_started):
+		
+		# wait before checking again
+		if get_tree() != null:
+			await get_tree().create_timer(3).timeout
+		
 		# get player list
 		var err = await ServerConnection.get_session_users()
 		
@@ -88,16 +93,21 @@ func ask_for_players():
 		# reload player lsit
 		reload_players_list()	
 		
-		# wait before checking again
-		if get_tree() != null:
-			await get_tree().create_timer(3).timeout
-
-func ask_for_players_one_time():
+		if CurrentSessionInfo.players == len(CurrentSessionInfo.players_list) and !game_started:
+			CurrentSessionInfo.waiting = false #not waiting more players
+			#await get_tree().create_timer(3).timeout # wait until all messages have reached
+			game_started = true
+		
+					# game already starting
+	# session is full, start game
+	start_game()
+		
+'''func ask_for_players_one_time():
 	var err = await ServerConnection.get_session_users()
 	print(err)
 		
 	# reload player lsit
-	reload_players_list()	
+	reload_players_list()	'''
 	
 func leave_session():
 	# if is server session will be deleted, so show message to advertise

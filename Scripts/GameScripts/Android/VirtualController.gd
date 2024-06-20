@@ -1,9 +1,11 @@
 extends Node
 
+# Virtual controller to use in mobiles
+
 var player_controller
 
-# joysticks
-var movement_joystick
+# joysticks and buttons
+var movement_joystick # this is a plugin to simulate a virtual joystick, more information in virtual_joystick_scene.gd
 var ability_joystick
 var ability_used
 
@@ -22,6 +24,7 @@ func _process(_delta):
 		player_controller.jump = 0
 		DetectMovement()
 
+# change player control variables
 func DetectMovement():
 	player_controller.hdir = movement_joystick.hdir
 	player_controller.vdir = movement_joystick.vdir
