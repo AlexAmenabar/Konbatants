@@ -23,6 +23,7 @@ const REMOVE_SESSION = "rs:" # only session server
 const INVITE_TO_SESSION = "iu:" # only session server
 const DROP_PLAYER = "du:" # only session server
 const EXIT_GAME = "eg:"
+const SEND_INFORMATION = "ri:"
 
 const SAY_HELLO = "hello:"
 const GET_PORT = "gp:"
@@ -35,7 +36,7 @@ const ER1 = "e1:"
 
 const NEW_PLAYER = "np:" # when a new player enters to the session, server sends this message
 
-const TIMEOUT = 200
+const TIMEOUT = 5
 var resend_count = 0
 const MAX_RESEND_COUNT = 1000
 
@@ -54,21 +55,12 @@ func _ready():
 	var _err = server_udp.set_dest_address(server_ip, server_port)
 
 	#if err != 0:
-	#server_ip = "192.168.1.36" # local server
-	#server_udp.set_dest_address(server_ip, server_port)
-
-	# start listening in ports and initialize info in PlayerMenu 
+	server_ip = "192.168.1.36" # local server
+	server_udp.set_dest_address(server_ip, server_port)
+	
+	
 	var port_number = start_peer_udp(server_udp, 39010)
 	server_udp.connect_to_host(server_ip, server_port)
-		
-	port_number = start_peer_udp(peer_udp, port_number)
-	PlayerMenu.peer_port = peer_udp.get_local_port()
-	
-	port_number = start_peer_udp(local_peer_udp, port_number)
-	PlayerMenu.private_port = local_peer_udp.get_local_port()
-
-	# get machine private ip
-	PlayerMenu.private_ip = get_private_ip()
 	
 	server_udp.connect_to_host(server_ip, server_port)
 
@@ -100,6 +92,21 @@ func _process(_delta):
 
 
 # HELPER FUNCTIONS
+func init_sockets():
+	var port_number = 39011
+	# start listening in ports and initialize info in PlayerMenu 
+	port_number = start_peer_udp(peer_udp, port_number)
+	PlayerMenu.peer_port = peer_udp.get_local_port()
+	
+	port_number = start_peer_udp(local_peer_udp, port_number)
+	PlayerMenu.private_port = local_peer_udp.get_local_port()
+
+	# get machine private ip
+	PlayerMenu.private_ip = get_private_ip()
+	
+	var res = await send_information()
+	return res
+
 func get_private_ip():
 	for ip in IP.get_local_addresses():
 		if ip.begins_with("192.168"):
@@ -122,10 +129,12 @@ func wait_message(socket_udp):
 	
 	# timeout
 	if timer>TIMEOUT:
+		print("TIMEOUTd")
 		return 1 
 	
 	# response reached
 	if socket_udp.get_available_packet_count() > 0:
+		await get_tree().create_timer(1)
 		return 0 
 
 # send message and return response
@@ -136,9 +145,12 @@ func send_message(message, socket_udp):
 	
 	# loop while message response is not reached
 	while res==1 and resend_count < MAX_RESEND_COUNT:
+		print("sending: " + message)
 		socket_udp.put_packet(buffer)
 		res = await wait_message(socket_udp)
-		resend_count += 1
+		print("res: " + str(res))
+		if res != 0:
+			resend_count += 1
 	
 	# can't contact server
 	if resend_count >= MAX_RESEND_COUNT:
@@ -218,7 +230,7 @@ func register_player():
 	print(PlayerMenu.private_ip)
 	print(PlayerMenu.private_port)
 	print(PlayerMenu.peer_port)'''
-	var message = REGISTER_PLAYER + PlayerMenu.usr_name + ":" + PlayerMenu.private_ip + ":" + str(PlayerMenu.private_port) + ":" + str(PlayerMenu.peer_port)
+	var message = REGISTER_PLAYER + PlayerMenu.usr_name #+ ":" + PlayerMenu.private_ip + ":" + str(PlayerMenu.private_port) + ":" + str(PlayerMenu.peer_port)
 	var res = await send_message(message, server_udp)
 	
 	# can't contact server
@@ -238,8 +250,29 @@ func register_player():
 		elif packet_string.begins_with(ER):
 			var err = packet_string.split(":")[1] #get error message
 			return err
-			
-			
+
+# register player in the server
+func send_information():
+	var message = SEND_INFORMATION + PlayerMenu.id + ":" + PlayerMenu.private_ip + ":" + str(PlayerMenu.private_port) + ":" + str(PlayerMenu.peer_port)
+	var res = await send_message(message, server_udp)
+	
+	# can't contact server
+	if res == 2:
+		print("Can't contact with server")	
+	
+	# response get by server
+	if res == 0:
+		var array_bytes = server_udp.get_packet()
+		var packet_string = array_bytes.get_string_from_ascii()
+		
+		# player registered correctly
+		if packet_string.begins_with(OK):
+			return "ok"
+		
+		elif packet_string.begins_with(ER):
+			var err = packet_string.split(":")[1] #get error message
+			return err
+
 # create session in the server
 func create_session(teams, players, private):
 	# create message
@@ -258,7 +291,9 @@ func create_session(teams, players, private):
 		
 		# all ok
 		if packet_string.begins_with(OK):
+			print("In create session packet string: " + packet_string)
 			CurrentSessionInfo.s_id = packet_string.split(":")[1] #get id
+			CurrentSessionInfo.players_in_room = 0 # in this moment only server is inside
 			CurrentSessionInfo.is_server = true # who created the session is the server
 			CurrentSessionInfo.waiting = true # wait to new players
 			return "ok" #ended correctly
@@ -506,9 +541,9 @@ func hole_punching():
 			# server send ok message
 			if packet_string.begins_with(OK):
 				#await get_tree().create_timer(1).timeout
-				# close server socket
+				
 				var ip_and_ports = packet_string.split(":")
-				server_udp.close()
+				#server_udp.close()
 
 				# contact with all clients
 				for i in range(2, len(ip_and_ports)):
@@ -563,6 +598,13 @@ func hole_punching():
 				if peers_contacted == CurrentSessionInfo.players-1:
 					print("Server: GAME IS READY TO START")
 
+					# hole punching is done, remove session from server
+					message = REMOVE_SESSION + str(PlayerMenu.id)
+					res = await send_message(message, server_udp)
+					server_udp.get_packet()
+					
+					#server_udp.close()
+					
 					# load next scene
 					get_tree().change_scene_to_file("res://Scenes/GameScenes/PlayGround.tscn")
 					
@@ -599,7 +641,7 @@ func hole_punching():
 				var game_server_private_ip = packet_string.split(":")[3]
 				var game_server_private_port = packet_string.split(":")[4]
 
-				server_udp.close()
+				#server_udp.close()
 				
 				# connect each socket to peer public or private socket
 				peer_udp.connect_to_host(game_server_ip, int(game_server_port))

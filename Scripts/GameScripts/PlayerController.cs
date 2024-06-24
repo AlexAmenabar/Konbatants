@@ -131,7 +131,7 @@ public partial class PlayerController : RigidBody3D
 
 		// player authority is set in order to multiplayer ids (setted in connection order)
 		// array with all peer id-s
-		List<int> allpeers;
+		/*List<int> allpeers;
 		int myId = Multiplayer.GetUniqueId(); // get my  multiplayer id
 
 		allpeers = new List<int>();
@@ -139,14 +139,33 @@ public partial class PlayerController : RigidBody3D
 			allpeers.Add(Multiplayer.GetPeers()[i]);
 
 		allpeers.Add(myId);
-		allpeers.Sort();
+		allpeers.Sort();*/
 
 		int playerIndex = this.Name.ToString().Split("r")[1].ToInt();
 
-		id = allpeers[playerIndex];
+		/*id = allpeers[playerIndex];
 
-		// SetMultiplayerAuthority(id);
+		// SetMultiplayerAuthority(id);*/
+
+		id = gameController.MultiplayerManager.PlayersIdsList[playerIndex];
 		CallDeferred("set_multiplayer_authority", id);
+
+
+
+		/*
+		// player node index
+		int playerIndex = this.Name.ToString().Split("r")[1].ToInt();
+
+		// player index in player list
+		int index = 0;
+		for (int i = 0; i < parser.GetAmountPlayers(); i++)
+			if (parser.GetName(i) == parser.GetMyName())
+				index = i;
+
+		GD.Print("In " + parser.GetMyName() + "(" + Multiplayer.GetUniqueId().ToString() + "), PlayerIndex = " + playerIndex.ToString() + ", index = " + index.ToString());
+
+		if (index == playerIndex)
+			CallDeferred("set_multiplayer_authority", Multiplayer.GetUniqueId());*/
 	}
 
 	/// <summary>
@@ -378,6 +397,9 @@ public partial class PlayerController : RigidBody3D
 		SetProcess(false);
 		Freeze = true;
 		isAlive = false;
+
+		// play sound
+		(soundNodes.GetNode("./DieSound") as AudioStreamPlayer3D).Play();
 
 		gameController.PlayerDied(this);
 	}

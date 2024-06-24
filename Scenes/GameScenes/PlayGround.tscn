@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dij5gdt5ajqo3"]
+[gd_scene load_steps=11 format=3 uid="uid://dij5gdt5ajqo3"]
 
 [ext_resource type="Script" path="res://Scripts/GameScripts/GameController.cs" id="1_7pvyy"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/GameLoader.cs" id="1_34u3b"]
@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://Scripts/GameScripts/PC/DefaultController.cs" id="6_3o87v"]
 [ext_resource type="Script" path="res://Scripts/GameScripts/MultiplayerManagement/MultiplayerManager.cs" id="7_dy3fr"]
 [ext_resource type="PackedScene" uid="uid://bd35xg8x32g03" path="res://Scenes/GameScenes/Android/VirtualController.tscn" id="7_rghjd"]
+[ext_resource type="AudioStream" uid="uid://iylsnsiilhn6" path="res://Assets/GameAssets/Sounds and Music/countDownSound.mp3" id="8_rijha"]
+[ext_resource type="AudioStream" uid="uid://6k8dje4g5pvj" path="res://Assets/GameAssets/Sounds and Music/winnerSound.mp3" id="9_3tbf2"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_m31pp"]
 size = Vector3(157.919, 67.1785, 152.279)
@@ -187,13 +189,37 @@ offset_right = 253.0
 offset_bottom = 616.0
 grow_horizontal = 2
 rotation = -0.118704
-theme_override_font_sizes/bold_italics_font_size = 40
+theme_override_font_sizes/bold_font_size = 40
+theme_override_font_sizes/bold_italics_font_size = 60
 bbcode_enabled = true
-text = "[i][b][center]
+text = "[center][i][b]aaaa
 "
 scroll_active = false
 
+[node name="CountDownLabel" type="RichTextLabel" parent="GUI"]
+visible = false
+layout_mode = 0
+offset_left = -474.0
+offset_top = 516.0
+offset_right = 483.0
+offset_bottom = 884.0
+rotation = -0.219987
+theme_override_font_sizes/normal_font_size = 100
+theme_override_font_sizes/bold_font_size = 100
+theme_override_font_sizes/bold_italics_font_size = 100
+bbcode_enabled = true
+text = "[center][i][b]Game Final Event!"
+
 [node name="NetworkingNode" type="Node3D" parent="."]
 script = ExtResource("7_dy3fr")
+
+[node name="Sounds" type="Node3D" parent="."]
+
+[node name="CountDown" type="AudioStreamPlayer3D" parent="Sounds"]
+stream = ExtResource("8_rijha")
+volume_db = 5.0
+
+[node name="FinishSound" type="AudioStreamPlayer3D" parent="Sounds"]
+stream = ExtResource("9_3tbf2")
 
 [connection signal="body_entered" from="Map/DeadArea" to="." method="_on_dead_area_body_entered"]

@@ -74,7 +74,7 @@ func ask_for_players():
 		
 		# wait before checking again
 		if get_tree() != null:
-			await get_tree().create_timer(3).timeout
+			await get_tree().create_timer(5).timeout
 		
 		# get player list
 		var err = await ServerConnection.get_session_users()
@@ -100,6 +100,7 @@ func ask_for_players():
 		
 					# game already starting
 	# session is full, start game
+	game_started = false
 	start_game()
 		
 '''func ask_for_players_one_time():

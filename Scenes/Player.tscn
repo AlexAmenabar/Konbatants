@@ -68,6 +68,9 @@ properties/14/replication_mode = 2
 properties/15/path = NodePath("BasicAttack:rotation")
 properties/15/spawn = true
 properties/15/replication_mode = 2
+properties/16/path = NodePath("SoundNodes/DieSound2:playing")
+properties/16/spawn = true
+properties/16/replication_mode = 2
 
 [sub_resource type="Animation" id="Animation_hb2bb"]
 resource_name = "Attack1"
@@ -4453,6 +4456,9 @@ stream = ExtResource("11_mim5p")
 
 [node name="GetCubeSound" type="AudioStreamPlayer3D" parent="SoundNodes"]
 stream = ExtResource("13_fls6w")
+
+[node name="DieSound2" type="AudioStreamPlayer3D" parent="SoundNodes"]
+stream = ExtResource("10_4c11r")
 
 [node name="Ability" type="Node3D" parent="."]
 

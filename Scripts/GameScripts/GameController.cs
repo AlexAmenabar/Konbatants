@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 
 /// <summary>
 /// This class controls the game proggession: start timer, generate ability cubes, control when game must finish...
@@ -9,6 +10,7 @@ public partial class GameController : Node
 {
 	/* Player info */
 	private String myName;
+	private int myIndex;
 
 	// player (client) port
 	private int clientPort;
@@ -64,6 +66,8 @@ public partial class GameController : Node
 	public List<PlayerController> Players { get => players; set => players = value; }
 	public string MyName { get => myName; set => myName = value; }
 	public bool AllPlayersConnected { get => allPlayersConnected; set => allPlayersConnected = value; }
+	public MultiplayerManager MultiplayerManager { get => multiplayerManager; set => multiplayerManager = value; }
+	public int MyIndex { get => myIndex; set => myIndex = value; }
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -135,6 +139,11 @@ public partial class GameController : Node
 		timerLabel = (RichTextLabel)GetNode("./GUI/Timer");
 
 		multiplayerManager = (MultiplayerManager)GetNode("./NetworkingNode");
+
+		// get my index
+		for (int i = 0; i < amountPlayers; i++)
+			if (parser.GetName(i) == myName)
+				myIndex = i;
 	}
 
 	/// <summary>
@@ -160,13 +169,32 @@ public partial class GameController : Node
 		// quit loading panel
 		(GetNode("./GUI/LoadingPanel") as ColorRect).Visible = false;
 
-		// set timer visible
-		(GetNode("./GUI/Timer") as RichTextLabel).Visible = true;
+		// countdown
+		RichTextLabel countDownLabel = GetNode("./GUI/CountDownLabel") as RichTextLabel;
+		countDownLabel.Visible = true;
+		int countDown = 3;
+
+		(GetNode("./Sounds/CountDown") as AudioStreamPlayer3D).Play(); // play count down sound
+
+		while (countDown > 0)
+		{
+			countDownLabel.Text = "[center][i][b]" + countDown.ToString();
+			await ToSignal(GetTree().CreateTimer(1), "timeout");
+			countDown -= 1;
+		}
+		countDownLabel.Text = "[center][i][b]Start!!!";
 
 		// Call start function in players to start game 
 		for (int i = 0; i < amountPlayers; i++)
 			(GetNode("./Players/player" + i.ToString()) as PlayerController).Start();
 
+		// initialize game timer and set visible
+		(GetNode("./GUI/Timer") as RichTextLabel).Visible = true;
+		timer = 0;
+
+		// hide start label
+		await ToSignal(GetTree().CreateTimer(1), "timeout");
+		countDownLabel.Visible = false;
 	}
 
 	/// <summary>
@@ -192,27 +220,55 @@ public partial class GameController : Node
 	/// <summary>
 	/// Function called when game must finish. Sets the winner player or team.
 	/// </summary>
-	public void FinishGame()
+	public async void FinishGame()
 	{
-		foreach (PlayerController p in players)
-			if (p.Vitality > 0)
+		String winnerText = "[center][i][b]";
+		RichTextLabel winnerLabel = (GetNode("./GUI/WinnerLabel") as RichTextLabel);
+
+		if (!teams)
+			winnerText += "Winner: ";
+		else
+			winnerText += "Winners: ";
+	
+		for(int i = 0; i<amountPlayers; i++)
+			if (players[i].Vitality > 0)
 			{
-				p.SetProcess(false);
-				p.SetPhysicsProcess(false);
-				p.Freeze = false;
-				p.Winner = true;
-				p.SetAnimation();
+				players[i].SetProcess(false);
+				players[i].SetPhysicsProcess(false);
+				players[i].Freeze = false;
+				players[i].Winner = true;
+				players[i].SetAnimation();
 
 				gameFinished = true;
 
-				// set as visible winner label
-				RichTextLabel winnerLabel = (GetNode("./GUI/WinnerLabel") as RichTextLabel);
-
-				//if(!teams)
-				//	winnerLabel.Text = "[i][b][center]" + p.
+				winnerText += parser.GetName(i) + " ";
 			}
+
+		winnerLabel.Visible = true;
+		winnerLabel.Text = winnerText;
+
+		// play sound
+		(GetNode("./Sounds/FinishSound") as AudioStreamPlayer3D).Play();
+
+		// wait some seconds and then load InitialScene
+		await ToSignal(GetTree().CreateTimer(5), "timeout");
+
+		// stop game music and start menu music
+		GetNode("/root/MusicControllerScene/AudioStreamPlayer2D").Set("playing", true);
+		GetNode("/root/MusicControllerScene/DefaultMap").Set("playing", false);
+
+
+		// finalize multiplayer things
+		Multiplayer.MultiplayerPeer.Close();
+
+		String scenePath;
+		if (parser.GetOS()) // mobile
+			scenePath = "res://Scenes/MenuScenes/Mobile/InitialMenuMobile.tscn";
+		else
+			scenePath = "res://Scenes/MenuScenes/PC/InitialMenu.tscn";
+		GetTree().ChangeSceneToFile(scenePath);
 	}
-	
+
 	/// <summary>
 	/// Spawn next ability cube in the map. Only server runs this, so must inform the rest clients.
 	/// </summary>
@@ -282,7 +338,7 @@ public partial class GameController : Node
 		int seconds = (int)(timerAsInt % 60);
 
 		// when time finished call map final event and print something in the screen
-		if (minutes == 3 && seconds == 0)
+		if (minutes == 0 && seconds == 10)
 		{
 			Map.FinalMapEvent();
 			timerFinished = true;
@@ -304,8 +360,11 @@ public partial class GameController : Node
 	/// </summary>
 	public  async void ManageFinalEventLabel()
 	{
-		(GetNode("./GUI/FinalEventLabel") as RichTextLabel).Visible = true;
-		await ToSignal(GetTree().CreateTimer(3), "timeout");
-		(GetNode("./GUI/FinalEventLabel") as RichTextLabel).Visible = false;
+		if (!gameFinished)
+		{
+			(GetNode("./GUI/FinalEventLabel") as RichTextLabel).Visible = true;
+			await ToSignal(GetTree().CreateTimer(3), "timeout");
+			(GetNode("./GUI/FinalEventLabel") as RichTextLabel).Visible = false;
+		}
 	}
 }
