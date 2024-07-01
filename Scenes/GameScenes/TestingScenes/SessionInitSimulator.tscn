@@ -69,4 +69,11 @@ offset_right = 990.0
 offset_bottom = 184.0
 text = "5555"
 
+[node name="UserName" type="TextEdit" parent="."]
+offset_left = 666.0
+offset_top = 207.0
+offset_right = 963.0
+offset_bottom = 265.0
+text = "username"
+
 [connection signal="pressed" from="ContinueButton" to="." method="_on_continue_button_pressed"]

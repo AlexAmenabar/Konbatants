@@ -134,7 +134,7 @@ anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -152.5
 offset_top = -75.0
-offset_right = 152.5
+offset_right = 383.5
 offset_bottom = 43.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -144,7 +144,7 @@ theme_override_font_sizes/normal_font_size = 50
 theme_override_font_sizes/bold_font_size = 50
 theme_override_font_sizes/bold_italics_font_size = 60
 bbcode_enabled = true
-text = "[i][b][center]Loading..."
+text = "LOADING"
 
 [node name="FinalEventLabel" type="RichTextLabel" parent="GUI"]
 visible = false
@@ -158,7 +158,7 @@ theme_override_font_sizes/normal_font_size = 100
 theme_override_font_sizes/bold_font_size = 100
 theme_override_font_sizes/bold_italics_font_size = 100
 bbcode_enabled = true
-text = "[i][b][center]Game Final Event!"
+text = "FINAL_EVENT"
 
 [node name="Timer" type="RichTextLabel" parent="GUI"]
 visible = false

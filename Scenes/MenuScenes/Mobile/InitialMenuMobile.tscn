@@ -4216,7 +4216,7 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_sovqs")
 theme_override_font_sizes/font_size = 80
-text = "     Create Session     "
+text = "CREATE_SESSION_BUTTON"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/CreateSessionButton"]
@@ -4235,7 +4235,7 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_sovqs")
 theme_override_font_sizes/font_size = 80
-text = "       Find Session       "
+text = "FIND_SESSION_BUTTON"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/FindSessinButton"]
@@ -4254,7 +4254,7 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_sovqs")
 theme_override_font_sizes/font_size = 80
-text = "Find Session by code"
+text = "FIND_SESSION_BY_CODE_BUTTON"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/FindSessionByCodeButton"]
@@ -4273,7 +4273,7 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_sovqs")
 theme_override_font_sizes/font_size = 80
-text = "         Exit game         "
+text = "EXIT_BUTTON"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/ExitButton"]

@@ -32,7 +32,7 @@ public partial class GameController : Node
 
 	// game nodes
 	private Map map;
-		
+
 	// parser
 	private GSCriptToCSharp parser;
 
@@ -85,7 +85,7 @@ public partial class GameController : Node
 
 		// create player list and add players
 		players = new List<PlayerController>();
-		for(int i = 0; i<amountPlayers; i++)
+		for (int i = 0; i < amountPlayers; i++)
 			players.Add(GetNode("./Players/player" + i.ToString()) as PlayerController);
 
 		// now only can be two teams
@@ -102,15 +102,18 @@ public partial class GameController : Node
 		if (allPlayersConnected && !gameStarted)
 		{
 			gameStarted = true;
-			StartGame();
+
+			// server start games informing the rest of players
+			if (isServer)
+				InformPlayersToStartGame();
 
 			// only server manages map events and ability spawn (then inform the rest of player by RCP functions)
-			if(isServer)
+			if (isServer)
 				NextAbilitySpawn();
 		}
 
 		// manage timer
-		if(gameStarted && !timerFinished)
+		if (gameStarted && !timerFinished)
 			ManageGameTimer(delta);
 	}
 
@@ -126,7 +129,7 @@ public partial class GameController : Node
 		myName = parser.GetMyName(); // username
 
 		// load info from CurrentSessionInfo and PlayerMenu
-		mapName = "Default";
+		mapName = parser.GetMapName();
 		amountPlayers = parser.GetAmountPlayers();
 		teams = parser.GetTeams();
 		isServer = parser.GetIsServer();
@@ -156,7 +159,16 @@ public partial class GameController : Node
 	}
 
 	/// <summary>
-	/// WHen all is prepared start game. 
+	/// Call RPC function ro inform the rest of players that game is starting
+	/// </summary>
+	public async void InformPlayersToStartGame()
+	{
+		await ToSignal(GetTree().CreateTimer(2), "timeout");
+		multiplayerManager.Rpc("StartGameTimer");
+	}
+
+	/// <summary>
+	/// WHen all is prepared start game (manage timer, GUI elements...) 
 	/// </summary>
 	public async void StartGame()
 	{ 
@@ -182,7 +194,8 @@ public partial class GameController : Node
 			await ToSignal(GetTree().CreateTimer(1), "timeout");
 			countDown -= 1;
 		}
-		countDownLabel.Text = "[center][i][b]Start!!!";
+
+		countDownLabel.Text = Tr("START_GAME");
 
 		// Call start function in players to start game 
 		for (int i = 0; i < amountPlayers; i++)
@@ -198,7 +211,29 @@ public partial class GameController : Node
 	}
 
 	/// <summary>
+	/// Call RPC function to inform players (clients) that a player has taken an ability cube
+	/// Only called by session server
+	/// </summary>
+	/// <param name="playerIndex">Player index as Players Node child</param>
+	/// <param name="abilityCube">Ability Cube node</param>
+	public void AbilityTaken(String playerIndex, Node abilityCube)
+	{
+		multiplayerManager.Rpc("AbilityCubeTaken", playerIndex, abilityCube.Name);
+	}
+	
+	/// <summary>
+	/// Call RPC function to inform players that this player has taken damage
+	/// </summary>
+	/// <param name="playerIndex"></param>
+	/// <param name="playerVitality"></param>
+	public void DamageTaken(String playerIndex, int playerVitality)
+	{
+		multiplayerManager.Rpc("DamageTaken", playerIndex, playerVitality);
+	}
+
+	/// <summary>
 	/// Count player as dead and check if game finished.
+	/// Called by client who received damage
 	/// </summary>
 	/// <param name="player">Player that died</param>
 	public void PlayerDied(PlayerController player)
@@ -226,10 +261,11 @@ public partial class GameController : Node
 		RichTextLabel winnerLabel = (GetNode("./GUI/WinnerLabel") as RichTextLabel);
 
 		if (!teams)
-			winnerText += "Winner: ";
+			winnerText += Tr("WINNER");
 		else
-			winnerText += "Winners: ";
-	
+			winnerText += Tr("WINNERS");
+
+		winnerText += " ";
 		for(int i = 0; i<amountPlayers; i++)
 			if (players[i].Vitality > 0)
 			{
@@ -338,7 +374,7 @@ public partial class GameController : Node
 		int seconds = (int)(timerAsInt % 60);
 
 		// when time finished call map final event and print something in the screen
-		if (minutes == 0 && seconds == 10)
+		if (minutes == 3 && seconds == 0)
 		{
 			Map.FinalMapEvent();
 			timerFinished = true;

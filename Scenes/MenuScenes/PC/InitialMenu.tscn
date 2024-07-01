@@ -5,6 +5,9 @@
 [ext_resource type="Texture2D" uid="uid://bwimom06a2td8" path="res://Assets/Menu/CustomButton/whiteSquare.png" id="6_ikkoi"]
 
 [sub_resource type="FontFile" id="FontFile_xh3h8"]
+subpixel_positioning = 0
+msdf_pixel_range = 14
+msdf_size = 128
 cache/0/16/0/ascent = 0.0
 cache/0/16/0/descent = 0.0
 cache/0/16/0/underline_position = 0.0
@@ -4211,14 +4214,14 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_xh3h8")
 theme_override_font_sizes/font_size = 80
-text = "Create Session                 "
+text = "CREATE_SESSION"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/CreateSessionButton"]
 modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
-position = Vector2(411.75, 14.25)
-scale = Vector2(4.66, 1.12667)
+position = Vector2(433.25, 14.25)
+scale = Vector2(4.85111, 1.12667)
 texture = ExtResource("6_ikkoi")
 
 [node name="FindSessinButton" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
@@ -4229,14 +4232,14 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_xh3h8")
 theme_override_font_sizes/font_size = 80
-text = "Find Session    "
+text = "FIND_SESSION"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/FindSessinButton"]
 modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
-position = Vector2(365.25, 14.25)
-scale = Vector2(4.24666, 1.12667)
+position = Vector2(391.75, 14.25)
+scale = Vector2(4.48222, 1.12667)
 texture = ExtResource("6_ikkoi")
 
 [node name="FindSessionByCodeButton" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
@@ -4247,14 +4250,14 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_xh3h8")
 theme_override_font_sizes/font_size = 80
-text = "Find Session by code"
+text = "FIND_SESSION_CODE"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/FindSessionByCodeButton"]
 modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
-position = Vector2(327.75, 14.25)
-scale = Vector2(3.91333, 1.12667)
+position = Vector2(368.75, 14.25)
+scale = Vector2(4.27778, 1.12667)
 texture = ExtResource("6_ikkoi")
 
 [node name="SettingsButton" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
@@ -4265,15 +4268,14 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_xh3h8")
 theme_override_font_sizes/font_size = 80
-text = "Settings
-"
+text = "SETTINGS"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/SettingsButton"]
 modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
-position = Vector2(185.75, 14.25)
-scale = Vector2(2.65111, 1.12667)
+position = Vector2(213.75, 14.25)
+scale = Vector2(2.9, 1.12667)
 texture = ExtResource("6_ikkoi")
 
 [node name="ExitButton" parent="VBoxMenu/VBoxButton1" instance=ExtResource("5_4jqhb")]
@@ -4284,10 +4286,29 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_xh3h8")
 theme_override_font_sizes/font_size = 80
-text = "Exit game"
+text = "EXIT"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/ExitButton"]
+modulate = Color(0.862745, 0.698039, 1, 1)
+z_index = -1
+position = Vector2(157.75, 14.25)
+scale = Vector2(2.40222, 1.12667)
+texture = ExtResource("6_ikkoi")
+
+[node name="ExitButton" parent="VBoxMenu/VBoxButton1/ExitButton" instance=ExtResource("5_4jqhb")]
+visible = false
+clip_contents = true
+layout_mode = 1
+theme_override_constants/outline_size = 5
+theme_override_constants/h_separation = 0
+theme_override_constants/icon_max_width = 0
+theme_override_fonts/font = SubResource("FontFile_xh3h8")
+theme_override_font_sizes/font_size = 80
+text = " Exit gam"
+alignment = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/VBoxButton1/ExitButton/ExitButton"]
 modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(140.25, 14.25)
@@ -4323,4 +4344,5 @@ max_length = 8
 [connection signal="pressed" from="VBoxMenu/VBoxButton1/FindSessionByCodeButton" to="." method="_on_find_session_by_code_button_pressed"]
 [connection signal="pressed" from="VBoxMenu/VBoxButton1/SettingsButton" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="VBoxMenu/VBoxButton1/ExitButton" to="." method="_on_exit_pressed"]
+[connection signal="pressed" from="VBoxMenu/VBoxButton1/ExitButton/ExitButton" to="." method="_on_exit_pressed"]
 [connection signal="text_submitted" from="SessionCodeInput" to="." method="_on_session_code_input_text_submitted"]

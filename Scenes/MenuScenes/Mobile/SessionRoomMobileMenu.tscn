@@ -4184,7 +4184,7 @@ layout_mode = 2
 theme_override_constants/shadow_offset_y = 0
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 80
-text = "Session Room                                                                                                                                                                                                     
+text = "SESSION_ROOM                                                                                                                                                                                                  
 "
 horizontal_alignment = 1
 
@@ -4196,8 +4196,7 @@ theme_override_constants/separation = 100
 layout_mode = 2
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 60
-text = "Session Id:
-"
+text = "SESSION_ID"
 
 [node name="SessionId" type="Label" parent="VBoxMenu/HBoxContainer"]
 layout_mode = 2
@@ -4212,7 +4211,7 @@ theme_override_constants/separation = 20
 [node name="PlayersLabel" type="Label" parent="VBoxMenu/PlayersVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 50
-text = "Players"
+text = "PLAYERS"
 horizontal_alignment = 1
 
 [node name="ItemList" type="ItemList" parent="VBoxMenu/PlayersVBox"]
@@ -4239,7 +4238,7 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_3f11u")
 theme_override_font_sizes/font_size = 70
-text = "Leave game"
+text = "LEAVE_GAME"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/ManagementButtonHBox/LeaveGame"]
@@ -4254,6 +4253,6 @@ visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 60
-text = "Starting game..."
+text = "STARTING_GAME"
 
 [connection signal="pressed" from="VBoxMenu/ManagementButtonHBox/LeaveGame" to="." method="_on_leave_game_pressed"]

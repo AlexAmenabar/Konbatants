@@ -4195,8 +4195,7 @@ layout_mode = 2
 theme_override_constants/shadow_offset_y = 0
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 80
-text = "     Session Room                                                                                                                                                                                                                                                                                 
-"
+text = "SESSION_ROOM"
 
 [node name="SessionIdContainer" type="HBoxContainer" parent="VBoxMenu/HBoxContainer"]
 layout_mode = 2
@@ -4206,8 +4205,7 @@ theme_override_constants/separation = 50
 layout_mode = 2
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 60
-text = "Session Id:
-"
+text = "SESSION_ID"
 
 [node name="SessionId" type="Label" parent="VBoxMenu/HBoxContainer/SessionIdContainer"]
 layout_mode = 2
@@ -4225,7 +4223,7 @@ theme_override_constants/separation = 20
 [node name="PlayersLabel" type="Label" parent="VBoxMenu/PlayersVBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 50
-text = "           Players"
+text = "PLAYERS"
 
 [node name="ItemList" type="ItemList" parent="VBoxMenu/PlayersVBox"]
 layout_mode = 2
@@ -4270,7 +4268,7 @@ theme_override_constants/h_separation = 0
 theme_override_constants/icon_max_width = 0
 theme_override_fonts/font = SubResource("FontFile_p0yte")
 theme_override_font_sizes/font_size = 70
-text = "Leave game"
+text = "LEAVE_SESSION"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="VBoxMenu/ManagementButtonHBox/LeaveGame"]
@@ -4281,10 +4279,11 @@ scale = Vector2(3.95778, 1.12667)
 texture = ExtResource("5_wprj7")
 
 [node name="StartingGameLabel" type="Label" parent="VBoxMenu"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 60
-text = "Starting game..."
+text = "STARTING_GAME"
 
 [node name="InfoLabel" type="Label" parent="VBoxMenu"]
 layout_mode = 2

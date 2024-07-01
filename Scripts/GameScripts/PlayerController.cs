@@ -373,9 +373,14 @@ public partial class PlayerController : RigidBody3D
 		(soundNodes.GetNode("./TakeDamageSound") as AudioStreamPlayer3D).Play();
 				
 		// reduce vitality and run animation
-		vitality -= attack.Damage;
+		if(IsMultiplayerAuthority())
+			vitality -= attack.Damage;
 		RefreshDamageReceivedAnimation();
-		
+
+		// inform the rest players
+		if(IsMultiplayerAuthority())
+			gameController.DamageTaken(Name.ToString().Split("r")[1], vitality);
+
 		// push player using attack push force
 		PushPlayer(attack);
 
@@ -502,39 +507,42 @@ public partial class PlayerController : RigidBody3D
 	private void _on_body_shape_entered(Rid body_rid, Node body, long body_shape_index, long local_shape_index)
 	{
 		// check if body is an ability cube
-		if (body.IsInGroup("AbilityCube"))
+		if (body.IsInGroup("AbilityCube") && gameController.IsServer) // server checks cube collisions and then use RPC functions to inform
+			gameController.AbilityTaken(Name.ToString().Split("r")[1], body);
+	}
+
+	public void TakeAbility(Node body)
+	{
+		// play sound of getting an ability cube
+		(GetNode("./SoundNodes/GetCubeSound") as AudioStreamPlayer3D).Play();
+
+		// get ability node and make map child
+		AbilityCube abilityCube = (AbilityCube)body;
+		Node3D abilityTempNode = abilityCube.GetAbility();
+		if (abilityTempNode != null) // sometimes player collides with the same cube more than ones, so check if ability cube has an ability
 		{
-			// play sound of getting an ability cube
-			(GetNode("./SoundNodes/GetCubeSound") as AudioStreamPlayer3D).Play();
-
-			// get ability node and make map child
-			AbilityCube abilityCube = (AbilityCube)body;
-			Node3D abilityTempNode = abilityCube.GetAbility(); 
-			if (abilityTempNode != null) // sometimes player collides with the same cube more than ones, so check if ability cube has an ability
+			// if player has an ability remove (and he does not used it) from child list
+			if (ability != null && !(ability as Ability).AbilityIsUsed())
 			{
-				// if player has an ability remove (and he does not used it) from child list
-				if (ability != null && !(ability as Ability).AbilityIsUsed())
-				{
-					GetNode("./Ability").GetChild(0).QueueFree();
-					abilityTempNode.Reparent(GetNode("./Ability")); // set player as new parent
-				}
-
-				// if player has an ability but is used (it will be deleted automatically) add child in 0 position (actual ability position)
-				else if (ability != null) // and ability is used
-				{
-					abilityTempNode.Reparent(GetNode("./Ability")); // set player as new parent
-					GetNode("./Ability").MoveChild(abilityTempNode, 0);
-				}
-
-				// ability is null
-				else
-					abilityTempNode.Reparent(GetNode("./Ability")); // set player as new parent
-
-				SetAbility(abilityTempNode);
-
-				// Destroy abilityCube
-				abilityCube.Destroy();
+				GetNode("./Ability").GetChild(0).QueueFree();
+				abilityTempNode.Reparent(GetNode("./Ability")); // set player as new parent
 			}
+
+			// if player has an ability but is used (it will be deleted automatically) add child in 0 position (actual ability position)
+			else if (ability != null) // and ability is used
+			{
+				abilityTempNode.Reparent(GetNode("./Ability")); // set player as new parent
+				GetNode("./Ability").MoveChild(abilityTempNode, 0);
+			}
+
+			// ability is null
+			else
+				abilityTempNode.Reparent(GetNode("./Ability")); // set player as new parent
+
+			SetAbility(abilityTempNode);
+
+			// Destroy abilityCube
+			abilityCube.Destroy();
 		}
 	}
 

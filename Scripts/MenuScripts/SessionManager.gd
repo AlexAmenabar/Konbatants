@@ -18,6 +18,7 @@ func _ready():
 	CurrentSessionInfo.teams = false
 	CurrentSessionInfo.private = true
 	CurrentSessionInfo.players = 2
+	CurrentSessionInfo.map_name = "Default"
 	
 	# other initialization
 	var yes_button_sprite = get_node("GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer/YesButton/Sprite2D")	
@@ -34,8 +35,13 @@ func _ready():
 	var player_list = get_node("GeneralVBoxContainer/VBoxContainer/PlayersHBox/OptionButton")
 	player_list.clear()
 	for n in list_teams_no:
-		player_list.add_item(str(n))				
-	
+		player_list.add_item(str(n))
+		
+	# load map names list in node
+	var map_list = get_node("GeneralVBoxContainer/VBoxContainer/MapHBox/MapOptionButton")
+	map_list.clear()
+	# maps list
+	map_list.add_item("Default")
 
 ## HELPER FUNCTIONS
 # change button colors depending on what is selected to give feedback to the user
@@ -69,7 +75,7 @@ func _on_return_button_pressed():
 # create session button pressed
 func _on_create_pressed():
 	# call server to create a session	
-	var err = await ServerConnection.create_session(str(CurrentSessionInfo.teams), str(CurrentSessionInfo.players), str(CurrentSessionInfo.private))
+	var err = await ServerConnection.create_session(str(CurrentSessionInfo.teams), str(CurrentSessionInfo.players), str(CurrentSessionInfo.private), CurrentSessionInfo.map_name)
 	
 	if err == "ok":
 		# load waiting room
@@ -85,7 +91,7 @@ func _on_create_pressed():
 		
 # find session when button pressed
 func _on_find_pressed():
-	var err = await ServerConnection.find_session(str(CurrentSessionInfo.teams), str(CurrentSessionInfo.players))
+	var err = await ServerConnection.find_session(str(CurrentSessionInfo.teams), str(CurrentSessionInfo.players), CurrentSessionInfo.map_name)
 	
 	if err != "ok":
 		var error_label = get_node("GeneralVBoxContainer/HBoxContainer2/ErrorLabel")
@@ -111,6 +117,13 @@ func _on_option_button_item_selected(_index):
 	var player_list = get_node("GeneralVBoxContainer/VBoxContainer/PlayersHBox/OptionButton")
 	var item = player_list.get_item_text(player_list.get_selected_id()) #id is used to get item
 	CurrentSessionInfo.players = int(item) #item is a str, so parse to int
+
+
+func _on_map_option_button_item_selected(index):
+	var map_list = get_node("GeneralVBoxContainer/VBoxContainer/MapHBox/MapOptionButton")
+	var map_name = map_list.get_item_text(map_list.get_selected_id())
+	CurrentSessionInfo.map_name = map_name
+
 
 # YES AND NO BUTTONS MANAGE
 func _on_yes_button_pressed():

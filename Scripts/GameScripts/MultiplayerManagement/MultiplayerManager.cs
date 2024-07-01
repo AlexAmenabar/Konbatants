@@ -194,4 +194,44 @@ public partial class MultiplayerManager : Node
 		(GetNode("../Players/player" + playerIndex.ToString()) as PlayerController).PlayerGUIController.SetAbilityTexture(null);
 	}
 
+	/// <summary>
+	/// Server inform the rest of players that timer started
+	/// </summary>
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable, CallLocal = true)]
+	public void StartGameTimer()
+	{
+		gameController.StartGame();    
+	}
+
+	/// <summary>
+	///	Server inform the rest of players that one player has taken an ability cube
+	/// </summary>
+	/// <param name="playerIndex">Player index as PLayers Node child</param>
+	/// <param name="cubeName">Cube node name</param>
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable, CallLocal = true)]
+	public void AbilityCubeTaken(String playerIndex, String cubeName)
+	{
+		PlayerController p = GetNode("../Players/player" + playerIndex) as PlayerController;
+		p.TakeAbility(gameController.Map.GetNode(cubeName));
+	}
+
+	/// <summary>
+	/// Player inform the rest that he has taken damage
+	/// </summary>
+	/// <param name="playerIndex">Player index in Players node (child)</param>
+	/// <param name="playerVitality">Player vitality after taking damage</param>
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable, CallLocal = false)]
+	public void DamageTaken(String playerIndex, int playerVitality)
+	{
+		PlayerController p = GetNode("../Players/player" + playerIndex) as PlayerController;
+		p.Vitality = playerVitality;
+		p.RefreshLifeBar();
+	}
+
+
+	[Rpc(MultiplayerApi.RpcMode.AnyPeer, TransferMode = MultiplayerPeer.TransferModeEnum.Reliable, CallLocal = true)]
+	public void RPCAibidea(int param1)
+	{
+		// do something
+	}
 }

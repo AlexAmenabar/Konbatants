@@ -50,14 +50,12 @@ const CLEAR_SERVER = "cl:"
 func _ready():
 	# initialize sockets
 	
-	server_ip = "34.172.222.104" # cloud server
+	server_ip = "35.188.48.168" # cloud server
 	server_port = 39000
 	var _err = server_udp.set_dest_address(server_ip, server_port)
 
-	#if err != 0:
-	server_ip = "192.168.1.36" # local server
-	server_udp.set_dest_address(server_ip, server_port)
-	
+	#server_ip = "192.168.1.36" # local server
+	#server_udp.set_dest_address(server_ip, server_port)
 	
 	var port_number = start_peer_udp(server_udp, 39010)
 	server_udp.connect_to_host(server_ip, server_port)
@@ -93,7 +91,9 @@ func _process(_delta):
 
 # HELPER FUNCTIONS
 func init_sockets():
-	var port_number = 39011
+	var rng = RandomNumberGenerator.new()
+	
+	var port_number = int(rng.randf_range(1025, 49151))
 	# start listening in ports and initialize info in PlayerMenu 
 	port_number = start_peer_udp(peer_udp, port_number)
 	PlayerMenu.peer_port = peer_udp.get_local_port()
@@ -165,11 +165,11 @@ func communicate_with_another_client(message, peers_udp, timeout):
 	
 	var res = -1
 	var timer = 0
-	while (!message_from_peer_received and !confirmation_from_peer_received) and timer < timeout:
+	while res == -1 and timer < timeout:#while (!message_from_peer_received or !confirmation_from_peer_received) or timer < timeout:
 		# send message if peer confimation not received
 		var buffer = PackedByteArray()
 		if !confirmation_from_peer_received:
-			#print("Sending message!")
+			print("Sending message!")
 			buffer.append_array(message.to_utf8_buffer())
 			
 			# send message from all sockets (usually 2)
@@ -177,37 +177,53 @@ func communicate_with_another_client(message, peers_udp, timeout):
 				socket_udp.put_packet(buffer)
 		
 		# wait 
-		await get_tree().create_timer(0.2).timeout
-		timer+=0.2
+		await get_tree().create_timer(0.5).timeout
+		timer+=0.1
 
 		# see if client send any message
 		for i in len(peers_udp):
+			print("working on socket " + str(i))
 			var socket_udp = peers_udp[i]
 			if socket_udp.get_available_packet_count() > 0:
 				#print("MESSAGE REACHED TO " + str(i) + " SOCKET!!!!!")
 				
-				if i<res or res==-1:
-					res = i
 				var array_bytes = socket_udp.get_packet()
 				var packet_string = array_bytes.get_string_from_ascii()
-				#print("packet string")
+				print("packet string")
 				print(packet_string)
 				
 				# peer message received
 				# confirmation received
 				if packet_string.find(ACK) > -1:
 					confirmation_from_peer_received = true
-					#print("ACK RECEIVED")
+					print("ACK RECEIVED")
+					
+					if i<res or res==-1:
+						res = i
+					
+					# send some ACKs before finishing
+					var repetitions = 20
+					var ack_message = ACK
+					print("sending 20 ACKs")
+					buffer.clear()
+					for j in range(0, repetitions):
+						print("sending ACK...")
+						buffer.append_array(ack_message.to_utf8_buffer())
+						socket_udp.put_packet(buffer)
+						buffer.clear()
+						await get_tree().create_timer(0.1).timeout
 					
 				# hello message received
 				if packet_string.begins_with(SAY_HELLO):
 					message_from_peer_received = true
-					#print("HELLO RECEIVED")
+					print("HELLO RECEIVED")
 					
 					# send ack
 					await get_tree().create_timer(0.2).timeout
 					
+					print("sending ACK")
 					var ack_message = ACK
+					buffer.clear()
 					buffer.append_array(ack_message.to_utf8_buffer())
 					socket_udp.put_packet(buffer)
 
@@ -274,9 +290,9 @@ func send_information():
 			return err
 
 # create session in the server
-func create_session(teams, players, private):
-	# create message
-	var message = CREATE_SESSION + PlayerMenu.id + ":" + teams + ":" + players + ":" + private 
+func create_session(teams, players, private, map_name):
+	# create message [player_id, teams, player_amount, private, map_name]
+	var message = CREATE_SESSION + PlayerMenu.id + ":" + teams + ":" + players + ":" + private + ":" + map_name
 	# send message and receive response
 	var res = await send_message(message, server_udp)
 	
@@ -293,6 +309,7 @@ func create_session(teams, players, private):
 		if packet_string.begins_with(OK):
 			print("In create session packet string: " + packet_string)
 			CurrentSessionInfo.s_id = packet_string.split(":")[1] #get id
+			CurrentSessionInfo.map_name = packet_string.split(":")[2] # get map name
 			CurrentSessionInfo.players_in_room = 0 # in this moment only server is inside
 			CurrentSessionInfo.is_server = true # who created the session is the server
 			CurrentSessionInfo.waiting = true # wait to new players
@@ -304,9 +321,9 @@ func create_session(teams, players, private):
 			return err
 
 # find a session that fit the parameters
-func find_session(teams, players):	
-	#create message to send
-	var message = FIND_SESSION + PlayerMenu.id + ":" + teams + ":" + players 
+func find_session(teams, players, map_name):	
+	#create message to send [player_id, teams, player_amount, map_name]
+	var message = FIND_SESSION + PlayerMenu.id + ":" + teams + ":" + players + ":" + map_name
 	var res = await send_message(message, server_udp)
 	
 	# can't contact server		
@@ -326,6 +343,7 @@ func find_session(teams, players):
 			CurrentSessionInfo.private = packet_string.split(":")[3]
 			CurrentSessionInfo.players = int(packet_string.split(":")[4])
 			CurrentSessionInfo.players_in_room = int(packet_string.split(":")[5]) #get actual players in room
+			CurrentSessionInfo.map_name = packet_string.split(":")[6]
 
 			#var username = ""
 			# wait until all session user usernmaes reach
@@ -374,6 +392,7 @@ func find_session_by_code(code):
 			CurrentSessionInfo.players = int(packet_string.split(":")[3])
 			CurrentSessionInfo.players_in_room = int(packet_string.split(":")[4])
 			CurrentSessionInfo.s_id = packet_string.split(":")[5]
+			CurrentSessionInfo.map_name = packet_string.split(":")[6]
 			
 			# check if session is complete or if player have to wait
 			if CurrentSessionInfo.players_in_room < CurrentSessionInfo.players:
@@ -513,7 +532,7 @@ func start_game():
 func hole_punching():
 	#var buffer = PackedByteArray()
 
-	await get_tree().create_timer(2).timeout
+	#await get_tree().create_timer(2).timeout
 	
 	# if there is a packet that it isn't needed
 	if server_udp.get_available_packet_count() > 0:
@@ -562,10 +581,16 @@ func hole_punching():
 					peers_udp.append(peer_udp)
 					peers_udp.append(local_peer_udp)
 					
-					print("My info: " + "public port = " + str(PlayerMenu.peer_port) + ", private port = " + str(PlayerMenu.private_port))
+					print("My info: " + "public = " + str(PlayerMenu.peer_port) + ", private ip/port = " + PlayerMenu.private_ip + "/" + str(PlayerMenu.private_port))
 					print("Punching hole: (" + ip + ", " + str(port) + ") / (" + private_ip + ", " + str(private_port) + ")")
 					#peer_udp.connect_to_host(private_ip, private_port)
 					#print("sending message to client " + str(i) + " whoes ip and port are: (" + private_ip + ":" + str(private_port) + ")")
+					
+					if peer_udp.get_available_packet_count() > 0:
+						peer_udp.get_packet()
+					if local_peer_udp.get_available_packet_count() > 0:
+						local_peer_udp.get_packet()
+					
 					res = await communicate_with_another_client(message, peers_udp, 1000)
 					#print("res = " + str(res))
 					if res >= 0:
@@ -599,6 +624,8 @@ func hole_punching():
 					print("Server: GAME IS READY TO START")
 
 					# hole punching is done, remove session from server
+					
+					await get_tree().create_timer(5)
 					message = REMOVE_SESSION + str(PlayerMenu.id)
 					res = await send_message(message, server_udp)
 					server_udp.get_packet()

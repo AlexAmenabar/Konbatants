@@ -32,5 +32,7 @@ func _on_continue_button_pressed():
 	
 	CurrentSessionInfo.set_players((get_node("AmountPlayers") as TextEdit).text.to_int())
 	
+	PlayerMenu.usr_name = (get_node("UserName") as TextEdit).text
+	
 	get_tree().change_scene_to_file("res://Scenes/GameScenes/PlayGround.tscn")
 	

@@ -45,13 +45,13 @@ theme_override_constants/separation = 70
 [node name="Label" type="Label" parent="Control/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 96
-text = "What's your name?"
+text = "NAME"
 horizontal_alignment = 1
 
 [node name="UsernameText" type="LineEdit" parent="Control/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 85
-placeholder_text = "username"
+placeholder_text = "USERNAME"
 alignment = 1
 max_length = 20
 flat = true
@@ -60,12 +60,12 @@ flat = true
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 100
-text = "Continue"
+text = "CONTINUE"
 
 [node name="Sprite2D" type="Sprite2D" parent="Control/VBoxContainer/ContinueButton"]
 modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
-position = Vector2(211, 77.5)
+position = Vector2(253, 78)
 scale = Vector2(2.55111, 0.706667)
 texture = ExtResource("3_gaybi")
 

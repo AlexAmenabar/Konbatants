@@ -129,4 +129,14 @@ public partial class GSCriptToCSharp : Node
 		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
 		return ((int[])currentSessionInfo.Get("clients_ports"))[i];
 	}
+
+	/// <summary>
+	/// Get map name
+	/// </summary>
+	/// <returns>Map name</returns>
+	public String GetMapName()
+	{
+		var currentSessionInfo = GetNode("/root/CurrentSessionInfo");
+		return (String)currentSessionInfo.Get("map_name");
+	}
 }

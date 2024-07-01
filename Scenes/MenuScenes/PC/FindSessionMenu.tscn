@@ -26,7 +26,7 @@ offset_right = 761.0
 offset_bottom = 88.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 200
+theme_override_constants/separation = 160
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GeneralVBoxContainer"]
 layout_mode = 2
@@ -36,7 +36,7 @@ theme_override_constants/separation = 500
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 90
-text = "Find Session"
+text = "FIND_SESSION_BUTTON"
 
 [node name="ErrorLabel" type="Label" parent="GeneralVBoxContainer/HBoxContainer2"]
 layout_mode = 2
@@ -56,7 +56,7 @@ theme_override_constants/separation = 600
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = " Teams"
+text = "TEAMS"
 
 [node name="ButtonsHBoxContainer" type="HBoxContainer" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox"]
 layout_mode = 2
@@ -67,7 +67,7 @@ clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "     Yes     "
+text = "YES"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer/YesButton"]
@@ -82,7 +82,7 @@ clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "     No      "
+text = "NO"
 
 [node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer/NoButton"]
 modulate = Color(0.862745, 0.698039, 1, 1)
@@ -99,7 +99,7 @@ theme_override_constants/separation = 800
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "Players"
+text = "PLAYERS"
 
 [node name="OptionButton" type="OptionButton" parent="GeneralVBoxContainer/VBoxContainer/PlayersHBox"]
 clip_contents = true
@@ -166,6 +166,34 @@ position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
 texture = ExtResource("3_1t5n7")
 
+[node name="MapHBox" type="HBoxContainer" parent="GeneralVBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 650
+
+[node name="MapNameLabel" type="Label" parent="GeneralVBoxContainer/VBoxContainer/MapHBox"]
+layout_mode = 2
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 70
+text = "MAP"
+
+[node name="MapOptionButton" type="OptionButton" parent="GeneralVBoxContainer/VBoxContainer/MapHBox"]
+clip_contents = true
+layout_mode = 2
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 50
+flat = true
+alignment = 1
+item_count = 1
+popup/item_0/text = "2 players"
+popup/item_0/id = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/VBoxContainer/MapHBox/MapOptionButton"]
+modulate = Color(0.862745, 0.698039, 1, 1)
+z_index = -1
+position = Vector2(446.625, 60)
+scale = Vector2(5.30111, 1.12667)
+texture = ExtResource("3_1t5n7")
+
 [node name="HBoxContainer" type="HBoxContainer" parent="GeneralVBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 130
@@ -184,7 +212,7 @@ clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "Find Session"
+text = "FIND_SESSION_BUTTON"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/HBoxContainer/Find"]
@@ -219,7 +247,7 @@ clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "   Return   "
+text = "RETURN"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/HBoxContainer/ReturnButton"]

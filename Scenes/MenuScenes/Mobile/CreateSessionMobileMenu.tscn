@@ -13,7 +13,7 @@ offset_left = 149.0
 offset_top = 154.0
 offset_right = 2020.0
 offset_bottom = 1026.0
-theme_override_constants/separation = 105
+theme_override_constants/separation = 90
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="GeneralVBoxContainer"]
 layout_mode = 2
@@ -23,7 +23,7 @@ theme_override_constants/separation = 500
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 90
-text = "Create Game"
+text = "CREATE_SESSION_BUTTON"
 
 [node name="ErrorLabel" type="Label" parent="GeneralVBoxContainer/HBoxContainer2"]
 layout_mode = 2
@@ -33,7 +33,7 @@ horizontal_alignment = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="GeneralVBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 65
+theme_override_constants/separation = 30
 
 [node name="TeamsHBox" type="HBoxContainer" parent="GeneralVBoxContainer/VBoxContainer"]
 layout_mode = 2
@@ -43,7 +43,7 @@ theme_override_constants/separation = 600
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = " Teams"
+text = "TEAMS"
 
 [node name="ButtonsHBoxContainer" type="HBoxContainer" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox"]
 layout_mode = 2
@@ -54,7 +54,7 @@ clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "     Yes     "
+text = "YES"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer/YesButton"]
@@ -69,7 +69,7 @@ clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "     No      "
+text = "NO"
 
 [node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/VBoxContainer/TeamsHBox/ButtonsHBoxContainer/NoButton"]
 modulate = Color(0.862745, 0.698039, 1, 1)
@@ -86,7 +86,7 @@ theme_override_constants/separation = 800
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "Players"
+text = "PLAYERS"
 
 [node name="OptionButton" type="OptionButton" parent="GeneralVBoxContainer/VBoxContainer/PlayersHBox"]
 clip_contents = true
@@ -114,7 +114,7 @@ theme_override_constants/separation = 400
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "Game type"
+text = "GAME_TYPE"
 
 [node name="ButtonsHBoxContainer" type="HBoxContainer" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox"]
 layout_mode = 2
@@ -125,7 +125,7 @@ clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "     Public     "
+text = "PUBLIC"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer/PublicButton"]
@@ -140,7 +140,7 @@ clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "     Private      "
+text = "PRIVATE"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/VBoxContainer/GamePrivateHBox/ButtonsHBoxContainer/PrivateButton"]
@@ -148,6 +148,34 @@ modulate = Color(0.862745, 0.698039, 1, 1)
 z_index = -1
 position = Vector2(367, 60)
 scale = Vector2(4.59333, 1.12667)
+texture = ExtResource("2_6o5pm")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GeneralVBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 650
+
+[node name="MapNameLabel" type="Label" parent="GeneralVBoxContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 70
+text = "MAP"
+
+[node name="OptionButton" type="OptionButton" parent="GeneralVBoxContainer/VBoxContainer/HBoxContainer"]
+clip_contents = true
+layout_mode = 2
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 50
+flat = true
+alignment = 1
+item_count = 1
+popup/item_0/text = "2 players"
+popup/item_0/id = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/VBoxContainer/HBoxContainer/OptionButton"]
+modulate = Color(0.862745, 0.698039, 1, 1)
+z_index = -1
+position = Vector2(446.625, 60)
+scale = Vector2(5.30111, 1.12667)
 texture = ExtResource("2_6o5pm")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="GeneralVBoxContainer"]
@@ -168,7 +196,7 @@ clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "Create Game"
+text = "CREATE_SESSION_BUTTON"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/HBoxContainer/Create"]
@@ -219,7 +247,7 @@ clip_contents = true
 layout_mode = 2
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 70
-text = "   Return   "
+text = "RETURN"
 alignment = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="GeneralVBoxContainer/HBoxContainer/ReturnButton"]

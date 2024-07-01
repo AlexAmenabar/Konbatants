@@ -1,0 +1,35 @@
+key,en,es,eu
+CREATE_SESSION, Create Session                    , Crear Sesión                     , Saioa Sortu                       
+FIND_SESSION, Find Session    , Buscar Sesión   , Saioa bilatu    
+FIND_SESSION_CODE, Find Session by code, Buscar sesión por código,Saioa aurkitu kode bidez
+SETTINGS, Settings, Opciones, Aukerak
+EXIT, Exit, Salir, Irten
+NAME,What's your name?,¿Cómo te llmas?,Nola deitzen zara?
+USERNAME,username,nombre de usuario,erabiltzaile izena
+CONTINUE,Continue,Continuar,Jarraitu
+TEAMS,Teams,Equipos,Taldeak
+YES,   Yes   ,   Si   ,   Bai   
+NO,   No   ,   No   ,   Ez   
+PLAYERS,Players,Jugadores,Jokalariak
+GAME_TYPE,Game type,Tipo de juego,Joko mota
+RETURN,   Return   ,   Volver   ,   Itzuli   
+SESSION_ROOM,Session room,Sala de la sesión,Saioen gela
+SESSION_ID,Session ID:,ID de la sesión:,Saioaren ID-a:
+LEAVE_SESSION,Leave session,Abandonar sesión,Saioa utzi
+STARTING_GAME,Starting game,Empezando partida,Partida hasten
+LOADING,[center][i][b]Loading...,[center][i][b]Cargando...,[center][i][b]Kargatzen...
+FINAL_EVENT,[center][i][b]GAME FINAL EVENT!!!,[center][i][b]EVENTO FINAL!!!,[center][i][b]AZKEN GERTAERA!!!
+START_GAME,[center][i][b]GO!,[center][i][b]ADELANTE!,[center][i][b]AURRERA!
+LANGUAGE,Language,Idioma,Hizkuntza
+EN,English,Inglés,Ingelesa
+ES,Spanish,Español,Gaztelania
+EU,Vasque,Vasco,Euskara
+PUBLIC,     Public     ,     Público     ,     Publikoa     
+PRIVATE,     Private     ,     Privado     ,     Pribatua     
+CREATE_SESSION_BUTTON, Create Session , Crear Sesión , Saioa Sortu 
+FIND_SESSION_BUTTON, Find Session , Buscar Sesión , Saioa Bilatu 
+FIND_SESSION_BY_CODE_BUTTON, Find Session By Code , Buscar Sesión por código , Saioa bilatu kode bidez 
+EXIT_BUTTON, Exit , Salir , Irten 
+WINNER,Winner:,Ganador:,Irabazlea:
+WINNERS,Winners:,Ganadores:,Irabazleak:
+MAP,Map,Mapa,Mapa

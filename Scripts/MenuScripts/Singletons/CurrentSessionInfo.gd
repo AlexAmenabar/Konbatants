@@ -5,6 +5,7 @@ var private=true
 var players = 0 # total players
 var players_in_room = 0 #players entered session
 var teams = false
+var map_name = "Default"
 var s_id = null
 
 # session player names
@@ -36,7 +37,7 @@ func clear_session():
 	players_in_room = 0
 	players = 0
 	players_list.clear()
-	
+	map_name = "Default"
 	
 func remove_player_by_name(p_name):
 	for i in range(0, players_in_room):
