@@ -54,8 +54,8 @@ func _ready():
 	server_port = 39000
 	var _err = server_udp.set_dest_address(server_ip, server_port)
 
-	#server_ip = "192.168.1.36" # local server
-	#server_udp.set_dest_address(server_ip, server_port)
+	server_ip = "192.168.1.36" # local server
+	server_udp.set_dest_address(server_ip, server_port)
 	
 	var port_number = start_peer_udp(server_udp, 39010)
 	server_udp.connect_to_host(server_ip, server_port)
