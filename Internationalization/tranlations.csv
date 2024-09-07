@@ -33,3 +33,7 @@ EXIT_BUTTON, Exit , Salir , Irten
 WINNER,Winner:,Ganador:,Irabazlea:
 WINNERS,Winners:,Ganadores:,Irabazleak:
 MAP,Map,Mapa,Mapa
+SELECT_LANGUAGE,Select a language,Elige un idioma,Hizkuntza bat aukera
+ENGLISH,English,Inglés,Ingelesa
+SPANISH,Spanish,Español,Gaztelania
+BASQUE,Basque,Vasco,Euskara

@@ -20,7 +20,8 @@ func _on_find_sessin_button_pressed():
 
 # load settings menu
 func _on_settings_pressed():
-	print("Settings menu not implemented")
+	CurrentSessionInfo.clear_session()
+	get_tree().change_scene_to_file("res://Scenes/MenuScenes/Mobile/LanguageMenu.tscn")
 
 
 # FIND SESSION BY CODE FUNCTIONS

@@ -4184,8 +4184,7 @@ layout_mode = 2
 theme_override_constants/shadow_offset_y = 0
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 80
-text = "SESSION_ROOM                                                                                                                                                                                                  
-"
+text = "SESSION_ROOM"
 horizontal_alignment = 1
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxMenu"]

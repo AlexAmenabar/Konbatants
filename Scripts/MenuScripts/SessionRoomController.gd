@@ -48,7 +48,7 @@ func _ready():
 			start_game()'''
 
 func start_game():
-	await get_tree().create_timer(2).timeout
+	await get_tree().create_timer(1).timeout
 	# start hole_punching
 	await ServerConnection.start_game()# is_server == true
 	
@@ -74,7 +74,7 @@ func ask_for_players():
 		
 		# wait before checking again
 		if get_tree() != null:
-			await get_tree().create_timer(1.5).timeout
+			await get_tree().create_timer(1).timeout
 		
 		# get player list
 		var err = await ServerConnection.get_session_users()

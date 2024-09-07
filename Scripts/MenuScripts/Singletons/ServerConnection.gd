@@ -91,21 +91,22 @@ func _process(_delta):
 
 # HELPER FUNCTIONS
 func init_sockets():
-	var rng = RandomNumberGenerator.new()
-	
-	var port_number = int(rng.randf_range(1025, 49151))
-	# start listening in ports and initialize info in PlayerMenu 
-	port_number = start_peer_udp(peer_udp, port_number)
-	PlayerMenu.peer_port = peer_udp.get_local_port()
-	
-	port_number = start_peer_udp(local_peer_udp, port_number)
-	PlayerMenu.private_port = local_peer_udp.get_local_port()
+	if not peer_udp.is_bound() and not local_peer_udp.is_bound():
+		var rng = RandomNumberGenerator.new()
+		
+		var port_number = int(rng.randf_range(1025, 49151))
+		# start listening in ports and initialize info in PlayerMenu 
+		port_number = start_peer_udp(peer_udp, port_number)
+		PlayerMenu.peer_port = peer_udp.get_local_port()
+		
+		port_number = start_peer_udp(local_peer_udp, port_number)
+		PlayerMenu.private_port = local_peer_udp.get_local_port()
 
-	# get machine private ip
-	PlayerMenu.private_ip = get_private_ip()
-	
-	var res = await send_information()
-	return res
+		# get machine private ip
+		PlayerMenu.private_ip = get_private_ip()
+		
+		var res = await send_information()
+		return res
 
 func get_private_ip():
 	for ip in IP.get_local_addresses():
@@ -177,8 +178,8 @@ func communicate_with_another_client(message, peers_udp, timeout):
 				socket_udp.put_packet(buffer)
 		
 		# wait 
-		await get_tree().create_timer(0.5).timeout
-		timer+=0.1
+		await get_tree().create_timer(0.25).timeout
+		timer+=0.25
 
 		# see if client send any message
 		for i in len(peers_udp):
@@ -202,16 +203,16 @@ func communicate_with_another_client(message, peers_udp, timeout):
 						res = i
 					
 					# send some ACKs before finishing
-					var repetitions = 20
+					var repetitions = 10
 					var ack_message = ACK
-					print("sending 20 ACKs")
+					print("sending 10 ACKs")
 					buffer.clear()
 					for j in range(0, repetitions):
 						print("sending ACK...")
 						buffer.append_array(ack_message.to_utf8_buffer())
 						socket_udp.put_packet(buffer)
 						buffer.clear()
-						await get_tree().create_timer(0.1).timeout
+						await get_tree().create_timer(0.05).timeout
 					
 				# hello message received
 				if packet_string.begins_with(SAY_HELLO):
@@ -625,7 +626,7 @@ func hole_punching():
 
 					# hole punching is done, remove session from server
 					
-					await get_tree().create_timer(5)
+					await get_tree().create_timer(1)
 					message = REMOVE_SESSION + str(PlayerMenu.id)
 					res = await send_message(message, server_udp)
 					server_udp.get_packet()
@@ -674,7 +675,7 @@ func hole_punching():
 				peer_udp.connect_to_host(game_server_ip, int(game_server_port))
 				local_peer_udp.connect_to_host(game_server_private_ip, int(game_server_private_port))
 				
-				await get_tree().create_timer(2).timeout # time to server to connect 
+				#await get_tree().create_timer(2).timeout # time to server to connect 
 				# start listening in this port --> PORT IS ALREADY BINDING
 				#peer_udp.bind(int(own_port), "*")
 				# try to communicate with server

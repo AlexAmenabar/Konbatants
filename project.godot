@@ -109,7 +109,7 @@ pointing/emulate_touch_from_mouse=true
 [internationalization]
 
 locale/translations=PackedStringArray("res://Internationalization/tranlations.en.translation", "res://Internationalization/tranlations.es.translation", "res://Internationalization/tranlations.eu.translation")
-locale/test="es"
+locale/test="en"
 
 [rendering]
 
